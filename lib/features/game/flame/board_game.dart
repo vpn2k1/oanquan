@@ -5,7 +5,8 @@ import 'dart:ui';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart' show LinearGradient, Alignment, EdgeInsets;
+import 'package:flutter/painting.dart'
+    show LinearGradient, Alignment, EdgeInsets;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show KeyEventResult;
 
@@ -127,7 +128,11 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       max(boardInsets.left + 50, size.x - boardInsets.right),
       max(boardInsets.top + 50, size.y - boardInsets.bottom),
     );
-    geo = BoardGeometry.compute(_state.config, Size(size.x, size.y), area: area);
+    geo = BoardGeometry.compute(
+      _state.config,
+      Size(size.x, size.y),
+      area: area,
+    );
     _boardPicture = null;
     for (final h in _hits) {
       final c = geo!.cells[h.cellId];
@@ -199,7 +204,10 @@ class OQuanGame extends FlameGame with KeyboardEvents {
 
   void _refreshLegal() {
     _legal = (_inputEnabled && !animating)
-        ? {for (final m in const RulesEngine().getLegalMoves(_state)) m.sourceCellId}
+        ? {
+            for (final m in const RulesEngine().getLegalMoves(_state))
+              m.sourceCellId,
+          }
         : const {};
   }
 
@@ -237,7 +245,9 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     if (src == null || !_inputEnabled || animating) return;
     _deselect();
     hint = null;
-    callbacks.onMove(Move(playerId: _state.turnPlayer, sourceCellId: src, direction: d));
+    callbacks.onMove(
+      Move(playerId: _state.turnPlayer, sourceCellId: src, direction: d),
+    );
   }
 
   void _select(int id) {
@@ -266,7 +276,10 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   }
 
   @override
-  KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+  KeyEventResult onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
     final k = event.logicalKey;
     if (animating) {
@@ -278,10 +291,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       for (final i in topo.playerCells(_state.turnPlayer))
         if (_legal.contains(i)) i,
     ];
-    if (k == LogicalKeyboardKey.arrowRight || k == LogicalKeyboardKey.arrowLeft) {
+    if (k == LogicalKeyboardKey.arrowRight ||
+        k == LogicalKeyboardKey.arrowLeft) {
       final idx = selected == null ? -1 : order.indexOf(selected!);
       final delta = k == LogicalKeyboardKey.arrowRight ? 1 : -1;
-      final next = idx < 0 ? (delta > 0 ? 0 : order.length - 1) : (idx + delta) % order.length;
+      final next = idx < 0
+          ? (delta > 0 ? 0 : order.length - 1)
+          : (idx + delta) % order.length;
       _select(order[(next + order.length) % order.length]);
       return KeyEventResult.handled;
     }
@@ -389,12 +405,16 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       case CaptureDanEvent(:final playerId, :final cellId, :final count):
         flash[cellId] = 1;
         scores[playerId] += count * _state.config.ruleset.danValue;
-        if (g != null) _float('+$count', g.cells[cellId].center, playerColors[playerId]);
+        if (g != null) {
+          _float('+$count', g.cells[cellId].center, playerColors[playerId]);
+        }
         callbacks.onSound(Sfx.capture);
       case CaptureQuanEvent(:final playerId, :final cellId, :final value):
         flash[cellId] = 1;
         scores[playerId] += value;
-        if (g != null) _float('+$value', g.cells[cellId].center, AppColors.gold);
+        if (g != null) {
+          _float('+$value', g.cells[cellId].center, AppColors.gold);
+        }
         callbacks.onSound(Sfx.quan);
       case RefillEvent() || EliminateEvent() || RuleLoopGuardEvent():
         callbacks.onNotice(e);
@@ -445,17 +465,19 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         final color = _cellStoneColor(cellId);
         dan[cellId] = 0;
         for (var i = 0; i < min(count, 6); i++) {
-          add(FlyingPiece(
-            from: from + Offset.fromDirection(i * 1.3, u * 0.12),
-            to: g.playerAnchors[playerId],
-            duration: 0.42 * visuals.speedFactor,
-            kind: FlyKind.stone,
-            radius: u * 0.11,
-            color: color,
-            lift: 0.25,
-            fadeOut: true,
-            delay: i * 0.04,
-          ));
+          add(
+            FlyingPiece(
+              from: from + Offset.fromDirection(i * 1.3, u * 0.12),
+              to: g.playerAnchors[playerId],
+              duration: 0.42 * visuals.speedFactor,
+              kind: FlyKind.stone,
+              radius: u * 0.11,
+              color: color,
+              lift: 0.25,
+              fadeOut: true,
+              delay: i * 0.04,
+            ),
+          );
         }
         _float('+$count', from, playerColors[playerId]);
         scores[playerId] += count * _state.config.ruleset.danValue;
@@ -528,13 +550,14 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       final (a, b) = g.playerEdges[_state.turnPlayer];
       final glow = 0.55 + 0.35 * sin(_clock * 3);
       canvas.drawLine(
-          a,
-          b,
-          Paint()
-            ..color = playerColors[_state.turnPlayer].withValues(alpha: glow)
-            ..strokeWidth = u * 0.2
-            ..strokeCap = StrokeCap.round
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3));
+        a,
+        b,
+        Paint()
+          ..color = playerColors[_state.turnPlayer].withValues(alpha: glow)
+          ..strokeWidth = u * 0.2
+          ..strokeCap = StrokeCap.round
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+      );
     }
 
     for (final c in g.cells) {
@@ -543,34 +566,39 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         canvas.drawPath(c.outline, Paint()..color = const Color(0x22FFFFFF));
       }
       if (flash[i] > 0) {
-        canvas.drawPath(c.outline,
-            Paint()..color = AppColors.gold.withValues(alpha: 0.55 * flash[i]));
+        canvas.drawPath(
+          c.outline,
+          Paint()..color = AppColors.gold.withValues(alpha: 0.55 * flash[i]),
+        );
       }
       if (_legal.contains(i)) {
         final a = 0.45 + 0.4 * (0.5 + 0.5 * sin(_clock * 4.2 + i * 0.3));
         canvas.drawPath(
-            c.outline,
-            Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = max(2, u * 0.06)
-              ..color = const Color(0xFFFFE6A0).withValues(alpha: a));
+          c.outline,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = max(2, u * 0.06)
+            ..color = const Color(0xFFFFE6A0).withValues(alpha: a),
+        );
       }
       if (hint?.sourceCellId == i) {
         final a = 0.5 + 0.5 * sin(_clock * 6);
         canvas.drawPath(
-            c.outline,
-            Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = max(3, u * 0.09)
-              ..color = const Color(0xFF3FE0C5).withValues(alpha: a));
+          c.outline,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = max(3, u * 0.09)
+            ..color = const Color(0xFF3FE0C5).withValues(alpha: a),
+        );
       }
       if (selected == i) {
         canvas.drawPath(
-            c.outline,
-            Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = max(3, u * 0.1)
-              ..color = const Color(0xFFFFFFFF));
+          c.outline,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = max(3, u * 0.1)
+            ..color = const Color(0xFFFFFFFF),
+        );
       }
       _renderCellContents(canvas, c, u);
     }
@@ -580,7 +608,8 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     if (h != null && selected == null) {
       final (cw, ccw) = g.arrowPositions(h.sourceCellId);
       final p = h.direction == Direction.clockwise ? cw : ccw;
-      final t = g.cells[h.sourceCellId].tangentCw * (h.direction.step.toDouble());
+      final t =
+          g.cells[h.sourceCellId].tangentCw * (h.direction.step.toDouble());
       final a = 0.6 + 0.4 * sin(_clock * 6);
       final paint = Paint()
         ..color = const Color(0xFF3FE0C5).withValues(alpha: a)
@@ -599,10 +628,20 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       final p = handPos - Offset(0, u * 0.45);
       final r = u * 0.1;
       for (var k = 0; k < min(handCount, 5); k++) {
-        PiecesPainter.stone(canvas, p + Offset.fromDirection(k * 2.4, r * 0.9 * sqrt(k.toDouble())), r, handColor);
+        PiecesPainter.stone(
+          canvas,
+          p + Offset.fromDirection(k * 2.4, r * 0.9 * sqrt(k.toDouble())),
+          r,
+          handColor,
+        );
       }
-      PiecesPainter.badge(canvas, p + Offset(u * 0.26, -u * 0.12), max(8, u * 0.15), handCount,
-          color: const Color(0xEE0E4D4A));
+      PiecesPainter.badge(
+        canvas,
+        p + Offset(u * 0.26, -u * 0.12),
+        max(8, u * 0.15),
+        handCount,
+        color: const Color(0xEE0E4D4A),
+      );
     }
   }
 
@@ -622,9 +661,22 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         final ringX = quan[i] ? rx * 0.74 : rx * 0.45 * (n > 6 ? 1 : 0.6);
         final ringY = quan[i] ? ry * 0.74 : ry * 0.45 * (n > 6 ? 1 : 0.6);
         final p = c.center + Offset(cos(a) * ringX, sin(a) * ringY);
-        PiecesPainter.stone(canvas, p, sr * bounce, stoneColor, tint: (k % 3) * 0.05);
+        PiecesPainter.stone(
+          canvas,
+          p,
+          sr * bounce,
+          stoneColor,
+          tint: (k % 3) * 0.05,
+        );
       }
-      if (quan[i]) PiecesPainter.quanGem(canvas, c.center, gemR * bounce, glow: flash[i]);
+      if (quan[i]) {
+        PiecesPainter.quanFigure(
+          canvas,
+          c.center,
+          gemR * bounce,
+          glow: flash[i],
+        );
+      }
       if (count > 0) {
         PiecesPainter.badge(canvas, c.labelAnchor, max(8, u * 0.17), count);
       }
@@ -634,15 +686,25 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       final positions = PiecesPainter.layout(count, c.size * 0.3);
       final r = PiecesPainter.stoneRadius(c.size, count) * bounce;
       for (var k = 0; k < positions.length; k++) {
-        PiecesPainter.stone(canvas, c.center + positions[k], r, stoneColor,
-            tint: ((k * 7) % 4) * 0.06);
+        PiecesPainter.stone(
+          canvas,
+          c.center + positions[k],
+          r,
+          stoneColor,
+          tint: ((k * 7) % 4) * 0.06,
+        );
       }
       final owner = topo.ownerOf(i)!;
-      PiecesPainter.badge(canvas, c.labelAnchor, max(8, u * 0.15), count,
-          symbol: visuals.colorBlind ? symbolOf(owner) : null,
-          color: visuals.colorBlind
-              ? Color.lerp(playerColors[owner], const Color(0xFF000000), 0.35)!
-              : const Color(0xE6603A16));
+      PiecesPainter.badge(
+        canvas,
+        c.labelAnchor,
+        max(8, u * 0.15),
+        count,
+        symbol: visuals.colorBlind ? symbolOf(owner) : null,
+        color: visuals.colorBlind
+            ? Color.lerp(playerColors[owner], const Color(0xFF000000), 0.35)!
+            : const Color(0xE6603A16),
+      );
     }
   }
 
@@ -654,19 +716,21 @@ class OQuanGame extends FlameGame with KeyboardEvents {
 
     // Bóng mềm.
     canvas.drawPath(
-        g.boardOutline.shift(Offset(0, u * 0.18)),
-        Paint()
-          ..color = const Color(0x66000000)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.3));
+      g.boardOutline.shift(Offset(0, u * 0.18)),
+      Paint()
+        ..color = const Color(0x66000000)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.3),
+    );
     // Gỗ mật ong.
     canvas.drawPath(
-        g.boardOutline,
-        Paint()
-          ..shader = const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.woodLight, AppColors.wood, AppColors.woodDark],
-          ).createShader(bounds));
+      g.boardOutline,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.woodLight, AppColors.wood, AppColors.woodDark],
+        ).createShader(bounds),
+    );
     // Vân gỗ.
     canvas.save();
     canvas.clipPath(g.boardOutline);
@@ -679,66 +743,83 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       final y = bounds.top + bounds.height * (k + rnd.nextDouble() * 0.6) / 14;
       final path = Path()..moveTo(bounds.left - 10, y);
       for (var x = bounds.left; x <= bounds.right + 20; x += u) {
-        path.quadraticBezierTo(x + u * 0.5, y + (rnd.nextDouble() - 0.5) * u * 0.25, x + u, y);
+        path.quadraticBezierTo(
+          x + u * 0.5,
+          y + (rnd.nextDouble() - 0.5) * u * 0.25,
+          x + u,
+          y,
+        );
       }
       canvas.drawPath(path, grain);
     }
     canvas.restore();
     // Rãnh khắc thủ công.
     canvas.drawPath(
-        g.innerGroove,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = max(1.5, u * 0.05)
-          ..color = AppColors.groove.withValues(alpha: 0.55));
+      g.innerGroove,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = max(1.5, u * 0.05)
+        ..color = AppColors.groove.withValues(alpha: 0.55),
+    );
     canvas.drawPath(
-        g.innerGroove.shift(Offset(0, max(1, u * 0.03))),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = max(1, u * 0.025)
-          ..color = const Color(0x40FFFFFF));
+      g.innerGroove.shift(Offset(0, max(1, u * 0.03))),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = max(1, u * 0.025)
+        ..color = const Color(0x40FFFFFF),
+    );
     canvas.drawPath(
-        g.boardOutline,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = max(1.5, u * 0.04)
-          ..color = AppColors.woodDark);
+      g.boardOutline,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = max(1.5, u * 0.04)
+        ..color = AppColors.woodDark,
+    );
 
     // Dải màu chủ sở hữu.
     for (var p = 0; p < g.playerEdges.length; p++) {
       final (a, b) = g.playerEdges[p];
       canvas.drawLine(
-          a,
-          b,
-          Paint()
-            ..color = playerColors[p].withValues(alpha: 0.75)
-            ..strokeWidth = u * 0.12
-            ..strokeCap = StrokeCap.round);
+        a,
+        b,
+        Paint()
+          ..color = playerColors[p].withValues(alpha: 0.75)
+          ..strokeWidth = u * 0.12
+          ..strokeCap = StrokeCap.round,
+      );
       if (visuals.colorBlind) {
         final mid = (a + b) / 2;
-        paintPlayerSymbol(canvas, mid, u * 0.12, symbolOf(p), Paint()..color = const Color(0xFFFFFFFF));
+        paintPlayerSymbol(
+          canvas,
+          mid,
+          u * 0.12,
+          symbolOf(p),
+          Paint()..color = const Color(0xFFFFFFFF),
+        );
       }
     }
 
     // Hố ô.
     for (final c in g.cells) {
-      canvas.drawPath(c.outline.shift(Offset(0, -u * 0.025)),
-          Paint()..color = const Color(0x40FFFFFF));
+      canvas.drawPath(
+        c.outline.shift(Offset(0, -u * 0.025)),
+        Paint()..color = const Color(0x40FFFFFF),
+      );
       canvas.drawPath(c.outline, Paint()..color = AppColors.well);
       canvas.drawPath(
-          c.outline.shift(Offset(0, u * 0.04)),
-          Paint()
-            ..color = AppColors.wellLight
-            ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.05));
+        c.outline.shift(Offset(0, u * 0.04)),
+        Paint()
+          ..color = AppColors.wellLight
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.05),
+      );
       final owner = topo.ownerOf(c.id);
       canvas.drawPath(
-          c.outline,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = max(1.5, u * (c.isQuan ? 0.06 : 0.05))
-            ..color = owner == null
-                ? AppColors.gold
-                : playerColors[owner]);
+        c.outline,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = max(1.5, u * (c.isQuan ? 0.06 : 0.05))
+          ..color = owner == null ? AppColors.gold : playerColors[owner],
+      );
     }
     return rec.endRecording();
   }

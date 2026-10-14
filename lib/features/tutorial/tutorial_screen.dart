@@ -337,7 +337,7 @@ class _RowPainter extends CustomPainter {
             color,
           );
         }
-        PiecesPainter.quanGem(canvas, center, u * 0.24);
+        PiecesPainter.quanFigure(canvas, center, u * 0.24);
       } else {
         final pos = PiecesPainter.layout(c.dan, u * 0.26);
         for (final p in pos) {

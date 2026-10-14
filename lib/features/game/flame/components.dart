@@ -13,7 +13,8 @@ import 'pieces_painter.dart';
 Vector2 v2(Offset o) => Vector2(o.dx, o.dy);
 
 /// Lớp nền nhận chạm "trượt" (tua nhanh animation / bỏ chọn).
-class BackgroundTap extends PositionComponent with TapCallbacks, HasGameReference<OQuanGame> {
+class BackgroundTap extends PositionComponent
+    with TapCallbacks, HasGameReference<OQuanGame> {
   BackgroundTap() : super(priority: -10);
 
   @override
@@ -46,7 +47,8 @@ class CellHit extends PositionComponent
   }
 
   @override
-  bool containsLocalPoint(Vector2 point) => (point - size / 2).length <= size.x / 2;
+  bool containsLocalPoint(Vector2 point) =>
+      (point - size / 2).length <= size.x / 2;
 
   @override
   void onTapDown(TapDownEvent event) => game.onCellTap(cellId);
@@ -77,7 +79,8 @@ class ArrowButton extends PositionComponent
   }
 
   @override
-  bool containsLocalPoint(Vector2 point) => (point - size / 2).length <= size.x / 2;
+  bool containsLocalPoint(Vector2 point) =>
+      (point - size / 2).length <= size.x / 2;
 
   @override
   void update(double dt) {
@@ -101,16 +104,24 @@ class ArrowButton extends PositionComponent
     canvas.save();
     canvas.translate(c.dx, c.dy);
     canvas.scale(s);
-    canvas.drawCircle(const Offset(0, 3), r * 0.92, Paint()..color = const Color(0x55000000));
-    canvas.drawCircle(Offset.zero, r * 0.92,
-        Paint()..color = _hover ? const Color(0xFFFFF4DC) : AppColors.cream);
     canvas.drawCircle(
-        Offset.zero,
-        r * 0.92,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = max(2, r * 0.12)
-          ..color = AppColors.gold);
+      const Offset(0, 3),
+      r * 0.92,
+      Paint()..color = const Color(0x55000000),
+    );
+    canvas.drawCircle(
+      Offset.zero,
+      r * 0.92,
+      Paint()..color = _hover ? const Color(0xFFFFF4DC) : AppColors.cream,
+    );
+    canvas.drawCircle(
+      Offset.zero,
+      r * 0.92,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = max(2, r * 0.12)
+        ..color = AppColors.gold,
+    );
     final dir = direction == Direction.clockwise ? tangent : -tangent;
     canvas.rotate(atan2(dir.dy, dir.dx));
     final a = r * 0.46;
@@ -121,13 +132,14 @@ class ArrowButton extends PositionComponent
       ..lineTo(a * 0.75, 0)
       ..lineTo(a * 0.05, a * 0.6);
     canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = max(2.5, r * 0.18)
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..color = AppColors.teal);
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = max(2.5, r * 0.18)
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..color = AppColors.teal,
+    );
     canvas.restore();
   }
 }
@@ -193,11 +205,13 @@ class FlyingPiece extends PositionComponent with HasGameReference<OQuanGame> {
     final p = _at(t);
     final scale = 1 + sin(t * pi) * 0.35;
     final double alpha = fadeOut ? 1 - max(0.0, (t - 0.7) / 0.3) : 1.0;
-    if (alpha < 1) canvas.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, alpha));
+    if (alpha < 1) {
+      canvas.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, alpha));
+    }
     if (kind == FlyKind.stone) {
       PiecesPainter.stone(canvas, p, radius * scale, color);
     } else {
-      PiecesPainter.quanGem(canvas, p, radius * scale, glow: sin(t * pi));
+      PiecesPainter.quanFigure(canvas, p, radius * scale, glow: sin(t * pi));
     }
     if (alpha < 1) canvas.restore();
   }
@@ -210,7 +224,8 @@ class FlyingPiece extends PositionComponent with HasGameReference<OQuanGame> {
 
 /// Chữ nổi "+3" bay lên và mờ dần.
 class FloatingText extends PositionComponent with HasGameReference<OQuanGame> {
-  FloatingText(this.text, this.at, this.color, this.fontSize) : super(priority: 30);
+  FloatingText(this.text, this.at, this.color, this.fontSize)
+    : super(priority: 30);
   final String text;
   final Offset at;
   final Color color;
@@ -225,12 +240,29 @@ class FloatingText extends PositionComponent with HasGameReference<OQuanGame> {
 
   @override
   void render(Canvas canvas) {
-    final rise = game.visuals.reducedMotion ? 0.0 : Curves.easeOut(_t) * fontSize * 1.6;
+    final rise = game.visuals.reducedMotion
+        ? 0.0
+        : Curves.easeOut(_t) * fontSize * 1.6;
     final a = _t < 0.7 ? 1.0 : 1 - (_t - 0.7) / 0.3;
     final p = at - Offset(0, rise);
-    PiecesPainter.text(canvas, text, p + const Offset(1.5, 1.5), fontSize,
-        const Color(0xAA000000), bold: true, opacity: a);
-    PiecesPainter.text(canvas, text, p, fontSize, color, bold: true, opacity: a);
+    PiecesPainter.text(
+      canvas,
+      text,
+      p + const Offset(1.5, 1.5),
+      fontSize,
+      const Color(0xAA000000),
+      bold: true,
+      opacity: a,
+    );
+    PiecesPainter.text(
+      canvas,
+      text,
+      p,
+      fontSize,
+      color,
+      bold: true,
+      opacity: a,
+    );
   }
 }
 
