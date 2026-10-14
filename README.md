@@ -115,4 +115,3 @@ Các điểm khác:
 - Chế độ 2v2 mới có `Scoring.teamScores`. Chưa có UI và chưa có test riêng cho điều kiện kết thúc.
 - Chưa có `integration_test/` chạy trên thiết bị thật. Mới có widget test và kiểm tra thủ công trên
   bản build web.
-- Chưa build APK trên máy dev vì đĩa đầy (chỉ còn khoảng 0,8 GB trống).
