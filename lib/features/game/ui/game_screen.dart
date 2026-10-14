@@ -11,7 +11,7 @@ import '../../settings/settings_controller.dart';
 import '../audio/sound_service.dart';
 import '../flame/board_game.dart';
 import '../game_session.dart';
-import 'player_panel.dart';
+import 'hud.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key});
@@ -28,10 +28,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _resultShown = false;
 
   BoardVisuals _visuals(AppSettings s) => BoardVisuals(
-        reducedMotion: s.reducedMotion,
-        speedFactor: s.speed.factor,
-        colorBlind: s.colorBlind,
-      );
+    reducedMotion: s.reducedMotion,
+    speedFactor: s.speed.factor,
+    colorBlind: s.colorBlind,
+  );
 
   @override
   void initState() {
@@ -107,7 +107,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (msg == null) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(msg), duration: const Duration(seconds: 2)));
+      ..showSnackBar(
+        SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
+      );
   }
 
   Future<void> _pauseMenu() async {
@@ -119,11 +121,31 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(leading: const Icon(Icons.play_arrow_rounded), title: Text(l.resume), onTap: () => Navigator.pop(ctx, 'resume')),
-            ListTile(leading: const Icon(Icons.replay_rounded), title: Text(l.restart), onTap: () => Navigator.pop(ctx, 'restart')),
-            ListTile(leading: const Icon(Icons.rule_rounded), title: Text(l.rules), onTap: () => Navigator.pop(ctx, 'rules')),
-            ListTile(leading: const Icon(Icons.settings_rounded), title: Text(l.settings), onTap: () => Navigator.pop(ctx, 'settings')),
-            ListTile(leading: const Icon(Icons.save_alt_rounded), title: Text(l.saveAndExit), onTap: () => Navigator.pop(ctx, 'exit')),
+            ListTile(
+              leading: const Icon(Icons.play_arrow_rounded),
+              title: Text(l.resume),
+              onTap: () => Navigator.pop(ctx, 'resume'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.replay_rounded),
+              title: Text(l.restart),
+              onTap: () => Navigator.pop(ctx, 'restart'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.rule_rounded),
+              title: Text(l.rules),
+              onTap: () => Navigator.pop(ctx, 'rules'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_rounded),
+              title: Text(l.settings),
+              onTap: () => Navigator.pop(ctx, 'settings'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.save_alt_rounded),
+              title: Text(l.saveAndExit),
+              onTap: () => Navigator.pop(ctx, 'exit'),
+            ),
           ],
         ),
       ),
@@ -153,8 +175,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l.currentRules),
-        content: SingleChildScrollView(child: Text('${l.rulesSummary}\n\n${l.rulesetNote}')),
-        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.ok))],
+        content: SingleChildScrollView(
+          child: Text('${l.rulesSummary}\n\n${l.rulesetNote}'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.ok)),
+        ],
       ),
     );
   }
@@ -176,56 +202,41 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
     final l = context.l10n;
     final shown = s.shown;
-    final String statusText;
-    if (shown.isOver) {
-      statusText = l.gameOver;
-    } else if (s.pending != null) {
-      statusText = l.animating;
-    } else if (s.current.currentPlayer.isAi) {
-      statusText = l.aiThinking(s.current.currentPlayer.name);
-    } else {
-      statusText = l.hintSelectCell;
-    }
-
-    final board = Stack(
-      children: [
-        Positioned.fill(
-          child: GameWidget(game: g, autofocus: true),
-        ),
-        if (s.pending != null)
-          Positioned(
-            right: 8,
-            bottom: 8,
-            child: FilledButton.tonalIcon(
-              key: const Key('skipAnim'),
-              onPressed: g.skipAnimation,
-              icon: const Icon(Icons.fast_forward_rounded),
-              label: Text(l.skip),
-            ),
-          ),
-      ],
-    );
+    final notifier = ref.read(gameSessionProvider.notifier);
+    final thinkingId = s.aiThinking ? s.current.turnPlayer : null;
 
     final actions = <Widget>[
-      IconButton(
+      HudButton(
         key: const Key('undo'),
+        icon: Icons.undo_rounded,
         tooltip: l.undo,
-        onPressed: s.canUndo ? ref.read(gameSessionProvider.notifier).undo : null,
-        icon: const Icon(Icons.undo_rounded),
+        onPressed: s.canUndo ? notifier.undo : null,
       ),
-      IconButton(
+      HudButton(
         key: const Key('hint'),
+        icon: Icons.lightbulb_rounded,
         tooltip: l.hint,
-        onPressed: s.humanTurn && !s.busy ? ref.read(gameSessionProvider.notifier).requestHint : null,
-        icon: const Icon(Icons.lightbulb_outline_rounded),
+        onPressed: s.humanTurn && !s.busy ? notifier.requestHint : null,
       ),
-      IconButton(
+      HudButton(
+        icon: settings.sound
+            ? Icons.volume_up_rounded
+            : Icons.volume_off_rounded,
         tooltip: settings.sound ? l.soundOff : l.soundOn,
         onPressed: ref.read(settingsProvider.notifier).toggleSound,
-        icon: Icon(settings.sound ? Icons.volume_up_rounded : Icons.volume_off_rounded),
       ),
-      IconButton(tooltip: l.rules, onPressed: _showRules, icon: const Icon(Icons.info_outline_rounded)),
+      HudButton(
+        icon: Icons.menu_book_rounded,
+        tooltip: l.rules,
+        onPressed: _showRules,
+      ),
     ];
+    final pause = HudButton(
+      key: const Key('pause'),
+      icon: Icons.pause_rounded,
+      tooltip: l.pause,
+      onPressed: _pauseMenu,
+    );
 
     return PopScope(
       canPop: false,
@@ -236,8 +247,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           builder: (ctx) => AlertDialog(
             content: Text(l.confirmExit),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.ok)),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l.cancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(l.ok),
+              ),
             ],
           ),
         );
@@ -245,69 +262,183 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       },
       child: Scaffold(
         body: AppBackground(
-          child: SafeArea(
-            child: LayoutBuilder(builder: (context, c) {
-              final landscape = c.maxWidth > c.maxHeight * 1.25 && c.maxWidth > 640;
-              final panel = PlayerPanel(
+          child: LayoutBuilder(
+            builder: (context, c) {
+              // Bàn chiếm toàn màn hình; HUD nổi ở các góc, bàn chừa lề cho HUD.
+              final pad = MediaQuery.paddingOf(context);
+              final landscape = c.maxWidth > c.maxHeight;
+              final n = shown.players.length;
+              // Bàn chữ nhật (2 người) thấp: thẻ người chơi đặt ở góc trên/dưới,
+              // chỉ chừa dải hẹp hai bên cho nút → bàn rộng gần hết màn hình.
+              final twoWide = landscape && n == 2;
+              final band = !landscape
+                  ? 0.0
+                  : (twoWide ? 60.0 : (c.maxWidth * 0.18).clamp(132.0, 200.0));
+              g.setBoardInsets(
+                landscape
+                    ? EdgeInsets.fromLTRB(
+                        pad.left + band,
+                        pad.top + 2,
+                        pad.right + band,
+                        pad.bottom + 2,
+                      )
+                    : EdgeInsets.fromLTRB(
+                        pad.left + 2,
+                        pad.top + 140,
+                        pad.right + 2,
+                        pad.bottom + 96,
+                      ),
+              );
+
+              Widget chip(int id, double w) => PlayerChip(
+                key: Key('player$id'),
                 state: shown,
+                playerId: id,
                 scores: g.displayScores,
-                colorBlind: settings.colorBlind,
-                vertical: landscape,
+                thinking: thinkingId == id,
+                width: w,
               );
-              final topBar = Row(
-                children: [
-                  IconButton(
-                    key: const Key('pause'),
-                    tooltip: l.pause,
-                    onPressed: _pauseMenu,
-                    icon: const Icon(Icons.pause_circle_outline_rounded),
+
+              final overlays = <Widget>[];
+              if (twoWide) {
+                const w = 128.0;
+                overlays.addAll([
+                  Positioned(
+                    left: pad.left + 8,
+                    top: pad.top + 8,
+                    child: pause,
                   ),
-                  Expanded(
-                    child: Text(
-                      shown.isOver ? l.gameOver : l.turnOf(shown.currentPlayer.name),
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                    ),
+                  Positioned(
+                    left: pad.left + 60,
+                    top: pad.top + 6,
+                    child: chip(1, w),
                   ),
-                  ...actions,
-                ],
-              );
-              final status = Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: Row(
-                  children: [
-                    if (!shown.isOver) PlayerAvatar(playerId: shown.turnPlayer, size: 22, ai: shown.currentPlayer.isAi),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(statusText, key: const Key('status'))),
-                    Text(l.moveNumber(shown.moveNumber), style: Theme.of(context).textTheme.bodySmall),
-                  ],
-                ),
-              );
-              if (landscape) {
-                return Column(
-                  children: [
-                    topBar,
-                    Expanded(
-                      child: Row(
-                        children: [
-                          SizedBox(width: 220, child: panel),
-                          Expanded(child: board),
-                        ],
+                  Positioned(
+                    left: pad.left + 8,
+                    bottom: pad.bottom + 8,
+                    child: chip(0, w),
+                  ),
+                  Positioned(
+                    right: pad.right + 8,
+                    top: pad.top + 8,
+                    child: SizedBox(
+                      width: 96,
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.end,
+                        children: actions,
                       ),
                     ),
-                    status,
-                  ],
+                  ),
+                ]);
+              } else if (landscape) {
+                final w = band - 16;
+                // Mỗi người ở góc gần cạnh của mình: P1 trên-trái, P0 dưới-trái,
+                // P2 trên-phải, P3 dưới-phải.
+                overlays.addAll([
+                  Positioned(
+                    left: pad.left + 8,
+                    top: pad.top + 8,
+                    child: pause,
+                  ),
+                  Positioned(
+                    right: pad.right + 8,
+                    top: pad.top + 8,
+                    child: SizedBox(
+                      width: 96,
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.end,
+                        children: actions,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: pad.left + 8,
+                    top: pad.top + 62,
+                    child: chip(1, w),
+                  ),
+                  Positioned(
+                    left: pad.left + 8,
+                    bottom: pad.bottom + 8,
+                    child: chip(0, w),
+                  ),
+                  if (n > 2)
+                    Positioned(
+                      right: pad.right + 8,
+                      top: pad.top + 112,
+                      child: chip(2, w),
+                    ),
+                  if (n > 3)
+                    Positioned(
+                      right: pad.right + 8,
+                      bottom: pad.bottom + 8,
+                      child: chip(3, w),
+                    ),
+                ]);
+              } else {
+                final w = (c.maxWidth - pad.horizontal - 24) / 2;
+                overlays.addAll([
+                  Positioned(
+                    left: pad.left + 8,
+                    right: pad.right + 8,
+                    top: pad.top + 8,
+                    child: Row(
+                      children: [
+                        pause,
+                        const Spacer(),
+                        for (final a in actions)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: a,
+                          ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    left: pad.left + 8,
+                    right: pad.right + 8,
+                    top: pad.top + 60,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [chip(1, w), if (n > 2) chip(2, w)],
+                    ),
+                  ),
+                  Positioned(
+                    left: pad.left + 8,
+                    right: pad.right + 8,
+                    bottom: pad.bottom + 8,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [chip(0, w), if (n > 3) chip(3, w)],
+                    ),
+                  ),
+                ]);
+              }
+              if (s.pending != null) {
+                overlays.add(
+                  Positioned(
+                    right: pad.right + 8,
+                    top: landscape ? c.maxHeight / 2 - 22 : null,
+                    bottom: landscape ? null : pad.bottom + 100,
+                    child: HudButton(
+                      key: const Key('skipAnim'),
+                      icon: Icons.fast_forward_rounded,
+                      tooltip: l.skip,
+                      onPressed: g.skipAnimation,
+                    ),
+                  ),
                 );
               }
-              return Column(
+              return Stack(
                 children: [
-                  topBar,
-                  panel,
-                  Expanded(child: board),
-                  status,
+                  Positioned.fill(child: GameWidget(game: g, autofocus: true)),
+                  ...overlays,
                 ],
               );
-            }),
+            },
           ),
         ),
       ),

@@ -72,16 +72,18 @@ class BoardGeometry {
 
   static const _danRatio = 0.84;
 
-  factory BoardGeometry.compute(GameConfig config, Size viewport) {
+  /// `area`: vùng đặt bàn bên trong viewport (mặc định toàn viewport) — để
+  /// chừa chỗ cho HUD nổi. Mũi tên vẫn được kẹp theo toàn viewport.
+  factory BoardGeometry.compute(GameConfig config, Size viewport, {Rect? area}) {
     final raw = config.playerCount == 2
         ? _rectangle(config)
         : _polygon(config);
-    // Fit bounding box (gồm cả vùng mũi tên chọn hướng) vào viewport.
+    final box = area ?? Offset.zero & viewport;
     final bb = raw.bounds;
-    final scale = min(viewport.width / bb.width, viewport.height / bb.height);
+    final scale = min(box.width / bb.width, box.height / bb.height);
     final offset = Offset(
-      (viewport.width - bb.width * scale) / 2 - bb.left * scale,
-      (viewport.height - bb.height * scale) / 2 - bb.top * scale,
+      box.left + (box.width - bb.width * scale) / 2 - bb.left * scale,
+      box.top + (box.height - bb.height * scale) / 2 - bb.top * scale,
     );
     Offset tf(Offset p) => p * scale + offset;
     final m = Float64List.fromList([
@@ -135,14 +137,25 @@ class BoardGeometry {
   }
 
   /// Vị trí hai nút chọn hướng cho ô nguồn: (clockwise, counterClockwise).
-  /// Được kẹp vào trong viewport.
+  /// Đặt phía ngoài cạnh; nếu không đủ chỗ trong viewport thì đặt vào lòng bàn.
   (Offset, Offset) arrowPositions(int cellId) {
     final c = cells[cellId];
-    final base = c.center + c.outward * (unit * 1.02);
-    return (
-      clampToView(base + c.tangentCw * (unit * 0.52), arrowRadius),
-      clampToView(base - c.tangentCw * (unit * 0.52), arrowRadius),
-    );
+    (Offset, Offset) at(double side) {
+      final base = c.center + c.outward * (unit * 1.02 * side);
+      return (
+        base + c.tangentCw * (unit * 0.52),
+        base - c.tangentCw * (unit * 0.52),
+      );
+    }
+
+    final (a, b) = at(1);
+    final r = arrowRadius;
+    final fits = (clampToView(a, r) - a).distance < 1 && (clampToView(b, r) - b).distance < 1;
+    if (fits || config.playerCount == 2) {
+      return (clampToView(a, r), clampToView(b, r));
+    }
+    final (ia, ib) = at(-1);
+    return (clampToView(ia, r), clampToView(ib, r));
   }
 
   Offset clampToView(Offset p, double margin) => Offset(

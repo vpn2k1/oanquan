@@ -46,7 +46,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         for (var i = 0; i < 4; i++)
           _mode == PlayMode.ai && i > 0
               ? _Slot(PlayerType.ai, AiLevel.medium, l.aiPlayerName(i))
-              : _Slot(PlayerType.human, AiLevel.medium, l.defaultPlayerName(i + 1)),
+              : _Slot(
+                  PlayerType.human,
+                  AiLevel.medium,
+                  l.defaultPlayerName(i + 1),
+                ),
       ]);
     for (final c in _names) {
       c.dispose();
@@ -75,13 +79,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         Player(
           id: i,
           name: _names[i].text.trim().isEmpty
-              ? (_slots[i].type == PlayerType.ai ? l.aiPlayerName(i) : l.defaultPlayerName(i + 1))
+              ? (_slots[i].type == PlayerType.ai
+                    ? l.aiPlayerName(i)
+                    : l.defaultPlayerName(i + 1))
               : _names[i].text.trim(),
           type: _slots[i].type,
           aiLevel: _slots[i].level,
         ),
     ];
-    ref.read(gameSessionProvider.notifier).start(
+    ref
+        .read(gameSessionProvider.notifier)
+        .start(
           GameConfig(
             playerCount: _players,
             seed: DateTime.now().millisecondsSinceEpoch & 0x7fffffff,
@@ -96,82 +104,142 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final l = context.l10n;
     final theme = Theme.of(context);
     final shapes = [l.boardRectangle, l.boardTriangle, l.boardSquare];
+    final countAndMode = <Widget>[
+      Text(l.choosePlayers, style: theme.textTheme.titleMedium),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          for (final n in [2, 3, 4])
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: _ChoiceCard(
+                  key: Key('players$n'),
+                  selected: _players == n,
+                  onTap: () => setState(() => _players = n),
+                  child: Column(
+                    children: [
+                      BoardShapeIcon(players: n),
+                      const SizedBox(height: 6),
+                      Text(
+                        l.playersCount(n),
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      Text(
+                        shapes[n - 2],
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      const SizedBox(height: 16),
+      Text(l.chooseMode, style: theme.textTheme.titleMedium),
+      const SizedBox(height: 8),
+      SegmentedButton<PlayMode>(
+        segments: [
+          ButtonSegment(
+            value: PlayMode.local,
+            label: Text(l.modeLocal),
+            icon: const Icon(Icons.people_alt_rounded),
+          ),
+          ButtonSegment(
+            value: PlayMode.ai,
+            label: Text(l.modeAi),
+            icon: const Icon(Icons.smart_toy_rounded),
+          ),
+          ButtonSegment(
+            value: PlayMode.online,
+            label: Text(l.modeOnline),
+            icon: const Icon(Icons.public_rounded),
+          ),
+        ],
+        selected: {_mode},
+        onSelectionChanged: (s) => setState(() {
+          _mode = s.first;
+          _resetSlots();
+        }),
+      ),
+    ];
+    final playersSection = <Widget>[
+      if (_mode != PlayMode.online) ...[
+        Text(l.playersSetup, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        for (var i = 0; i < _players; i++) _slotTile(i),
+      ] else
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(l.onlineNotice),
+          ),
+        ),
+    ];
+    final start = FilledButton.icon(
+      key: const Key('startGame'),
+      icon: Icon(
+        _mode == PlayMode.online
+            ? Icons.public_rounded
+            : Icons.play_arrow_rounded,
+      ),
+      label: Text(_mode == PlayMode.online ? l.onlineTitle : l.startGame),
+      onPressed: _start,
+    );
     return Scaffold(
       appBar: AppBar(title: Text(l.playNow)),
       extendBodyBehindAppBar: true,
       body: AppBackground(
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(l.choosePlayers, style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      for (final n in [2, 3, 4])
+          child: LayoutBuilder(
+            builder: (context, c) {
+              if (c.maxWidth > c.maxHeight && c.maxWidth > 640) {
+                // Màn hình ngang: chọn bàn + chế độ bên trái, người chơi bên phải.
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1100),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: _ChoiceCard(
-                              key: Key('players$n'),
-                              selected: _players == n,
-                              onTap: () => setState(() => _players = n),
-                              child: Column(
-                                children: [
-                                  BoardShapeIcon(players: n),
-                                  const SizedBox(height: 6),
-                                  Text(l.playersCount(n),
-                                      style: const TextStyle(fontWeight: FontWeight.w800)),
-                                  Text(shapes[n - 2],
-                                      textAlign: TextAlign.center,
-                                      style: theme.textTheme.bodySmall),
-                                ],
-                              ),
-                            ),
+                          child: ListView(
+                            padding: const EdgeInsets.all(16),
+                            children: [
+                              ...countAndMode,
+                              const SizedBox(height: 16),
+                              start,
+                            ],
                           ),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Text(l.chooseMode, style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  SegmentedButton<PlayMode>(
-                    segments: [
-                      ButtonSegment(value: PlayMode.local, label: Text(l.modeLocal), icon: const Icon(Icons.people_alt_rounded)),
-                      ButtonSegment(value: PlayMode.ai, label: Text(l.modeAi), icon: const Icon(Icons.smart_toy_rounded)),
-                      ButtonSegment(value: PlayMode.online, label: Text(l.modeOnline), icon: const Icon(Icons.public_rounded)),
-                    ],
-                    selected: {_mode},
-                    onSelectionChanged: (s) => setState(() {
-                      _mode = s.first;
-                      _resetSlots();
-                    }),
-                  ),
-                  const SizedBox(height: 20),
-                  if (_mode != PlayMode.online) ...[
-                    Text(l.playersSetup, style: theme.textTheme.titleMedium),
-                    const SizedBox(height: 8),
-                    for (var i = 0; i < _players; i++) _slotTile(i),
-                  ] else
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(l.onlineNotice),
-                      ),
+                        Expanded(
+                          child: ListView(
+                            padding: const EdgeInsets.all(16),
+                            children: playersSection,
+                          ),
+                        ),
+                      ],
                     ),
-                  const SizedBox(height: 20),
-                  FilledButton.icon(
-                    key: const Key('startGame'),
-                    icon: Icon(_mode == PlayMode.online ? Icons.public_rounded : Icons.play_arrow_rounded),
-                    label: Text(_mode == PlayMode.online ? l.onlineTitle : l.startGame),
-                    onPressed: _start,
                   ),
-                ],
-              ),
-            ),
+                );
+              }
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      ...countAndMode,
+                      const SizedBox(height: 20),
+                      ...playersSection,
+                      const SizedBox(height: 20),
+                      start,
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -195,7 +263,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
               child: TextField(
                 controller: _names[i],
                 maxLength: 14,
-                decoration: const InputDecoration(isDense: true, counterText: ''),
+                decoration: const InputDecoration(
+                  isDense: true,
+                  counterText: '',
+                ),
               ),
             ),
             SegmentedButton<PlayerType>(
@@ -207,7 +278,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
               selected: {s.type},
               onSelectionChanged: (v) => setState(() {
                 s.type = v.first;
-                _names[i].text = s.type == PlayerType.ai ? l.aiPlayerName(i) : l.defaultPlayerName(i + 1);
+                _names[i].text = s.type == PlayerType.ai
+                    ? l.aiPlayerName(i)
+                    : l.defaultPlayerName(i + 1);
               }),
             ),
             if (s.type == PlayerType.ai)
@@ -215,7 +288,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 value: s.level,
                 items: [
                   DropdownMenuItem(value: AiLevel.easy, child: Text(l.aiEasy)),
-                  DropdownMenuItem(value: AiLevel.medium, child: Text(l.aiMedium)),
+                  DropdownMenuItem(
+                    value: AiLevel.medium,
+                    child: Text(l.aiMedium),
+                  ),
                   DropdownMenuItem(value: AiLevel.hard, child: Text(l.aiHard)),
                 ],
                 onChanged: (v) => setState(() => s.level = v ?? s.level),
@@ -228,7 +304,12 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 }
 
 class _ChoiceCard extends StatelessWidget {
-  const _ChoiceCard({super.key, required this.selected, required this.onTap, required this.child});
+  const _ChoiceCard({
+    super.key,
+    required this.selected,
+    required this.onTap,
+    required this.child,
+  });
   final bool selected;
   final VoidCallback onTap;
   final Widget child;
@@ -237,10 +318,15 @@ class _ChoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Material(
-      color: selected ? cs.primary.withValues(alpha: 0.14) : Theme.of(context).cardTheme.color,
+      color: selected
+          ? cs.primary.withValues(alpha: 0.14)
+          : Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: selected ? cs.primary : Colors.transparent, width: 2),
+        side: BorderSide(
+          color: selected ? cs.primary : Colors.transparent,
+          width: 2,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),

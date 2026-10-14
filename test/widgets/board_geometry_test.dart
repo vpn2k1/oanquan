@@ -88,4 +88,14 @@ void main() {
       expect(g.unit, greaterThan(35), reason: 'ô đủ lớn để nhìn rõ ($n người)');
     }
   });
+
+  test('điện thoại ngang (vùng bàn ~590×355): ô đủ lớn, vùng chạm ≥ 44 px', () {
+    for (final n in [2, 3, 4]) {
+      final g = BoardGeometry.compute(GameConfig.preset(n), const Size(590, 355));
+      expect(g.unit, greaterThan(n == 2 ? 60 : 36), reason: '$n người: unit=${g.unit}');
+      for (final c in g.cells) {
+        expect(c.hitRadius * 2, greaterThanOrEqualTo(44));
+      }
+    }
+  });
 }

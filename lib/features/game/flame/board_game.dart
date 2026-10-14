@@ -5,7 +5,7 @@ import 'dart:ui';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart' show LinearGradient, Alignment;
+import 'package:flutter/painting.dart' show LinearGradient, Alignment, EdgeInsets;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show KeyEventResult;
 
@@ -120,14 +120,29 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   }
 
   void _layout() {
-    if (size.x <= 0 || size.y <= 0) return;
-    geo = BoardGeometry.compute(_state.config, Size(size.x, size.y));
+    if (!hasLayout || size.x <= 0 || size.y <= 0) return;
+    final area = Rect.fromLTRB(
+      boardInsets.left,
+      boardInsets.top,
+      max(boardInsets.left + 50, size.x - boardInsets.right),
+      max(boardInsets.top + 50, size.y - boardInsets.bottom),
+    );
+    geo = BoardGeometry.compute(_state.config, Size(size.x, size.y), area: area);
     _boardPicture = null;
     for (final h in _hits) {
       final c = geo!.cells[h.cellId];
       h.place(c.center, c.hitRadius);
     }
     _placeArrows();
+  }
+
+  /// Lề dành cho HUD nổi (bàn vẫn vẽ trên toàn màn hình).
+  EdgeInsets boardInsets = EdgeInsets.zero;
+
+  void setBoardInsets(EdgeInsets v) {
+    if (v == boardInsets) return;
+    boardInsets = v;
+    _layout();
   }
 
   void updateVisuals(BoardVisuals v) {
@@ -627,7 +642,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
           symbol: visuals.colorBlind ? symbolOf(owner) : null,
           color: visuals.colorBlind
               ? Color.lerp(playerColors[owner], const Color(0xFF000000), 0.35)!
-              : const Color(0xE62B1D10));
+              : const Color(0xE6603A16));
     }
   }
 
@@ -650,7 +665,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
           ..shader = const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.woodLight, AppColors.wood, Color(0xFFB0712F)],
+            colors: [AppColors.woodLight, AppColors.wood, AppColors.woodDark],
           ).createShader(bounds));
     // Vân gỗ.
     canvas.save();
@@ -658,7 +673,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     final grain = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = max(1, u * 0.03)
-      ..color = const Color(0x18000000);
+      ..color = const Color(0x14000000);
     final rnd = Random(7);
     for (var k = 0; k < 14; k++) {
       final y = bounds.top + bounds.height * (k + rnd.nextDouble() * 0.6) / 14;
@@ -696,7 +711,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
           a,
           b,
           Paint()
-            ..color = playerColors[p].withValues(alpha: 0.5)
+            ..color = playerColors[p].withValues(alpha: 0.75)
             ..strokeWidth = u * 0.12
             ..strokeCap = StrokeCap.round);
       if (visuals.colorBlind) {
@@ -709,11 +724,11 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     for (final c in g.cells) {
       canvas.drawPath(c.outline.shift(Offset(0, -u * 0.025)),
           Paint()..color = const Color(0x40FFFFFF));
-      canvas.drawPath(c.outline, Paint()..color = const Color(0xFF6E4219));
+      canvas.drawPath(c.outline, Paint()..color = AppColors.well);
       canvas.drawPath(
           c.outline.shift(Offset(0, u * 0.04)),
           Paint()
-            ..color = const Color(0xFF8C5826)
+            ..color = AppColors.wellLight
             ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.05));
       final owner = topo.ownerOf(c.id);
       canvas.drawPath(
@@ -722,8 +737,8 @@ class OQuanGame extends FlameGame with KeyboardEvents {
             ..style = PaintingStyle.stroke
             ..strokeWidth = max(1.5, u * (c.isQuan ? 0.06 : 0.05))
             ..color = owner == null
-                ? const Color(0xFFB8862F)
-                : playerColors[owner].withValues(alpha: 0.85));
+                ? AppColors.gold
+                : playerColors[owner]);
     }
     return rec.endRecording();
   }

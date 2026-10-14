@@ -3,10 +3,10 @@
     "short_name": "o_quan_viet",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
+    "background_color": "#FFF4D6",
+    "theme_color": "#13B5A6",
     "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "orientation": "landscape",
     "prefer_related_applications": false,
     "icons": [
         {

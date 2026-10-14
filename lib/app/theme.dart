@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Màu người chơi: xanh lam, đỏ san hô, xanh lục, vàng hổ phách.
 const playerColors = <Color>[
-  Color(0xFF2F6FDE),
-  Color(0xFFE5604D),
-  Color(0xFF2E9E62),
-  Color(0xFFE0A21B),
+  Color(0xFF2B7BFF),
+  Color(0xFFFF5A5F),
+  Color(0xFF1FBF68),
+  Color(0xFFFFB020),
 ];
 
 /// Biểu tượng hình dạng cho chế độ hỗ trợ màu: tròn, tam giác, vuông, thoi.
@@ -14,15 +14,21 @@ enum PlayerSymbol { circle, triangle, square, diamond }
 PlayerSymbol symbolOf(int playerId) => PlayerSymbol.values[playerId % 4];
 
 abstract final class AppColors {
-  static const teal = Color(0xFF0E4D4A);
-  static const tealDeep = Color(0xFF08302E);
-  static const cream = Color(0xFFF6EBD6);
-  static const creamDeep = Color(0xFFEBD9B8);
-  static const wood = Color(0xFFC9893F);
-  static const woodLight = Color(0xFFE2AE63);
-  static const woodDark = Color(0xFF8A5523);
-  static const groove = Color(0xFF6B3E17);
-  static const gold = Color(0xFFD9A93B);
+  // Tông sáng, tươi: ngọc lam + kem + gỗ mật ong sáng.
+  static const teal = Color(0xFF0B8F84);
+  static const turquoise = Color(0xFF19C3B1);
+  static const tealDeep = Color(0xFF0B4F4A);
+  static const tealMid = Color(0xFF137A72);
+  static const cream = Color(0xFFFFF6E0);
+  static const creamDeep = Color(0xFFFFE9B8);
+  static const mint = Color(0xFFC4F1E6);
+  static const wood = Color(0xFFF0A955);
+  static const woodLight = Color(0xFFFFD08A);
+  static const woodDark = Color(0xFFC27A32);
+  static const well = Color(0xFFA9692F);
+  static const wellLight = Color(0xFFC88442);
+  static const groove = Color(0xFF9A5A22);
+  static const gold = Color(0xFFFFC233);
   static const ink = Color(0xFF2B1D10);
 }
 
@@ -32,9 +38,9 @@ ThemeData buildTheme(Brightness b) {
     seedColor: AppColors.teal,
     brightness: b,
   ).copyWith(
-    primary: dark ? const Color(0xFF7FD1C4) : AppColors.teal,
+    primary: dark ? const Color(0xFF6FE6D6) : AppColors.teal,
     secondary: AppColors.gold,
-    surface: dark ? const Color(0xFF10201F) : AppColors.cream,
+    surface: dark ? const Color(0xFF12403C) : AppColors.cream,
   );
   return ThemeData(
     useMaterial3: true,
@@ -47,7 +53,7 @@ ThemeData buildTheme(Brightness b) {
       centerTitle: true,
     ),
     cardTheme: CardThemeData(
-      color: dark ? const Color(0xFF173533) : Colors.white.withValues(alpha: 0.75),
+      color: dark ? const Color(0xFF1A5A54) : Colors.white.withValues(alpha: 0.85),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     ),

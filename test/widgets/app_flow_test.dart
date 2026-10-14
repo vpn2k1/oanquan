@@ -25,9 +25,10 @@ Future<ProviderContainer> pumpApp(WidgetTester tester, Size size) async {
 
 void main() {
   const sizes = {
-    'mobile': Size(380, 780),
-    'tablet': Size(820, 1100),
+    'mobile-landscape': Size(812, 375),
+    'tablet-landscape': Size(1180, 820),
     'desktop': Size(1400, 820),
+    'mobile-portrait (web)': Size(380, 780),
   };
 
   for (final e in sizes.entries) {
@@ -48,7 +49,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         await tester.pump(const Duration(milliseconds: 100));
 
-        expect(find.byKey(const Key('status')), findsOneWidget);
+        expect(find.byKey(const Key('pause')), findsOneWidget);
         for (var p = 0; p < n; p++) {
           expect(find.byKey(Key('player$p')), findsOneWidget);
         }
@@ -69,7 +70,7 @@ void main() {
   }
 
   testWidgets('tutorial, cài đặt và thành tích mở được', (tester) async {
-    final c = await pumpApp(tester, const Size(400, 800));
+    final c = await pumpApp(tester, const Size(812, 375));
     final router = c.read(routerProvider);
     await tester.tap(find.text('Hướng dẫn'));
     await tester.pump(const Duration(milliseconds: 500));

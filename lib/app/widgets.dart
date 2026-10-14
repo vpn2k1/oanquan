@@ -19,8 +19,8 @@ class AppBackground extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: dark
-              ? const [Color(0xFF0E4D4A), AppColors.tealDeep]
-              : const [AppColors.cream, AppColors.creamDeep],
+              ? const [AppColors.tealMid, AppColors.tealDeep]
+              : const [AppColors.cream, AppColors.mint],
         ),
       ),
       child: CustomPaint(
@@ -40,7 +40,7 @@ class _PatternPainter extends CustomPainter {
     final p = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
-      ..color = (dark ? Colors.white : AppColors.teal).withValues(alpha: 0.05);
+      ..color = (dark ? Colors.white : AppColors.turquoise).withValues(alpha: dark ? 0.05 : 0.12);
     const step = 56.0;
     for (var y = -step; y < size.height + step; y += step) {
       for (var x = -step; x < size.width + step; x += step) {
@@ -143,7 +143,7 @@ class _ShapePainter extends CustomPainter {
       }
     }
     for (final v in verts) {
-      canvas.drawCircle(v, size.width * 0.07, Paint()..color = const Color(0xFFC21E45));
+      canvas.drawCircle(v, size.width * 0.07, Paint()..color = const Color(0xFFE8325A));
       canvas.drawCircle(v, size.width * 0.07,
           Paint()
             ..style = PaintingStyle.stroke

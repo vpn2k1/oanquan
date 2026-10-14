@@ -98,7 +98,7 @@ abstract final class PiecesPainter {
 
   /// Badge số lượng; ở chế độ hỗ trợ màu dùng hình dạng của chủ ô.
   static void badge(Canvas c, Offset p, double r, int value,
-      {Color color = const Color(0xE62B1D10), PlayerSymbol? symbol}) {
+      {Color color = const Color(0xE6603A16), PlayerSymbol? symbol}) {
     final paint = Paint()..color = color;
     if (symbol == null) {
       c.drawCircle(p, r, paint);

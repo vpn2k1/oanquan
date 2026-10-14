@@ -40,13 +40,15 @@ lib/
       data/                 SaveRepository (shared_preferences — có hỗ trợ web)
       audio/                SoundService: WAV tổng hợp bằng code, lỗi audio không làm crash game
       flame/                OQuanGame, BoardGeometry, components, PiecesPainter (quân vẽ bằng Canvas)
-      ui/                   GameScreen (HUD), PlayerPanel
+      ui/                   GameScreen (bàn toàn màn hình + HUD nổi), hud.dart (PlayerChip, StoneIcon, GemIcon)
     multiplayer/            protocol, MatchServer (authoritative), repository, lobby UI
   l10n/                     ARB tiếng Việt (mặc định) và tiếng Anh
 test/  engine/ ai/ persistence/ game/ multiplayer/ widgets/
 ```
 
 - **State:** `flutter_riverpod` 3 (Notifier). **Routing:** `go_router`.
+- **Màn hình ngang mặc định:** khóa landscape trên Android (`sensorLandscape`), iOS (`UISupportedInterfaceOrientations`) và trong `main.dart`. Home, Setup, Kết quả, Hướng dẫn có bố cục 2 cột khi ngang.
+- **Bàn chơi toàn màn hình:** HUD nổi ở các góc. Thẻ người chơi nằm ở góc gần cạnh của người đó. Dân và quan đã ăn hiển thị bằng hình viên sỏi và viên ngọc kèm số, không dùng chữ. Giao diện mặc định là theme sáng, tông tươi.
 - Trạng thái logic và trạng thái hiển thị được tách riêng. Engine tính ra trạng thái cuối cùng cùng
   danh sách event. Flame phát lại các event đó thành animation (bốc, rải từng viên theo đường cong,
   ăn dân, ăn quan, nạp dân). Input bị khóa trong lúc animation chạy. Chạm vào bàn để tua nhanh,
@@ -81,7 +83,7 @@ Các điểm khác:
 - `rulesetConfig` cho phép chỉnh `initialDan`, `quanValue`, `quanCaptureThreshold`, `refillCost`.
   `RulesetConfig.isPreset` cho biết ván có dùng preset hay không. Chế độ xếp hạng chưa có.
 
-## Test (74 test)
+## Test (78 test)
 
 | Nhóm | Nội dung |
 |---|---|
