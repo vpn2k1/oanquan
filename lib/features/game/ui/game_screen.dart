@@ -122,27 +122,27 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.play_arrow_rounded),
+              leading: const FolkIcon(Icons.play_arrow_rounded),
               title: Text(l.resume),
               onTap: () => Navigator.pop(ctx, 'resume'),
             ),
             ListTile(
-              leading: const Icon(Icons.replay_rounded),
+              leading: const FolkIcon(Icons.replay_rounded),
               title: Text(l.restart),
               onTap: () => Navigator.pop(ctx, 'restart'),
             ),
             ListTile(
-              leading: const Icon(Icons.rule_rounded),
+              leading: const FolkIcon(Icons.rule_rounded),
               title: Text(l.rules),
               onTap: () => Navigator.pop(ctx, 'rules'),
             ),
             ListTile(
-              leading: const Icon(Icons.settings_rounded),
+              leading: const FolkIcon(Icons.settings_rounded),
               title: Text(l.settings),
               onTap: () => Navigator.pop(ctx, 'settings'),
             ),
             ListTile(
-              leading: const Icon(Icons.save_alt_rounded),
+              leading: const FolkIcon(Icons.save_alt_rounded),
               title: Text(l.saveAndExit),
               onTap: () => Navigator.pop(ctx, 'exit'),
             ),

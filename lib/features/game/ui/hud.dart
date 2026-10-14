@@ -186,7 +186,7 @@ class PlayerChip extends StatelessWidget {
                     ),
                   ),
                 if (!p.active)
-                  Icon(
+                  FolkIcon(
                     Icons.block_rounded,
                     size: 16,
                     color: Colors.red.shade400,
@@ -274,7 +274,7 @@ class HudButton extends StatelessWidget {
           onTap: onPressed,
           child: SizedBox.square(
             dimension: size,
-            child: Icon(
+            child: FolkIcon(
               icon,
               size: size * 0.5,
               color: enabled ? AppColors.teal : Theme.of(context).disabledColor,

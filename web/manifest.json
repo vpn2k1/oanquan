@@ -3,7 +3,7 @@
     "short_name": "o_quan_viet",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFF4D6",
+    "background_color": "#0B4F4A",
     "theme_color": "#13B5A6",
     "description": "A new Flutter project.",
     "orientation": "landscape",

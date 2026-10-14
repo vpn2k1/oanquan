@@ -12,9 +12,13 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))
+      AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 1400),
+        )
         ..forward().whenComplete(() {
           if (mounted) context.go(Routes.home);
         });
@@ -40,11 +44,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Transform.scale(scale: 0.6 + 0.4 * t, child: LogoMark(size: 140, spin: _c.value * 2)),
+                    Transform.scale(
+                      scale: 0.6 + 0.4 * t,
+                      child: const LogoMark(size: 140),
+                    ),
                     const SizedBox(height: 20),
-                    Text(l.appTitle,
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
-                    Text(l.appSubtitle, style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      l.appTitle,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    Text(
+                      l.appSubtitle,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ],
                 ),
               );

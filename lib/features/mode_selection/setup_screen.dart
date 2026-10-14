@@ -145,17 +145,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           ButtonSegment(
             value: PlayMode.local,
             label: Text(l.modeLocal),
-            icon: const Icon(Icons.people_alt_rounded),
+            icon: const FolkIcon(Icons.people_alt_rounded),
           ),
           ButtonSegment(
             value: PlayMode.ai,
             label: Text(l.modeAi),
-            icon: const Icon(Icons.smart_toy_rounded),
+            icon: const FolkIcon(Icons.smart_toy_rounded),
           ),
           ButtonSegment(
             value: PlayMode.online,
             label: Text(l.modeOnline),
-            icon: const Icon(Icons.public_rounded),
+            icon: const FolkIcon(Icons.public_rounded),
           ),
         ],
         selected: {_mode},
@@ -180,7 +180,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     ];
     final start = FilledButton.icon(
       key: const Key('startGame'),
-      icon: Icon(
+      icon: FolkIcon(
         _mode == PlayMode.online
             ? Icons.public_rounded
             : Icons.play_arrow_rounded,

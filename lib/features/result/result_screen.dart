@@ -86,9 +86,14 @@ class ResultScreen extends ConsumerWidget {
                   value: st.player.quanCaptured,
                   semantics: l.quanShort,
                 ),
-                if (st.player.refillSpent > 0) Text('−${st.player.refillSpent}'),
+                if (st.player.refillSpent > 0)
+                  Text('−${st.player.refillSpent}'),
                 if (!st.player.active)
-                  Icon(Icons.block_rounded, size: 16, color: Colors.red.shade400),
+                  FolkIcon(
+                    Icons.block_rounded,
+                    size: 16,
+                    color: Colors.red.shade400,
+                  ),
               ],
             ),
             trailing: Text(
@@ -105,7 +110,7 @@ class ResultScreen extends ConsumerWidget {
     final buttons = <Widget>[
       FilledButton.icon(
         key: const Key('playAgain'),
-        icon: const Icon(Icons.replay_rounded),
+        icon: const FolkIcon(Icons.replay_rounded),
         label: Text(l.playAgain),
         onPressed: () {
           ref.read(gameSessionProvider.notifier).restart();
@@ -114,7 +119,7 @@ class ResultScreen extends ConsumerWidget {
       ),
       const SizedBox(height: 10),
       OutlinedButton.icon(
-        icon: const Icon(Icons.home_rounded),
+        icon: const FolkIcon(Icons.home_rounded),
         label: Text(l.home),
         onPressed: () {
           ref.read(gameSessionProvider.notifier).abandon();

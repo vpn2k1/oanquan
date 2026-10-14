@@ -38,7 +38,7 @@ class HomeScreen extends ConsumerWidget {
       if (hasSave) ...[
         FilledButton.icon(
           key: const Key('continue'),
-          icon: const Icon(Icons.play_circle_fill_rounded),
+          icon: const FolkIcon(Icons.play_circle_fill_rounded),
           label: Text(l.continueGame),
           onPressed: () {
             if (ref.read(gameSessionProvider.notifier).resumeSaved()) {
@@ -54,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
       ],
       FilledButton.icon(
         key: const Key('playNow'),
-        icon: const Icon(Icons.sports_esports_rounded),
+        icon: const FolkIcon(Icons.sports_esports_rounded),
         label: Text(l.playNow),
         style: hasSave
             ? FilledButton.styleFrom(
@@ -66,19 +66,19 @@ class HomeScreen extends ConsumerWidget {
       ),
       const SizedBox(height: 12),
       OutlinedButton.icon(
-        icon: const Icon(Icons.menu_book_rounded),
+        icon: const FolkIcon(Icons.menu_book_rounded),
         label: Text(l.tutorial),
         onPressed: () => context.push(Routes.tutorial),
       ),
       const SizedBox(height: 12),
       OutlinedButton.icon(
-        icon: const Icon(Icons.emoji_events_rounded),
+        icon: const FolkIcon(Icons.emoji_events_rounded),
         label: Text(l.achievements),
         onPressed: () => context.push(Routes.achievements),
       ),
       const SizedBox(height: 12),
       OutlinedButton.icon(
-        icon: const Icon(Icons.settings_rounded),
+        icon: const FolkIcon(Icons.settings_rounded),
         label: Text(l.settings),
         onPressed: () => context.push(Routes.settings),
       ),

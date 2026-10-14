@@ -9,13 +9,38 @@ import 'stats_repository.dart';
 class AchievementsScreen extends ConsumerWidget {
   const AchievementsScreen({super.key});
 
-  static (String, String, IconData) _info(AppLocalizations l, Achievement a) => switch (a) {
-        Achievement.firstGame => (l.achFirstGame, l.achFirstGameDesc, Icons.flag_rounded),
-        Achievement.beatAi => (l.achBeatAi, l.achBeatAiDesc, Icons.smart_toy_rounded),
-        Achievement.beatHard => (l.achBeatHard, l.achBeatHardDesc, Icons.workspace_premium_rounded),
-        Achievement.quanHunter => (l.achQuanHunter, l.achQuanHunterDesc, Icons.diamond_rounded),
-        Achievement.highScore => (l.achHighScore, l.achHighScoreDesc, Icons.savings_rounded),
-        Achievement.allBoards => (l.achAllBoards, l.achAllBoardsDesc, Icons.category_rounded),
+  static (String, String, IconData) _info(AppLocalizations l, Achievement a) =>
+      switch (a) {
+        Achievement.firstGame => (
+          l.achFirstGame,
+          l.achFirstGameDesc,
+          Icons.flag_rounded,
+        ),
+        Achievement.beatAi => (
+          l.achBeatAi,
+          l.achBeatAiDesc,
+          Icons.smart_toy_rounded,
+        ),
+        Achievement.beatHard => (
+          l.achBeatHard,
+          l.achBeatHardDesc,
+          Icons.workspace_premium_rounded,
+        ),
+        Achievement.quanHunter => (
+          l.achQuanHunter,
+          l.achQuanHunterDesc,
+          Icons.diamond_rounded,
+        ),
+        Achievement.highScore => (
+          l.achHighScore,
+          l.achHighScoreDesc,
+          Icons.savings_rounded,
+        ),
+        Achievement.allBoards => (
+          l.achAllBoards,
+          l.achAllBoardsDesc,
+          Icons.category_rounded,
+        ),
       };
 
   @override
@@ -24,16 +49,27 @@ class AchievementsScreen extends ConsumerWidget {
     final s = ref.watch(statsProvider);
     final theme = Theme.of(context);
     Widget stat(String label, int v) => Expanded(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-              child: Column(children: [
-                Text('$v', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
-                Text(label, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
-              ]),
-            ),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+          child: Column(
+            children: [
+              Text(
+                '$v',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
           ),
-        );
+        ),
+      ),
+    );
     return Scaffold(
       appBar: AppBar(title: Text(l.achievements)),
       body: AppBackground(
@@ -44,23 +80,51 @@ class AchievementsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 Text(l.statsTitle, style: theme.textTheme.titleMedium),
-                Row(children: [stat(l.statsPlayed, s.played), stat(l.statsWinsVsAi, s.winsVsAi)]),
-                Row(children: [stat(l.statsBestScore, s.bestScore), stat(l.statsQuanTotal, s.quanTotal)]),
+                Row(
+                  children: [
+                    stat(l.statsPlayed, s.played),
+                    stat(l.statsWinsVsAi, s.winsVsAi),
+                  ],
+                ),
+                Row(
+                  children: [
+                    stat(l.statsBestScore, s.bestScore),
+                    stat(l.statsQuanTotal, s.quanTotal),
+                  ],
+                ),
                 const SizedBox(height: 12),
                 for (final a in Achievement.values)
-                  Builder(builder: (context) {
-                    final (title, desc, icon) = _info(l, a);
-                    final ok = s.unlocked(a);
-                    return Card(
-                      child: ListTile(
-                        leading: Icon(icon, color: ok ? theme.colorScheme.secondary : theme.disabledColor, size: 32),
-                        title: Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: ok ? null : theme.disabledColor)),
-                        subtitle: Text(desc),
-                        trailing: Icon(ok ? Icons.check_circle_rounded : Icons.lock_rounded,
-                            color: ok ? Colors.green : theme.disabledColor),
-                      ),
-                    );
-                  }),
+                  Builder(
+                    builder: (context) {
+                      final (title, desc, icon) = _info(l, a);
+                      final ok = s.unlocked(a);
+                      return Card(
+                        child: ListTile(
+                          leading: FolkIcon(
+                            icon,
+                            color: ok
+                                ? theme.colorScheme.secondary
+                                : theme.disabledColor,
+                            size: 32,
+                          ),
+                          title: Text(
+                            title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: ok ? null : theme.disabledColor,
+                            ),
+                          ),
+                          subtitle: Text(desc),
+                          trailing: FolkIcon(
+                            ok
+                                ? Icons.check_circle_rounded
+                                : Icons.lock_rounded,
+                            color: ok ? Colors.green : theme.disabledColor,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),

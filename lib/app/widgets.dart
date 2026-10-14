@@ -3,7 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../features/game/flame/pieces_painter.dart';
+import 'folk_icon.dart';
 import 'theme.dart';
+
+export 'folk_icon.dart';
 
 /// Nền chung: xanh ngọc đậm (tối) hoặc kem (sáng) với hoa văn mờ.
 class AppBackground extends StatelessWidget {
@@ -40,11 +43,45 @@ class _PatternPainter extends CustomPainter {
       ..color = (dark ? Colors.white : AppColors.turquoise).withValues(
         alpha: dark ? 0.05 : 0.12,
       );
-    const step = 56.0;
+    const step = 72.0;
     for (var y = -step; y < size.height + step; y += step) {
       for (var x = -step; x < size.width + step; x += step) {
         final o = Offset(x + ((y / step).round().isOdd ? step / 2 : 0), y);
-        canvas.drawCircle(o, step * 0.28, p);
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: o - const Offset(0, 9),
+            width: 12,
+            height: 22,
+          ),
+          p,
+        );
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: o + const Offset(-8, 1),
+            width: 12,
+            height: 19,
+          ),
+          p,
+        );
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: o + const Offset(8, 1),
+            width: 12,
+            height: 19,
+          ),
+          p,
+        );
+        canvas.drawArc(
+          Rect.fromCenter(
+            center: o + const Offset(0, 8),
+            width: 32,
+            height: 13,
+          ),
+          0,
+          pi,
+          false,
+          p,
+        );
       }
     }
   }
@@ -53,50 +90,19 @@ class _PatternPainter extends CustomPainter {
   bool shouldRepaint(_PatternPainter old) => old.dark != dark;
 }
 
-/// Logo: quan ngọc trên đế sen giữa vòng sỏi 4 màu.
+/// Logo quan chibi đã chọn, dùng chung cho màn chào và màn chính.
 class LogoMark extends StatelessWidget {
-  const LogoMark({super.key, this.size = 120, this.spin = 0});
+  const LogoMark({super.key, this.size = 120});
   final double size;
-  final double spin;
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: size,
-    child: CustomPaint(painter: _LogoPainter(spin)),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.24),
+      child: Image.asset('assets/app_icon.png', fit: BoxFit.cover),
+    ),
   );
-}
-
-class _LogoPainter extends CustomPainter {
-  _LogoPainter(this.spin);
-  final double spin;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    final r = size.width / 2;
-    canvas.drawCircle(c, r * 0.98, Paint()..color = AppColors.wood);
-    canvas.drawCircle(
-      c,
-      r * 0.9,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.04
-        ..color = AppColors.groove.withValues(alpha: 0.5),
-    );
-    for (var i = 0; i < 12; i++) {
-      final a = spin + i * pi / 6;
-      PiecesPainter.stone(
-        canvas,
-        c + Offset.fromDirection(a, r * 0.72),
-        r * 0.1,
-        playerColors[i % 4],
-      );
-    }
-    PiecesPainter.quanFigure(canvas, c, r * 0.4);
-  }
-
-  @override
-  bool shouldRepaint(_LogoPainter old) => old.spin != spin;
 }
 
 /// Hình thu nhỏ bàn 2/3/4 người cho màn chọn.
@@ -120,7 +126,7 @@ class _ShapePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
     final r = size.width * 0.42;
-    final wood = Paint()..color = AppColors.wood;
+    final wood = Paint()..color = AppColors.woodLight;
     final List<Offset> verts;
     if (n == 2) {
       final rect = Rect.fromCenter(
@@ -142,8 +148,14 @@ class _ShapePainter extends CustomPainter {
           final y = c.dy + (p == 0 ? 1 : -1) * rect.height * 0.22;
           canvas.drawCircle(
             Offset(x, y),
-            rect.height * 0.11,
-            Paint()..color = playerColors[p],
+            rect.height * 0.14,
+            Paint()..color = AppColors.well,
+          );
+          PiecesPainter.stone(
+            canvas,
+            Offset(x, y),
+            rect.height * 0.085,
+            playerColors[p],
           );
         }
       }
@@ -157,28 +169,23 @@ class _ShapePainter extends CustomPainter {
         final a = verts[p], b = verts[(p + 1) % n];
         for (var j = 0; j < 5; j++) {
           final t = (j + 1) / 6;
+          final center = Offset.lerp(a, b, t)!;
           canvas.drawCircle(
-            Offset.lerp(a, b, t)!,
-            size.width * 0.04,
-            Paint()..color = playerColors[p],
+            center,
+            size.width * 0.06,
+            Paint()..color = AppColors.well,
+          );
+          PiecesPainter.stone(
+            canvas,
+            center,
+            size.width * 0.038,
+            playerColors[p],
           );
         }
       }
     }
     for (final v in verts) {
-      canvas.drawCircle(
-        v,
-        size.width * 0.07,
-        Paint()..color = const Color(0xFFE8325A),
-      );
-      canvas.drawCircle(
-        v,
-        size.width * 0.07,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5
-          ..color = AppColors.gold,
-      );
+      PiecesPainter.quanFigure(canvas, v, size.width * 0.09);
     }
   }
 
@@ -223,7 +230,7 @@ class PlayerAvatar extends StatelessWidget {
         child: CustomPaint(
           painter: _SymbolPainter(symbolOf(playerId)),
           child: ai
-              ? Icon(
+              ? FolkIcon(
                   Icons.smart_toy_rounded,
                   size: size * 0.5,
                   color: Colors.white,
