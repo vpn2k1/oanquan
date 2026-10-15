@@ -449,4 +449,22 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get eliminatedShort => 'Bị loại';
+
+  @override
+  String get chooseLevel => 'Độ khó';
+
+  @override
+  String get playerNames => 'Tên người chơi';
+
+  @override
+  String get you => 'Bạn';
+
+  @override
+  String get aiEasyDesc => 'Máy hay đi ngẫu nhiên';
+
+  @override
+  String get aiMediumDesc => 'Tính trước vài nước';
+
+  @override
+  String get aiHardDesc => 'Tính sâu, khó thắng';
 }

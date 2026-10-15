@@ -152,5 +152,11 @@
   "style_concrete_charcoal": "Concrete · charcoal",
   "yourTurn": "Your turn",
   "thinkingShort": "Thinking…",
-  "eliminatedShort": "Out"
+  "eliminatedShort": "Out",
+  "chooseLevel": "Difficulty",
+  "playerNames": "Player names",
+  "you": "You",
+  "aiEasyDesc": "Often plays randomly",
+  "aiMediumDesc": "Looks a few moves ahead",
+  "aiHardDesc": "Searches deep, tough to beat"
 }

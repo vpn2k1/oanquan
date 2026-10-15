@@ -449,4 +449,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eliminatedShort => 'Out';
+
+  @override
+  String get chooseLevel => 'Difficulty';
+
+  @override
+  String get playerNames => 'Player names';
+
+  @override
+  String get you => 'You';
+
+  @override
+  String get aiEasyDesc => 'Often plays randomly';
+
+  @override
+  String get aiMediumDesc => 'Looks a few moves ahead';
+
+  @override
+  String get aiHardDesc => 'Searches deep, tough to beat';
 }

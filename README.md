@@ -103,7 +103,7 @@ Các điểm dự án tự bổ sung, vì luật dân gian không quy định:
 
 ## Online (Milestone D — **đang tạm ẩn**, mới là hợp đồng API, chưa có mạng thật)
 
-Tắt bằng `kOnlineEnabled = false` trong `lib/app/features.dart`: không có route hay nút nào dẫn vào; code và test vẫn giữ. Màn chọn chế độ chỉ có **Đấu máy** và **Chơi với bạn**.
+Tắt bằng `kOnlineEnabled = false` trong `lib/app/features.dart`: không có route hay nút nào dẫn vào; code và test vẫn giữ. Màn chọn chế độ chỉ có **Đấu máy** (chỉ chọn độ khó Dễ/Vừa/Khó, bạn là người 1, các ghế còn lại là máy) và **Chơi với bạn** (chỉ điền tên).
 
 
 - `protocol.dart` định nghĩa `CreateRoom`, `JoinRoom`, `SubmitMove`, `PlayerReconnect`,

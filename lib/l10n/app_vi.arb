@@ -246,5 +246,11 @@
   "style_concrete_charcoal": "Xi măng · than củi",
   "yourTurn": "Tới lượt",
   "thinkingShort": "Đang nghĩ…",
-  "eliminatedShort": "Bị loại"
+  "eliminatedShort": "Bị loại",
+  "chooseLevel": "Độ khó",
+  "playerNames": "Tên người chơi",
+  "you": "Bạn",
+  "aiEasyDesc": "Máy hay đi ngẫu nhiên",
+  "aiMediumDesc": "Tính trước vài nước",
+  "aiHardDesc": "Tính sâu, khó thắng"
 }

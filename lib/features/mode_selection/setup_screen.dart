@@ -12,13 +12,6 @@ import '../game/game_session.dart';
 /// Hai chế độ: đấu với máy, hoặc chơi với bạn trên cùng một máy.
 enum PlayMode { ai, local }
 
-class _Slot {
-  _Slot(this.type, this.level, this.name);
-  PlayerType type;
-  AiLevel level;
-  String name;
-}
-
 /// Chọn 2/3/4 người → Đấu máy / Chơi với bạn → người/AI & độ khó.
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key});
@@ -30,35 +23,21 @@ class SetupScreen extends ConsumerStatefulWidget {
 class _SetupScreenState extends ConsumerState<SetupScreen> {
   int _players = 2;
   PlayMode _mode = PlayMode.ai;
-  final List<_Slot> _slots = [];
+  AiLevel _level = AiLevel.medium;
+
+  /// Tên người chơi cho chế độ "Chơi với bạn" (4 ô, dùng `_players` ô đầu).
   final List<TextEditingController> _names = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_slots.isEmpty) _resetSlots();
-  }
-
-  void _resetSlots() {
-    final l = context.l10n;
-    _slots
-      ..clear()
-      ..addAll([
+    if (_names.isEmpty) {
+      final l = context.l10n;
+      _names.addAll([
         for (var i = 0; i < 4; i++)
-          _mode == PlayMode.ai && i > 0
-              ? _Slot(PlayerType.ai, AiLevel.medium, l.aiPlayerName(i))
-              : _Slot(
-                  PlayerType.human,
-                  AiLevel.medium,
-                  l.defaultPlayerName(i + 1),
-                ),
+          TextEditingController(text: l.defaultPlayerName(i + 1)),
       ]);
-    for (final c in _names) {
-      c.dispose();
     }
-    _names
-      ..clear()
-      ..addAll([for (final s in _slots) TextEditingController(text: s.name)]);
   }
 
   @override
@@ -73,16 +52,24 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final l = context.l10n;
     final players = [
       for (var i = 0; i < _players; i++)
-        Player(
-          id: i,
-          name: _names[i].text.trim().isEmpty
-              ? (_slots[i].type == PlayerType.ai
-                    ? l.aiPlayerName(i)
-                    : l.defaultPlayerName(i + 1))
-              : _names[i].text.trim(),
-          type: _slots[i].type,
-          aiLevel: _slots[i].level,
-        ),
+        switch (_mode) {
+          // Đấu máy: người 1 là bạn, các ghế còn lại là máy cùng độ khó.
+          PlayMode.ai =>
+            i == 0
+                ? Player(id: 0, name: l.you)
+                : Player(
+                    id: i,
+                    name: l.aiPlayerName(i),
+                    type: PlayerType.ai,
+                    aiLevel: _level,
+                  ),
+          PlayMode.local => Player(
+            id: i,
+            name: _names[i].text.trim().isEmpty
+                ? l.defaultPlayerName(i + 1)
+                : _names[i].text.trim(),
+          ),
+        },
     ];
     ref
         .read(gameSessionProvider.notifier)
@@ -151,16 +138,68 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           ),
         ],
         selected: {_mode},
-        onSelectionChanged: (s) => setState(() {
-          _mode = s.first;
-          _resetSlots();
-        }),
+        onSelectionChanged: (s) => setState(() => _mode = s.first),
       ),
     ];
+    final levels = [
+      (AiLevel.easy, l.aiEasy, l.aiEasyDesc, 1),
+      (AiLevel.medium, l.aiMedium, l.aiMediumDesc, 2),
+      (AiLevel.hard, l.aiHard, l.aiHardDesc, 3),
+    ];
     final playersSection = <Widget>[
-      Text(l.playersSetup, style: theme.textTheme.titleMedium),
-      const SizedBox(height: 8),
-      for (var i = 0; i < _players; i++) _slotTile(i),
+      if (_mode == PlayMode.ai) ...[
+        Text(l.chooseLevel, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            for (final (lv, name, desc, stars) in levels)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: _ChoiceCard(
+                    key: Key('level_${lv.name}'),
+                    selected: _level == lv,
+                    onTap: () => setState(() => _level = lv),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            for (var k = 0; k < 3; k++)
+                              Icon(
+                                Icons.circle,
+                                size: 10,
+                                color: k < stars
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.outline,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          desc,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ] else ...[
+        Text(l.playerNames, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        for (var i = 0; i < _players; i++) _nameTile(i),
+      ],
     ];
     final start = FilledButton.icon(
       key: const Key('startGame'),
@@ -226,61 +265,26 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     );
   }
 
-  Widget _slotTile(int i) {
-    final l = context.l10n;
-    final s = _slots[i];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            PlayerAvatar(playerId: i, ai: s.type == PlayerType.ai),
-            SizedBox(
-              width: 140,
-              child: TextField(
-                controller: _names[i],
-                maxLength: 14,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  counterText: '',
-                ),
-              ),
+  Widget _nameTile(int i) => Card(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          PlayerAvatar(playerId: i),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              key: Key('name$i'),
+              controller: _names[i],
+              maxLength: 14,
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(isDense: true, counterText: ''),
             ),
-            SegmentedButton<PlayerType>(
-              showSelectedIcon: false,
-              segments: [
-                ButtonSegment(value: PlayerType.human, label: Text(l.human)),
-                ButtonSegment(value: PlayerType.ai, label: Text(l.ai)),
-              ],
-              selected: {s.type},
-              onSelectionChanged: (v) => setState(() {
-                s.type = v.first;
-                _names[i].text = s.type == PlayerType.ai
-                    ? l.aiPlayerName(i)
-                    : l.defaultPlayerName(i + 1);
-              }),
-            ),
-            if (s.type == PlayerType.ai)
-              DropdownButton<AiLevel>(
-                value: s.level,
-                items: [
-                  DropdownMenuItem(value: AiLevel.easy, child: Text(l.aiEasy)),
-                  DropdownMenuItem(
-                    value: AiLevel.medium,
-                    child: Text(l.aiMedium),
-                  ),
-                  DropdownMenuItem(value: AiLevel.hard, child: Text(l.aiHard)),
-                ],
-                onChanged: (v) => setState(() => s.level = v ?? s.level),
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }
 
 class _ChoiceCard extends StatelessWidget {

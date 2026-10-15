@@ -895,6 +895,42 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Bị loại'**
   String get eliminatedShort;
+
+  /// No description provided for @chooseLevel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Độ khó'**
+  String get chooseLevel;
+
+  /// No description provided for @playerNames.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên người chơi'**
+  String get playerNames;
+
+  /// No description provided for @you.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn'**
+  String get you;
+
+  /// No description provided for @aiEasyDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Máy hay đi ngẫu nhiên'**
+  String get aiEasyDesc;
+
+  /// No description provided for @aiMediumDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tính trước vài nước'**
+  String get aiMediumDesc;
+
+  /// No description provided for @aiHardDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tính sâu, khó thắng'**
+  String get aiHardDesc;
 }
 
 class _AppLocalizationsDelegate
