@@ -4,8 +4,8 @@ Game Ô ăn quan 2–4 người viết bằng **Flutter + Dart + Flame**, chạy
 Bàn 2 người hình chữ nhật, 3 người hình tam giác đều, 4 người hình vuông. Cả ba dùng chung một
 engine theo **vòng ô có thứ tự**.
 
-> Bộ luật `multi_v1` là **biến thể do dự án định nghĩa** cho 2–4 người, không phải luật dân gian
-> thống nhất. Muốn đổi luật thì phải cập nhật test và spec trước.
+> Luật theo **Ô ăn quan dân gian** ([Wikipedia](https://vi.wikipedia.org/wiki/%C3%94_%C4%83n_quan)) cho
+> 2 người; bàn 3–4 người áp dụng cùng luật trên vòng ô dài hơn. Preset vẫn có id `multi_v1`.
 
 ## Chạy
 
@@ -64,30 +64,35 @@ test/  engine/ ai/ persistence/ game/ multiplayer/ widgets/
 đồng hồ trên màn hình. Người 0 luôn ngồi ở cạnh dưới. `Qp` là ô góc nằm ngay trước đoạn ô dân của
 người `p`.
 
-## Luật `multi_v1` (tóm tắt) và các giả định
+## Luật (theo luật dân gian)
 
-Toàn bộ luật nằm trong spec. Engine cài đặt đúng mục 4.1–4.3 của spec. Ba điểm sau spec chưa nói rõ,
-nên dự án tự đặt giả định:
+1. Mỗi người 5 ô dân × 5 dân; mỗi ô quan có 1 quan (= 10 dân). Không được bốc từ ô quan.
+2. Rải mỗi ô 1 dân (kể cả ô quan) theo chiều tự chọn. Hết dân trên tay:
+   - ô kế tiếp là ô dân còn dân → bốc rải tiếp;
+   - ô kế tiếp là ô quan còn quân → **mất lượt**;
+   - ô kế tiếp trống rồi một ô có quân → **ăn** ô đó, rồi ăn chuỗi nếu lại "trống – có quân";
+   - 2 ô trống liền → mất lượt.
+3. **Quan non:** ô quan còn quan nhưng có ít hơn 5 dân thì **không được ăn** (kể cả dân trong ô); gặp quan non là mất lượt.
+   Ô quan đã bị ăn mất quan: còn dân thì ăn như ô thường, hết dân thì là ô trống.
+4. **Hết dân:** đầu lượt, nếu 5 ô của mình đều trống thì lấy 5 dân đã ăn rải lại mỗi ô 1 dân. Không đủ
+   thì **vay** người chơi khác (ưu tiên người nhiều điểm nhất) và **trả khi tính điểm**.
+5. **Kết thúc:** khi **cả hai ô quan hết sạch quan và dân**. Dân còn trên các ô bên nào thì thuộc về người
+   bên đó. Sau đó trả nợ. Nhiều dân nhất (1 quan = 10 dân) thắng; bằng điểm thì đồng hạng.
 
-| # | Giả định | Lý do |
+Các điểm dự án tự bổ sung, vì luật dân gian không quy định:
+
+| # | Quy định | Lý do |
 |---|---|---|
-| A1 | Ô quan **đã mất token và còn 0 dân** được coi là **ô trống**, nên có thể làm khe để ăn qua. Ô quan còn dân hoặc còn token thì làm dừng pha rải. | Spec định nghĩa "ô trống" = `danCount == 0 && !hasQuan`. Định nghĩa này chỉ có nghĩa khi ô quan cũng có thể trống. |
-| A2 | Nạp dân trừ vào **điểm tổng** (`score ≥ refillCost`). Thống kê dân và quan được hiển thị riêng. | Spec mục 4.2: "Dùng điểm tổng cho MVP". |
-| A3 | **Luật chống bế tắc:** ván tự kết thúc khi tổng số nước đạt `maxMovesPerPlayer × N` (mặc định 60 nước mỗi người). Có thể chỉnh trong `RulesetConfig`; đặt 0 để tắt. | Khi mô phỏng ngẫu nhiên, khoảng 1% ván 4 người lặp vô hạn: người chơi nạp dân, rồi bị ăn lại, nhưng không ai ăn được quan cuối cùng. |
+| B1 | Không vay đủ (người khác cũng không có điểm) → bị loại; còn ≤ 1 người thì kết thúc ván. | Luật 2 người không nói tới trường hợp này. Mô phỏng 600 ván cho thấy hầu như không xảy ra. |
+| B2 | Chống bế tắc: ván dừng sau `maxMovesPerPlayer × N` nước (mặc định 60 mỗi người), vẫn thu dân và trả nợ như bình thường. | Mô phỏng: 2 người luôn kết thúc tự nhiên; 3–4 người khoảng 2–8% ván ngẫu nhiên chạm giới hạn. |
+| B3 | Dân nằm trong ô quan khi ván dừng theo B1/B2 không thuộc về ai. | Ô quan là ô chung. |
+| B4 | Chốt chống lặp trong một lượt (`RuleLoopGuard`). | An toàn kỹ thuật. |
 
-Các điểm khác:
-- Loop guard: trước mỗi lần bốc, engine băm `{cells, cursor, phase, direction}`. Nếu một trạng thái
-  lặp lại, hoặc số bước vượt chốt an toàn, engine phát `RuleLoopGuard` và kết thúc lượt.
-- Ván kết thúc khi hết token quan, khi chỉ còn ≤ 1 người active, hoặc theo A3. Dân còn trên bàn
-  không được cộng điểm. Đồng điểm thì đồng hạng.
-- `rulesetConfig` cho phép chỉnh `initialDan`, `quanValue`, `quanCaptureThreshold`, `refillCost`.
-  `RulesetConfig.isPreset` cho biết ván có dùng preset hay không. Chế độ xếp hạng chưa có.
-
-## Test (80 test)
+## Test (84 test)
 
 | Nhóm | Nội dung |
 |---|---|
-| `test/engine` | Fixture trong spec (2p/3p/4p initial, invalidMove, captureOne, captureQuanThreshold 4 so với 5, refill, skipEliminated), wrap modulo hai chiều, ăn chuỗi, không ăn qua 2 ô trống, game over, hòa, loop guard. Thêm 180 ván ngẫu nhiên có seed để kiểm tra bảo toàn dân/quan và replay. |
+| `test/engine` | Fixture (2p/3p/4p initial, invalidMove, captureOne, ăn quan 5 dân, quan non 4 dân, rải lại, vay/trả nợ, thu dân cuối ván, ô quan còn dân chưa kết thúc, loại khi không vay được), wrap modulo hai chiều, ăn chuỗi, không ăn qua 2 ô trống, game over, hòa, loop guard. Thêm 180 ván ngẫu nhiên có seed để kiểm tra bảo toàn dân/quan và replay. |
 | `test/ai` | Bot luôn đi nước hợp lệ ở 2/3/4 người với mọi mức. Kiểm tra time budget, tính tất định theo seed, Medium thắng bot ngẫu nhiên ≥ 70%. |
 | `test/persistence` | Round-trip JSON cho state, save, event. Từ chối `schemaVersion` lạ. Giới hạn số nước. |
 | `test/game` | Controller: khóa input khi animation, tự lưu, undo, khôi phục, AI tự đi, ghi thống kê. |

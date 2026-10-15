@@ -13,11 +13,15 @@ abstract final class Scoring {
   static List<int> winners(List<Player> players) {
     if (players.isEmpty) return const [];
     final best = players.map((p) => p.score).reduce((a, b) => a > b ? a : b);
-    return [for (final p in players) if (p.score == best) p.id];
+    return [
+      for (final p in players)
+        if (p.score == best) p.id,
+    ];
   }
 
   static List<Standing> standings(List<Player> players) {
-    final sorted = [...players]..sort((a, b) {
+    final sorted = [...players]
+      ..sort((a, b) {
         final c = b.score.compareTo(a.score);
         return c != 0 ? c : a.id.compareTo(b.id);
       });

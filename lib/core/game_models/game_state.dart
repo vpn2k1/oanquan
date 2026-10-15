@@ -56,18 +56,17 @@ class GameState {
     List<Move>? history,
     List<int>? winnerIds,
     EndReason? endReason,
-  }) =>
-      GameState(
-        config: config,
-        cells: cells ?? this.cells,
-        players: players ?? this.players,
-        turnPlayer: turnPlayer ?? this.turnPlayer,
-        phase: phase ?? this.phase,
-        moveNumber: moveNumber ?? this.moveNumber,
-        history: history ?? this.history,
-        winnerIds: winnerIds ?? this.winnerIds,
-        endReason: endReason ?? this.endReason,
-      );
+  }) => GameState(
+    config: config,
+    cells: cells ?? this.cells,
+    players: players ?? this.players,
+    turnPlayer: turnPlayer ?? this.turnPlayer,
+    phase: phase ?? this.phase,
+    moveNumber: moveNumber ?? this.moveNumber,
+    history: history ?? this.history,
+    winnerIds: winnerIds ?? this.winnerIds,
+    endReason: endReason ?? this.endReason,
+  );
 
   /// Khóa so sánh nội dung bàn (không gồm history) — dùng cho test/AI.
   String get boardKey =>

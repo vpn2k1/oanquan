@@ -416,7 +416,22 @@ class OQuanGame extends FlameGame with KeyboardEvents {
           _float('+$value', g.cells[cellId].center, AppColors.gold);
         }
         callbacks.onSound(Sfx.quan);
-      case RefillEvent() || EliminateEvent() || RuleLoopGuardEvent():
+      case RefillEvent(:final playerId, :final cost, :final borrowed):
+        for (final b in borrowed.entries) {
+          scores[b.key] -= b.value;
+          scores[playerId] += b.value;
+        }
+        scores[playerId] -= cost;
+        callbacks.onNotice(e);
+      case CollectEvent(:final playerId, :final cellIds, :final count):
+        for (final c in cellIds) {
+          dan[c] = 0;
+        }
+        scores[playerId] += count * _state.config.ruleset.danValue;
+      case RepayEvent(:final fromId, :final toId, :final amount):
+        scores[fromId] -= amount;
+        scores[toId] += amount;
+      case EliminateEvent() || RuleLoopGuardEvent():
         callbacks.onNotice(e);
       case GameOverEvent():
         callbacks.onSound(Sfx.win);
@@ -504,7 +519,12 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         displayScores.value = [...scores];
         callbacks.onSound(Sfx.quan);
         await gem.done.future;
-      case RefillEvent(:final playerId, :final cellIds, :final cost):
+      case RefillEvent(:final playerId, :final cellIds, :final cost, :final borrowed):
+        for (final b in borrowed.entries) {
+          scores[b.key] -= b.value;
+          scores[playerId] += b.value;
+          _float('−${b.value}', g.playerAnchors[b.key], playerColors[b.key]);
+        }
         for (final c in cellIds) {
           dan[c]++;
           pulse[c] = 1;
@@ -515,6 +535,38 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         callbacks.onNotice(e);
         callbacks.onSound(Sfx.refill);
         await _wait(0.6);
+      case CollectEvent(:final playerId, :final cellIds, :final count):
+        for (final c in cellIds) {
+          flash[c] = 1;
+          final from = g.cells[c].center;
+          for (var i = 0; i < min(dan[c], 3); i++) {
+            add(FlyingPiece(
+              from: from + Offset.fromDirection(i * 2.1, u * 0.12),
+              to: g.playerAnchors[playerId],
+              duration: 0.45 * visuals.speedFactor,
+              kind: FlyKind.stone,
+              radius: u * 0.11,
+              color: playerColors[playerId],
+              lift: 0.25,
+              fadeOut: true,
+              delay: i * 0.05,
+            ));
+          }
+          dan[c] = 0;
+        }
+        _float('+$count', g.playerAnchors[playerId], playerColors[playerId]);
+        scores[playerId] += count * _state.config.ruleset.danValue;
+        displayScores.value = [...scores];
+        callbacks.onSound(Sfx.capture);
+        await _wait(0.55);
+      case RepayEvent(:final fromId, :final toId, :final amount):
+        scores[fromId] -= amount;
+        scores[toId] += amount;
+        displayScores.value = [...scores];
+        _float('−$amount', g.playerAnchors[fromId], playerColors[fromId]);
+        _float('+$amount', g.playerAnchors[toId], playerColors[toId]);
+        callbacks.onNotice(e);
+        await _wait(0.5);
       case EliminateEvent():
         callbacks.onNotice(e);
         await _wait(0.5);

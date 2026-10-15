@@ -6,8 +6,7 @@ enum Direction {
   const Direction(this.step);
   final int step;
 
-  Direction get opposite =>
-      this == clockwise ? counterClockwise : clockwise;
+  Direction get opposite => this == clockwise ? counterClockwise : clockwise;
 }
 
 class Move {
@@ -22,16 +21,16 @@ class Move {
   final Direction direction;
 
   Map<String, dynamic> toJson() => {
-        'playerId': playerId,
-        'sourceCellId': sourceCellId,
-        'direction': direction.name,
-      };
+    'playerId': playerId,
+    'sourceCellId': sourceCellId,
+    'direction': direction.name,
+  };
 
   factory Move.fromJson(Map<String, dynamic> j) => Move(
-        playerId: j['playerId'] as int,
-        sourceCellId: j['sourceCellId'] as int,
-        direction: Direction.values.byName(j['direction'] as String),
-      );
+    playerId: j['playerId'] as int,
+    sourceCellId: j['sourceCellId'] as int,
+    direction: Direction.values.byName(j['direction'] as String),
+  );
 
   @override
   bool operator ==(Object other) =>

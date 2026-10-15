@@ -186,12 +186,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String refillMsg(String name) {
-    return '$name hết dân — nạp 5 dân (−5 điểm)';
+    return '$name hết dân — lấy 5 dân đã ăn rải lại mỗi ô 1 dân';
   }
 
   @override
   String eliminateMsg(String name) {
-    return '$name hết dân và không đủ điểm — bị loại';
+    return '$name hết dân và không vay được — bị loại';
   }
 
   @override
@@ -246,7 +246,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get rulesetNote =>
-      'Bộ luật multi_v1 là biến thể do dự án định nghĩa cho 2–4 người, không phải luật dân gian thống nhất.';
+      'Luật theo Ô ăn quan dân gian (2 người); bản 3–4 người mở rộng cùng luật trên bàn tam giác/vuông.';
 
   @override
   String get tutorialTitle => 'Cách chơi';
@@ -284,14 +284,14 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get tutStep5 =>
-      'Token quan chỉ bị ăn khi ô quan có ít nhất 5 dân lúc ăn. Dưới 5 dân: chỉ ăn dân, quan ở lại.';
+      'Ô quan còn quan chỉ được ăn khi có từ 5 dân trở lên. Ít hơn là \"quan non\": không được ăn, bạn mất lượt.';
 
   @override
   String get tutStep6Title => 'Hết dân và kết thúc';
 
   @override
   String get tutStep6 =>
-      'Đầu lượt nếu 5 ô của bạn đều trống: tự nạp 5 dân với giá 5 điểm; không đủ điểm thì bị loại. Ván kết thúc khi hết quan, chỉ còn một người, hoặc đạt giới hạn nước. Điểm cao nhất thắng.';
+      'Đầu lượt nếu 5 ô của bạn đều trống: lấy 5 dân đã ăn rải lại mỗi ô 1 dân; không đủ thì vay đối thủ, trả khi tính điểm. Ván kết thúc khi cả hai ô quan hết sạch dân và quan; dân còn trên các ô bên nào thuộc về người bên đó. 1 quan = 10 dân, nhiều dân nhất thắng.';
 
   @override
   String get tutKeyboard =>
@@ -417,8 +417,18 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get rulesSummary =>
-      '• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → dừng.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi.\n• Ăn quan (10 điểm) khi ô quan có ≥ 5 dân.\n• Hết dân: nạp 5 dân giá 5 điểm, không đủ → bị loại.\n• Kết thúc: hết quan / còn 1 người / đủ 60 nước mỗi người.';
+      '• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.';
 
   @override
   String get addSimulatedClient => '+ Thêm client giả lập';
+
+  @override
+  String borrowMsg(String name, int count) {
+    return '$name hết dân, không đủ 5 dân — vay $count dân để rải lại (trả khi tính điểm)';
+  }
+
+  @override
+  String repayMsg(String name, int count) {
+    return '$name trả $count dân đã vay';
+  }
 }

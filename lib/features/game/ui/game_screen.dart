@@ -99,7 +99,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final st = ref.read(gameSessionProvider)?.current;
     String name(int id) => st?.players[id].name ?? '';
     final msg = switch (e) {
-      RefillEvent(:final playerId) => l.refillMsg(name(playerId)),
+      RefillEvent(:final playerId, :final borrowed) => borrowed.isEmpty
+          ? l.refillMsg(name(playerId))
+          : l.borrowMsg(name(playerId), borrowed.values.fold(0, (a, b) => a + b)),
+      RepayEvent(:final fromId, :final amount) => l.repayMsg(name(fromId), amount),
       EliminateEvent(:final playerId) => l.eliminateMsg(name(playerId)),
       RuleLoopGuardEvent() => l.loopGuardMsg,
       _ => null,

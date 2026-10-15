@@ -30,24 +30,24 @@ class RulesetConfig {
   bool get isPreset => this == multiV1;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'initialDan': initialDan,
-        'quanValue': quanValue,
-        'danValue': danValue,
-        'quanCaptureThreshold': quanCaptureThreshold,
-        'refillCost': refillCost,
-        'maxMovesPerPlayer': maxMovesPerPlayer,
-      };
+    'id': id,
+    'initialDan': initialDan,
+    'quanValue': quanValue,
+    'danValue': danValue,
+    'quanCaptureThreshold': quanCaptureThreshold,
+    'refillCost': refillCost,
+    'maxMovesPerPlayer': maxMovesPerPlayer,
+  };
 
   factory RulesetConfig.fromJson(Map<String, dynamic> j) => RulesetConfig(
-        id: j['id'] as String,
-        initialDan: j['initialDan'] as int,
-        quanValue: j['quanValue'] as int,
-        danValue: j['danValue'] as int,
-        quanCaptureThreshold: j['quanCaptureThreshold'] as int,
-        refillCost: j['refillCost'] as int,
-        maxMovesPerPlayer: j['maxMovesPerPlayer'] as int? ?? 60,
-      );
+    id: j['id'] as String,
+    initialDan: j['initialDan'] as int,
+    quanValue: j['quanValue'] as int,
+    danValue: j['danValue'] as int,
+    quanCaptureThreshold: j['quanCaptureThreshold'] as int,
+    refillCost: j['refillCost'] as int,
+    maxMovesPerPlayer: j['maxMovesPerPlayer'] as int? ?? 60,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -62,8 +62,14 @@ class RulesetConfig {
 
   @override
   int get hashCode => Object.hash(
-      id, initialDan, quanValue, danValue, quanCaptureThreshold, refillCost,
-      maxMovesPerPlayer);
+    id,
+    initialDan,
+    quanValue,
+    danValue,
+    quanCaptureThreshold,
+    refillCost,
+    maxMovesPerPlayer,
+  );
 }
 
 /// Hình bàn tương ứng số người.
@@ -94,24 +100,24 @@ class GameConfig {
   int get ringLength => playerCount * segmentLength;
 
   BoardShape get shape => switch (playerCount) {
-        2 => BoardShape.rectangle,
-        3 => BoardShape.triangle,
-        _ => BoardShape.square,
-      };
+    2 => BoardShape.rectangle,
+    3 => BoardShape.triangle,
+    _ => BoardShape.square,
+  };
 
   Map<String, dynamic> toJson() => {
-        'playerCount': playerCount,
-        'cellsPerPlayer': cellsPerPlayer,
-        'ruleset': ruleset.toJson(),
-        'seed': seed,
-      };
+    'playerCount': playerCount,
+    'cellsPerPlayer': cellsPerPlayer,
+    'ruleset': ruleset.toJson(),
+    'seed': seed,
+  };
 
   factory GameConfig.fromJson(Map<String, dynamic> j) => GameConfig(
-        playerCount: j['playerCount'] as int,
-        cellsPerPlayer: j['cellsPerPlayer'] as int,
-        ruleset: RulesetConfig.fromJson(j['ruleset'] as Map<String, dynamic>),
-        seed: j['seed'] as int,
-      );
+    playerCount: j['playerCount'] as int,
+    cellsPerPlayer: j['cellsPerPlayer'] as int,
+    ruleset: RulesetConfig.fromJson(j['ruleset'] as Map<String, dynamic>),
+    seed: j['seed'] as int,
+  );
 
   @override
   bool operator ==(Object other) =>

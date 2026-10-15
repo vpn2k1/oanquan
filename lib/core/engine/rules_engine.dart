@@ -35,7 +35,8 @@ class RulesEngine {
                 hasQuan: false,
               ),
     ];
-    final ps = players ??
+    final ps =
+        players ??
         [
           for (var p = 0; p < config.playerCount; p++)
             Player(id: p, name: 'Người ${p + 1}'),
@@ -156,8 +157,10 @@ class RulesEngine {
     }
 
     // --- Pha ăn --------------------------------------------------------------
+    // Ô quan còn quan mà ít dân hơn ngưỡng là "quan non": không được ăn
+    // (kể cả dân trong ô) → mất lượt.
     bool capturable(int i) =>
-        dan[i] > 0 || (quan[i] && dan[i] >= rules.quanCaptureThreshold);
+        quan[i] ? dan[i] >= rules.quanCaptureThreshold : dan[i] > 0;
 
     if (gap != null) {
       var g = gap;
@@ -189,11 +192,17 @@ class RulesEngine {
     players[pid] = me;
 
     // --- Kết thúc lượt -------------------------------------------------------
-    final history = recordHistory ? List<Move>.unmodifiable([...s.history, m]) : s.history;
+    final history = recordHistory
+        ? List<Move>.unmodifiable([...s.history, m])
+        : s.history;
     var turn = pid;
     EndReason? endReason;
     final moveLimit = rules.maxMovesPerPlayer * cfg.playerCount;
-    if (quan.every((q) => !q)) {
+    bool quanCellsCleared() => [
+      for (var i = 0; i < n; i++)
+        if (isQuanCell[i]) !quan[i] && dan[i] == 0,
+    ].every((e) => e);
+    if (quanCellsCleared()) {
       endReason = EndReason.allQuanCaptured;
     } else if (players.where((p) => p.active).length <= 1) {
       endReason = EndReason.lastPlayerStanding;
@@ -209,15 +218,25 @@ class RulesEngine {
         final cells = topo.playerCells(turn);
         if (cells.any((i) => dan[i] > 0)) break;
         final pl = players[turn];
-        if (pl.score >= rules.refillCost) {
+        final loans = _arrangeLoans(players, turn, rules.refillCost - pl.score);
+        if (loans != null) {
+          final debts = {...pl.debts};
+          for (final e in loans.entries) {
+            players[e.key] = players[e.key].copyWith(
+              score: players[e.key].score - e.value,
+            );
+            debts[e.key] = (debts[e.key] ?? 0) + e.value;
+          }
+          final borrowed = loans.values.fold(0, (a, b) => a + b);
           for (final i in cells) {
             dan[i] += 1;
           }
           players[turn] = pl.copyWith(
-            score: pl.score - rules.refillCost,
+            score: pl.score + borrowed - rules.refillCost,
             refillSpent: pl.refillSpent + rules.refillCost,
+            debts: debts,
           );
-          emit(RefillEvent(turn, cells, rules.refillCost));
+          emit(RefillEvent(turn, cells, rules.refillCost, borrowed: loans));
           break;
         }
         players[turn] = pl.copyWith(active: false);
@@ -230,6 +249,8 @@ class RulesEngine {
         turn = _nextActive(players, turn);
       }
     }
+
+    if (over) _settle(topo, dan, players, rules.danValue, emit);
 
     final newCells = List<Cell>.unmodifiable([
       for (var i = 0; i < n; i++)
@@ -269,6 +290,72 @@ class RulesEngine {
       ),
       events,
     );
+  }
+
+  /// Thiếu `deficit` dân để rải lại → vay các người chơi khác (ưu tiên người
+  /// nhiều điểm nhất). Trả `{}` nếu không cần vay, `null` nếu không vay đủ.
+  Map<int, int>? _arrangeLoans(
+    List<Player> players,
+    int borrower,
+    int deficit,
+  ) {
+    if (deficit <= 0) return const {};
+    final lenders =
+        [
+          for (final p in players)
+            if (p.id != borrower && p.active && p.score > 0) p,
+        ]..sort((a, b) {
+          final c = b.score.compareTo(a.score);
+          return c != 0 ? c : a.id.compareTo(b.id);
+        });
+    if (lenders.fold(0, (a, p) => a + p.score) < deficit) return null;
+    final loans = <int, int>{};
+    var need = deficit;
+    for (final l in lenders) {
+      if (need == 0) break;
+      final amt = l.score < need ? l.score : need;
+      loans[l.id] = amt;
+      need -= amt;
+    }
+    return loans;
+  }
+
+  /// Tính điểm cuối ván: dân còn trên ô của ai thuộc về người đó (dân trong
+  /// ô quan không thuộc ai), sau đó trả nợ đã vay.
+  void _settle(
+    BoardTopology topo,
+    List<int> dan,
+    List<Player> players,
+    int danValue,
+    void Function(GameEvent) emit,
+  ) {
+    for (var p = 0; p < players.length; p++) {
+      final cells = [
+        for (final i in topo.playerCells(p))
+          if (dan[i] > 0) i,
+      ];
+      final count = cells.fold(0, (a, i) => a + dan[i]);
+      if (count == 0) continue;
+      for (final i in cells) {
+        dan[i] = 0;
+      }
+      final pl = players[p];
+      players[p] = pl.copyWith(
+        score: pl.score + count * danValue,
+        danCollected: pl.danCollected + count,
+      );
+      emit(CollectEvent(p, cells, count));
+    }
+    for (var p = 0; p < players.length; p++) {
+      for (final e in players[p].debts.entries) {
+        players[p] = players[p].copyWith(score: players[p].score - e.value);
+        players[e.key] = players[e.key].copyWith(
+          score: players[e.key].score + e.value,
+        );
+        emit(RepayEvent(p, e.key, e.value));
+      }
+      players[p] = players[p].copyWith(debts: const {});
+    }
   }
 
   int _nextActive(List<Player> players, int from) {

@@ -54,8 +54,8 @@
   "endLastStanding": "Only one player left",
   "endMoveLimit": "Move limit reached (anti-stall rule)",
   "playAgain": "Play again",
-  "refillMsg": "{name} ran out — refills 5 seeds (−5 points)",
-  "eliminateMsg": "{name} ran out and cannot refill — eliminated",
+  "refillMsg": "{name} ran out — puts 5 captured seeds back, one per pit",
+  "eliminateMsg": "{name} ran out and cannot borrow — eliminated",
   "loopGuardMsg": "Loop detected — turn ended",
   "settingsSound": "Sound",
   "settingsHaptics": "Haptic feedback",
@@ -72,7 +72,7 @@
   "themeLight": "Light",
   "themeDark": "Dark",
   "settingsLanguage": "Language",
-  "rulesetNote": "The multi_v1 ruleset is a project-defined variant for 2–4 players, not a single canonical folk rule.",
+  "rulesetNote": "Rules follow traditional Ô ăn quan (2 players); the 3–4 player boards extend the same rules.",
   "tutorialTitle": "How to play",
   "tutStep1Title": "Board and pieces",
   "tutStep1": "Each player owns 5 pits on their side, each with 5 seeds. Mandarin pits at the corners are shared, each holding 1 mandarin (10 points).",
@@ -83,9 +83,9 @@
   "tutStep4Title": "Capturing",
   "tutStep4": "If the next pit is empty, you capture everything in the pit right after it. If another empty pit is followed by a pit with pieces, keep capturing. Never across 2 empty pits.",
   "tutStep5Title": "Capturing mandarins",
-  "tutStep5": "A mandarin is only captured when its pit holds at least 5 seeds at that moment. With fewer, you only take the seeds.",
+  "tutStep5": "A mandarin pit can only be captured when it holds at least 5 seeds. With fewer it is a \"young mandarin\": no capture, your turn ends.",
   "tutStep6Title": "Running out and ending",
-  "tutStep6": "At turn start, if all 5 of your pits are empty you refill 5 seeds for 5 points; if you cannot afford it you are eliminated. The game ends when all mandarins are gone, one player remains, or the move limit is reached. Highest score wins.",
+  "tutStep6": "If all 5 of your pits are empty at the start of your turn, put 5 captured seeds back, one per pit; if you lack them, borrow from opponents and repay at scoring. The game ends when both mandarin pits are completely empty; seeds left in each player's pits go to that player. 1 mandarin = 10 seeds; most seeds wins.",
   "tutKeyboard": "Keyboard: ←/→ select pit, Z = counter-clockwise, X = clockwise, Esc = cancel.",
   "tutTryIt": "Try against easy AI",
   "next": "Next",
@@ -123,6 +123,28 @@
   "ok": "OK",
   "moveNumber": "Move {n}",
   "currentRules": "Current rules (multi_v1)",
-  "rulesSummary": "• Pick your own pit and a direction, drop 1 seed per pit.\n• Next pit has seeds → pick up and continue; mandarin pit → stop.\n• Empty pit then a pit with pieces → capture, chains allowed.\n• Mandarin (10 pts) is captured only with ≥ 5 seeds in its pit.\n• Out of seeds: refill 5 for 5 points, else eliminated.\n• Ends: no mandarins left / one player left / 60 moves per player.",
-  "addSimulatedClient": "+ Add simulated client"
+  "rulesSummary": "• Pick your own pit and a direction, drop 1 seed per pit.\n• Next pit has seeds → pick up and continue; mandarin pit → turn ends.\n• Empty pit then a pit with pieces → capture, chains allowed; 2 empty pits → turn ends.\n• A young mandarin (< 5 seeds in its pit) cannot be captured.\n• Out of seeds: put 5 captured seeds back; borrow if short, repay at scoring.\n• Mandarin pits emptied → game over; seeds left go to each pit's owner. 1 mandarin = 10 seeds.",
+  "addSimulatedClient": "+ Add simulated client",
+  "borrowMsg": "{name} ran out and lacks seeds — borrows {count} to refill (repaid at scoring)",
+  "@borrowMsg": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repayMsg": "{name} repays {count} borrowed seeds",
+  "@repayMsg": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

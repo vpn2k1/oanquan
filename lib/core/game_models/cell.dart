@@ -29,28 +29,28 @@ class Cell {
   bool get isEmpty => danCount == 0 && !hasQuan;
 
   Cell copyWith({int? danCount, bool? hasQuan}) => Cell(
-        id: id,
-        kind: kind,
-        ownerId: ownerId,
-        danCount: danCount ?? this.danCount,
-        hasQuan: hasQuan ?? this.hasQuan,
-      );
+    id: id,
+    kind: kind,
+    ownerId: ownerId,
+    danCount: danCount ?? this.danCount,
+    hasQuan: hasQuan ?? this.hasQuan,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'kind': kind.name,
-        if (ownerId != null) 'ownerId': ownerId,
-        'danCount': danCount,
-        'hasQuan': hasQuan,
-      };
+    'id': id,
+    'kind': kind.name,
+    if (ownerId != null) 'ownerId': ownerId,
+    'danCount': danCount,
+    'hasQuan': hasQuan,
+  };
 
   factory Cell.fromJson(Map<String, dynamic> j) => Cell(
-        id: j['id'] as int,
-        kind: CellKind.values.byName(j['kind'] as String),
-        ownerId: j['ownerId'] as int?,
-        danCount: j['danCount'] as int,
-        hasQuan: j['hasQuan'] as bool,
-      );
+    id: j['id'] as int,
+    kind: CellKind.values.byName(j['kind'] as String),
+    ownerId: j['ownerId'] as int?,
+    danCount: j['danCount'] as int,
+    hasQuan: j['hasQuan'] as bool,
+  );
 
   @override
   bool operator ==(Object other) =>

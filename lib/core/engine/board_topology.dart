@@ -32,7 +32,9 @@ class BoardTopology {
 
   List<int> playerCells(int p) => [for (var j = 0; j < k; j++) danIndex(p, j)];
 
-  List<int> get quanCells => [for (var p = 0; p < config.playerCount; p++) quanIndex(p)];
+  List<int> get quanCells => [
+    for (var p = 0; p < config.playerCount; p++) quanIndex(p),
+  ];
 
   /// Ô kế tiếp theo hướng, wrap modulo cả hai chiều.
   int next(int i, Direction d) => wrap(i + d.step);

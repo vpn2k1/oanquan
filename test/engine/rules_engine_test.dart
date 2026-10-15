@@ -141,11 +141,11 @@ void main() {
 
     test('chiều ngược kim đồng hồ wrap qua chỉ số 0', () {
       // P0C0 ccw: Q0 +1, 11..8 +1; ô 7 (5) bốc: Q1 +1, 5..2 +1;
-      // ô 1 trống → ăn Q0 (1 dân, giữ token vì <5).
+      // ô 1 trống, sau đó Q0 là quan non (1 dân) → không được ăn, mất lượt.
       final s = ok(initial(2), mv(0, 1, ccw)).state;
-      expect(danOf(s), [0, 0, 6, 6, 6, 6, 1, 0, 6, 6, 6, 6]);
+      expect(danOf(s), [1, 0, 6, 6, 6, 6, 1, 0, 6, 6, 6, 6]);
       expect(s.cells[0].hasQuan, isTrue);
-      expect(s.players[0].score, 1);
+      expect(s.players[0].score, 0);
       expect(s.players[0].quanCaptured, 0);
     });
 
@@ -175,14 +175,21 @@ void main() {
       expect(danOf(r.state), [0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1]);
     });
 
-    test('ăn chuỗi; quan 4 dân chỉ ăn dân, giữ token', () {
+    test('ăn chuỗi; gặp quan non (4 dân) thì dừng, không ăn ô quan', () {
       final s0 = custom(2, dan: [0, 1, 0, 0, 2, 0, 4, 1, 1, 1, 1, 1]);
       final r = ok(s0, mv(0, 1, cw));
-      expect(r.state.players[0].score, 6);
-      expect(r.state.cells[6].danCount, 0);
+      expect(r.state.players[0].score, 2);
+      expect(r.state.cells[6].danCount, 4);
       expect(r.state.cells[6].hasQuan, isTrue);
-      expect(r.events.whereType<CaptureDanEvent>().map((e) => e.cellId), [4, 6]);
+      expect(r.events.whereType<CaptureDanEvent>().map((e) => e.cellId), [4]);
       expect(r.events.whereType<CaptureQuanEvent>(), isEmpty);
+    });
+
+    test('ăn chuỗi qua ô quan đã mất quan nhưng còn dân', () {
+      final s0 = custom(2, dan: [0, 1, 0, 0, 2, 0, 3, 1, 1, 1, 1, 1], quan: {0});
+      final r = ok(s0, mv(0, 1, cw));
+      expect(r.state.players[0].score, 5);
+      expect(r.events.whereType<CaptureDanEvent>().map((e) => e.cellId), [4, 6]);
     });
 
     test('captureQuanThreshold: 5 dân + token → ăn token, tổng +15', () {
@@ -197,11 +204,13 @@ void main() {
       expect(r.state.isOver, isFalse, reason: 'Q0 vẫn còn token');
     });
 
-    test('captureQuanThreshold: 4 dân + token → chỉ +4, giữ token', () {
+    test('quan non: 4 dân + quan → không được ăn, mất lượt', () {
       final s0 = custom(2, dan: [0, 0, 0, 1, 0, 0, 4, 1, 1, 1, 1, 1]);
       final r = ok(s0, mv(0, 3, cw));
-      expect(r.state.players[0].score, 4);
+      expect(r.state.players[0].score, 0);
+      expect(r.state.cells[6].danCount, 4);
       expect(r.state.cells[6].hasQuan, isTrue);
+      expect(r.state.turnPlayer, 1);
     });
 
     test('không ăn qua 2 ô trống liên tiếp', () {
@@ -244,7 +253,41 @@ void main() {
       expect(engine.getLegalMoves(s), isNotEmpty);
     });
 
-    test('skipEliminated: không đủ điểm nạp → bị loại, tới người active kế tiếp', () {
+    test('thiếu dân → vay đối thủ, trả khi tính điểm', () {
+      final s0 = custom(2,
+          dan: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], scores: [12, 2]);
+      final r = ok(s0, mv(0, 3, ccw));
+      final s = r.state;
+      expect(s.isOver, isFalse);
+      expect(s.turnPlayer, 1);
+      expect(s.players[1].score, 0);
+      expect(s.players[1].debts, {0: 3});
+      expect(s.players[0].score, 9, reason: 'người cho vay đưa 3 dân');
+      expect([for (var i = 7; i <= 11; i++) s.cells[i].danCount], [1, 1, 1, 1, 1]);
+      expect(r.events.whereType<RefillEvent>().single.borrowed, {0: 3});
+    });
+
+    test('kết thúc ván: thu dân bên mình rồi trả nợ', () {
+      final base = custom(2,
+          dan: [0, 0, 0, 1, 0, 0, 5, 2, 0, 1, 0, 0], quan: {6}, scores: [0, 4]);
+      final s0 = base.copyWith(players: [
+        base.players[0].copyWith(score: 0),
+        base.players[1].copyWith(debts: {0: 3}),
+      ]);
+      final r = ok(s0, mv(0, 3, cw));
+      expect(r.state.isOver, isTrue);
+      // P0: +5 dân +10 quan, thu 1 (ô 4), nhận trả 3 = 19; P1: 4 + thu 3 − trả 3 = 4.
+      expect(r.state.players[0].score, 19);
+      expect(r.state.players[1].score, 4);
+      expect(r.state.players[1].danCollected, 3);
+      expect(r.state.players[1].debts, isEmpty);
+      expect(r.state.danOnBoard, 0);
+      final types = r.events.map((e) => e.type).toList();
+      expect(types.indexOf('Collect'), lessThan(types.indexOf('Repay')));
+      expect(types.last, 'GameOver');
+    });
+
+    test('skipEliminated: không đủ điểm và không ai cho vay → bị loại, tới người active kế tiếp', () {
       final dan = List.filled(18, 0);
       dan[3] = 1;
       for (var i = 13; i <= 17; i++) {
@@ -264,9 +307,9 @@ void main() {
       expect(after2.turnPlayer, 2, reason: 'bỏ qua người 1 đã bị loại');
     });
 
-    test('2 người: một người bị loại → kết thúc ván', () {
+    test('2 người: không vay đủ → bị loại → kết thúc ván', () {
       final s0 = custom(2,
-          dan: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], scores: [3, 4]);
+          dan: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], scores: [0, 4]);
       final r = ok(s0, mv(0, 3, ccw));
       expect(r.state.isOver, isTrue);
       expect(r.state.winnerIds, [1]);
@@ -275,22 +318,31 @@ void main() {
   });
 
   group('Kết thúc ván', () {
-    test('ăn token quan cuối cùng → GameOver, dân còn trên bàn không cộng', () {
+    test('hai ô quan hết sạch → GameOver, dân bên nào về bên đó', () {
       final s0 = custom(2,
           dan: [0, 0, 0, 1, 0, 0, 5, 3, 3, 3, 3, 3], quan: {6}, scores: [0, 12]);
       final r = ok(s0, mv(0, 3, cw));
       expect(r.state.isOver, isTrue);
-      expect(r.state.players[0].score, 15);
-      expect(r.state.players[1].score, 12);
-      expect(r.state.winnerIds, [0]);
+      expect(r.state.players[0].score, 16, reason: '15 + 1 dân còn ở ô 4');
+      expect(r.state.players[1].score, 27, reason: '12 + 15 dân còn bên mình');
+      expect(r.state.players[1].danCollected, 15);
+      expect(r.state.winnerIds, [1]);
       expect(engine.getLegalMoves(r.state), isEmpty);
       expect((engine.applyMove(r.state, mv(1, 7, cw)) as MoveRejected).reason,
           RejectReason.gameOver);
     });
 
+    test('hết quan nhưng ô quan còn dân → chưa kết thúc', () {
+      final s0 = custom(2,
+          dan: [2, 0, 0, 1, 0, 0, 5, 3, 3, 3, 3, 3], quan: {6}, scores: [0, 0]);
+      final r = ok(s0, mv(0, 3, cw));
+      expect(r.state.quanTokensLeft, 0);
+      expect(r.state.isOver, isFalse, reason: 'Q0 còn 2 dân');
+    });
+
     test('đồng điểm → hòa đồng hạng', () {
       final s0 = custom(2,
-          dan: [0, 0, 0, 1, 0, 0, 5, 3, 3, 3, 3, 3], quan: {6}, scores: [0, 15]);
+          dan: [0, 0, 0, 1, 0, 0, 5, 3, 3, 3, 3, 3], quan: {6}, scores: [0, 1]);
       final r = ok(s0, mv(0, 3, cw));
       expect(r.state.winnerIds, [0, 1]);
       final st = Scoring.standings(r.state.players);
@@ -347,14 +399,33 @@ void main() {
 }
 
 void _checkInvariants(GameState s, int n) {
-  final captured = s.players.fold(0, (a, p) => a + p.danCaptured);
-  final refills = s.players.fold(0, (a, p) => a + p.refillSpent) ~/ 5;
-  expect(s.danOnBoard + captured - refills * 5, n * 25, reason: 'bảo toàn dân');
+  final captured = s.players.fold(0, (a, p) => a + p.danCaptured + p.danCollected);
+  final refills = s.players.fold(0, (a, p) => a + p.refillSpent);
+  expect(s.danOnBoard + captured - refills, n * 25, reason: 'bảo toàn dân');
   final quanTaken = s.players.fold(0, (a, p) => a + p.quanCaptured);
   expect(s.quanTokensLeft + quanTaken, n, reason: 'bảo toàn quan');
+  final lent = List.filled(n, 0);
   for (final p in s.players) {
-    expect(p.score, p.danCaptured + p.quanCaptured * 10 - p.refillSpent);
-    expect(p.score, greaterThanOrEqualTo(0));
+    for (final e in p.debts.entries) {
+      lent[e.key] += e.value;
+    }
+  }
+  for (final p in s.players) {
+    if (s.isOver) expect(p.debts, isEmpty, reason: 'nợ đã trả khi tính điểm');
+    // Điểm hiện tại = dân ăn + quan + dân thu − dân rải lại + vay − cho vay.
+    // Khi đã trả nợ, phần chênh do trả nợ nằm trong `repaid` (tính từ lịch sử không có),
+    // nên chỉ kiểm tra trong ván.
+    if (!s.isOver) {
+      expect(p.score,
+          p.danCaptured + p.quanCaptured * 10 + p.danCollected - p.refillSpent + p.totalDebt - lent[p.id]);
+      expect(p.score, greaterThanOrEqualTo(0));
+    }
+  }
+  if (s.isOver) {
+    final total = s.players.fold(0, (a, p) => a + p.score);
+    final expected = s.players.fold(0, (a, p) =>
+        a + p.danCaptured + p.quanCaptured * 10 + p.danCollected - p.refillSpent);
+    expect(total, expected, reason: 'trả nợ chỉ chuyển điểm giữa người chơi');
   }
   for (final c in s.cells) {
     expect(c.danCount, greaterThanOrEqualTo(0));

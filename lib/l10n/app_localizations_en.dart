@@ -186,12 +186,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String refillMsg(String name) {
-    return '$name ran out — refills 5 seeds (−5 points)';
+    return '$name ran out — puts 5 captured seeds back, one per pit';
   }
 
   @override
   String eliminateMsg(String name) {
-    return '$name ran out and cannot refill — eliminated';
+    return '$name ran out and cannot borrow — eliminated';
   }
 
   @override
@@ -245,7 +245,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rulesetNote =>
-      'The multi_v1 ruleset is a project-defined variant for 2–4 players, not a single canonical folk rule.';
+      'Rules follow traditional Ô ăn quan (2 players); the 3–4 player boards extend the same rules.';
 
   @override
   String get tutorialTitle => 'How to play';
@@ -283,14 +283,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutStep5 =>
-      'A mandarin is only captured when its pit holds at least 5 seeds at that moment. With fewer, you only take the seeds.';
+      'A mandarin pit can only be captured when it holds at least 5 seeds. With fewer it is a \"young mandarin\": no capture, your turn ends.';
 
   @override
   String get tutStep6Title => 'Running out and ending';
 
   @override
   String get tutStep6 =>
-      'At turn start, if all 5 of your pits are empty you refill 5 seeds for 5 points; if you cannot afford it you are eliminated. The game ends when all mandarins are gone, one player remains, or the move limit is reached. Highest score wins.';
+      'If all 5 of your pits are empty at the start of your turn, put 5 captured seeds back, one per pit; if you lack them, borrow from opponents and repay at scoring. The game ends when both mandarin pits are completely empty; seeds left in each player\'s pits go to that player. 1 mandarin = 10 seeds; most seeds wins.';
 
   @override
   String get tutKeyboard =>
@@ -417,8 +417,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rulesSummary =>
-      '• Pick your own pit and a direction, drop 1 seed per pit.\n• Next pit has seeds → pick up and continue; mandarin pit → stop.\n• Empty pit then a pit with pieces → capture, chains allowed.\n• Mandarin (10 pts) is captured only with ≥ 5 seeds in its pit.\n• Out of seeds: refill 5 for 5 points, else eliminated.\n• Ends: no mandarins left / one player left / 60 moves per player.';
+      '• Pick your own pit and a direction, drop 1 seed per pit.\n• Next pit has seeds → pick up and continue; mandarin pit → turn ends.\n• Empty pit then a pit with pieces → capture, chains allowed; 2 empty pits → turn ends.\n• A young mandarin (< 5 seeds in its pit) cannot be captured.\n• Out of seeds: put 5 captured seeds back; borrow if short, repay at scoring.\n• Mandarin pits emptied → game over; seeds left go to each pit\'s owner. 1 mandarin = 10 seeds.';
 
   @override
   String get addSimulatedClient => '+ Add simulated client';
+
+  @override
+  String borrowMsg(String name, int count) {
+    return '$name ran out and lacks seeds — borrows $count to refill (repaid at scoring)';
+  }
+
+  @override
+  String repayMsg(String name, int count) {
+    return '$name repays $count borrowed seeds';
+  }
 }
