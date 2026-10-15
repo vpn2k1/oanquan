@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/app.dart';
 import '../../app/router.dart';
+import '../../app/folk_art.dart';
 import '../../app/widgets.dart';
 import '../../core/game_models/game_config.dart';
 import '../../core/game_models/player.dart';
@@ -305,12 +306,11 @@ class _ChoiceCard extends StatelessWidget {
       color: selected
           ? cs.primary.withValues(alpha: 0.14)
           : Theme.of(context).cardTheme.color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: selected ? cs.primary : Colors.transparent,
-          width: 2,
-        ),
+      // Viền phấn: phấn cam khi đang chọn, phấn kem mờ khi không.
+      shape: ChalkBorder(
+        radius: 18,
+        color: selected ? cs.primary : cs.onSurface.withValues(alpha: 0.45),
+        width: selected ? 2.8 : 2,
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),

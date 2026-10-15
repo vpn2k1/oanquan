@@ -9,18 +9,47 @@ import 'theme.dart';
 
 export 'folk_icon.dart';
 
-/// Nền chung kiểu Recess: màu nền ấm với lưới chấm mờ.
-/// (Mặt sân dân dã được vẽ trong khay bàn chơi.)
+/// Nền các màn menu: sân đất sỏi (sẫm khi tối, sáng khi sáng), cố định seed
+/// nên không đổi giữa các màn. `plain` = nền lưới chấm (màn chơi, nơi khay
+/// bàn đã có mặt sân riêng).
 class AppBackground extends StatelessWidget {
-  const AppBackground({super.key, required this.child});
+  const AppBackground({super.key, required this.child, this.plain = false});
   final Widget child;
+  final bool plain;
+
+  static const _seed = 20261015;
 
   @override
   Widget build(BuildContext context) {
     final t = RcTokens.of(context);
-    return ColoredBox(
-      color: t.bg,
-      child: CustomPaint(painter: DotGridPainter(t.dark), child: child),
+    if (plain) {
+      return ColoredBox(
+        color: t.bg,
+        child: CustomPaint(painter: DotGridPainter(t.dark), child: child),
+      );
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        RepaintBoundary(
+          child: CustomPaint(
+            painter: GroundPainter(
+              t.dark ? GroundKind.darkDirt : GroundKind.dirt,
+              _seed,
+            ),
+          ),
+        ),
+        // Tối nhẹ các góc để mắt dồn vào giữa.
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              radius: 1.2,
+              colors: [Color(0x00000000), Color(0x59000000)],
+            ),
+          ),
+        ),
+        child,
+      ],
     );
   }
 }
@@ -30,7 +59,10 @@ class DotGridPainter extends CustomPainter {
   final bool dark;
 
   static void paintGrid(Canvas canvas, Size size, bool dark) {
-    final p = Paint()..color = (dark ? Rc.text : Rc.textLight).withValues(alpha: dark ? 0.07 : 0.08);
+    final p = Paint()
+      ..color = (dark ? Rc.text : Rc.textLight).withValues(
+        alpha: dark ? 0.07 : 0.08,
+      );
     const step = 14.0;
     for (var y = step / 2; y < size.height; y += step) {
       for (var x = step / 2; x < size.width; x += step) {
@@ -55,7 +87,8 @@ class GroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
-    final dpr = WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
+    final dpr =
+        WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
     final img = GroundCache.image(size, dpr, kind, seed);
     canvas.drawImageRect(
       img,

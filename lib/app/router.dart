@@ -24,19 +24,27 @@ abstract final class Routes {
   static const online = '/online';
 }
 
-final routerProvider = Provider<GoRouter>((ref) => GoRouter(
-      initialLocation: Routes.splash,
-      routes: [
-        GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
-        GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
-        GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
-        GoRoute(path: Routes.game, builder: (_, _) => const GameScreen()),
-        GoRoute(path: Routes.result, builder: (_, _) => const ResultScreen()),
-        GoRoute(path: Routes.tutorial, builder: (_, _) => const TutorialScreen()),
-        GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
-        GoRoute(path: Routes.achievements, builder: (_, _) => const AchievementsScreen()),
-        // Online tạm ẩn: bật lại bằng `kOnlineEnabled` trong lib/app/features.dart.
-        if (kOnlineEnabled)
-          GoRoute(path: Routes.online, builder: (_, _) => const OnlineLobbyScreen()),
-      ],
-    ));
+final routerProvider = Provider<GoRouter>(
+  (ref) => GoRouter(
+    initialLocation: Routes.splash,
+    routes: [
+      GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
+      GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
+      GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
+      GoRoute(path: Routes.game, builder: (_, _) => const GameScreen()),
+      GoRoute(path: Routes.result, builder: (_, _) => const ResultScreen()),
+      GoRoute(path: Routes.tutorial, builder: (_, _) => const TutorialScreen()),
+      GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
+      GoRoute(
+        path: Routes.achievements,
+        builder: (_, _) => const AchievementsScreen(),
+      ),
+      // Online tạm ẩn: bật lại bằng `kOnlineEnabled` trong lib/app/features.dart.
+      if (kOnlineEnabled)
+        GoRoute(
+          path: Routes.online,
+          builder: (_, _) => const OnlineLobbyScreen(),
+        ),
+    ],
+  ),
+);

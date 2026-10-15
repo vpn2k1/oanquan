@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/app.dart';
+import '../../../app/folk_art.dart';
 import '../../../app/theme.dart';
 import '../../../app/widgets.dart';
 import '../../../core/game_models/game_state.dart';
@@ -247,10 +248,7 @@ class HudButton extends StatelessWidget {
       message: tooltip,
       child: Material(
         color: t.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: t.line, width: 2),
-        ),
+        shape: ChalkBorder(color: t.text.withValues(alpha: enabled ? 0.85 : 0.35)),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onPressed,

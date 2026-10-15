@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'folk_art.dart';
+
 /// Màu người chơi: xanh lam, đỏ san hô, xanh lục, vàng hổ phách.
 const playerColors = <Color>[
   Color(0xFF2B7BFF),
@@ -69,31 +71,46 @@ class RcTokens {
 
 ThemeData buildTheme(Brightness b) {
   final t = RcTokens(b == Brightness.dark);
-  final scheme = ColorScheme.fromSeed(seedColor: Rc.accent, brightness: b).copyWith(
-    primary: Rc.accent,
-    onPrimary: Rc.onAccent,
-    secondary: Rc.accent,
-    onSecondary: Rc.onAccent,
-    surface: t.surface,
-    onSurface: t.text,
-    onSurfaceVariant: t.muted,
-    outline: t.line,
-    outlineVariant: t.line,
-    surfaceContainerHighest: t.surfaceHigh,
-    secondaryContainer: Rc.accentSoft,
-    onSecondaryContainer: t.text,
-  );
-  final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
+  final scheme = ColorScheme.fromSeed(seedColor: Rc.accent, brightness: b)
+      .copyWith(
+        primary: Rc.accent,
+        onPrimary: Rc.onAccent,
+        secondary: Rc.accent,
+        onSecondary: Rc.onAccent,
+        surface: t.surface,
+        onSurface: t.text,
+        onSurfaceVariant: t.muted,
+        outline: t.line,
+        outlineVariant: t.line,
+        surfaceContainerHighest: t.surfaceHigh,
+        secondaryContainer: Rc.accentSoft,
+        onSecondaryContainer: t.text,
+      );
   final border = BorderSide(color: t.line, width: 2);
+  // Nút viền nét phấn (kem trên nền tối, nâu sẫm trên nền sáng).
+  final chalk = ChalkBorder(
+    color: t.dark ? const Color(0xE6FFF3E2) : const Color(0xCC2D2621),
+  );
+  const chalkOnAccent = ChalkBorder(color: Color(0xF2FFF3E2), width: 2.4);
   const label = TextStyle(fontSize: 16, fontWeight: FontWeight.w800);
-  final base = ThemeData(useMaterial3: true, colorScheme: scheme, brightness: b);
+  final base = ThemeData(
+    useMaterial3: true,
+    colorScheme: scheme,
+    brightness: b,
+  );
   return base.copyWith(
     scaffoldBackgroundColor: t.bg,
     textTheme: base.textTheme
         .apply(bodyColor: t.text, displayColor: t.text)
         .copyWith(
-          titleMedium: base.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: t.text),
-          titleSmall: base.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: t.muted),
+          titleMedium: base.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: t.text,
+          ),
+          titleSmall: base.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: t.muted,
+          ),
         ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
@@ -101,13 +118,20 @@ ThemeData buildTheme(Brightness b) {
       elevation: 0,
       foregroundColor: t.text,
       centerTitle: true,
-      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: t.text),
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w900,
+        color: t.text,
+      ),
     ),
     cardTheme: CardThemeData(
       color: t.surface,
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: border),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: border,
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -115,7 +139,7 @@ ThemeData buildTheme(Brightness b) {
         backgroundColor: Rc.accent,
         foregroundColor: Rc.onAccent,
         textStyle: label.copyWith(fontSize: 17),
-        shape: shape,
+        shape: chalkOnAccent,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -123,9 +147,9 @@ ThemeData buildTheme(Brightness b) {
         minimumSize: const Size(48, 48),
         backgroundColor: t.surface,
         foregroundColor: t.text,
-        side: border,
+        side: BorderSide.none,
         textStyle: label,
-        shape: shape,
+        shape: chalk,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -137,7 +161,8 @@ ThemeData buildTheme(Brightness b) {
         foregroundColor: t.text,
         selectedBackgroundColor: Rc.accentSoft,
         selectedForegroundColor: t.text,
-        side: border,
+        side: BorderSide(color: t.line, width: 1.5),
+        shape: chalk,
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),
@@ -152,30 +177,49 @@ ThemeData buildTheme(Brightness b) {
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: t.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: border),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: border,
+      ),
     ),
     bottomSheetTheme: BottomSheetThemeData(backgroundColor: t.surface),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: t.surfaceHigh,
       contentTextStyle: TextStyle(color: t.text, fontWeight: FontWeight.w600),
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: border),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: border,
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: t.line, width: 2)),
-      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Rc.accent, width: 2)),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: t.line, width: 2),
+      ),
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Rc.accent, width: 2),
+      ),
     ),
     dividerTheme: DividerThemeData(color: t.line),
   );
 }
 
 /// Vẽ biểu tượng người chơi (dùng chung cho HUD và bàn Flame).
-void paintPlayerSymbol(Canvas canvas, Offset c, double r, PlayerSymbol s, Paint paint) {
+void paintPlayerSymbol(
+  Canvas canvas,
+  Offset c,
+  double r,
+  PlayerSymbol s,
+  Paint paint,
+) {
   switch (s) {
     case PlayerSymbol.circle:
       canvas.drawCircle(c, r, paint);
     case PlayerSymbol.square:
-      canvas.drawRect(Rect.fromCenter(center: c, width: r * 1.7, height: r * 1.7), paint);
+      canvas.drawRect(
+        Rect.fromCenter(center: c, width: r * 1.7, height: r * 1.7),
+        paint,
+      );
     case PlayerSymbol.triangle:
       canvas.drawPath(
         Path()

@@ -271,6 +271,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       },
       child: Scaffold(
         body: AppBackground(
+          plain: true,
           child: LayoutBuilder(
             builder: (context, c) {
               // Bố cục kiểu Recess: khay bàn chiếm phần lớn màn hình, bảng
