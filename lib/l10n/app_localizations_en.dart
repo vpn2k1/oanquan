@@ -53,10 +53,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseMode => 'Mode';
 
   @override
-  String get modeLocal => 'Same device';
+  String get modeLocal => 'With a friend';
 
   @override
-  String get modeAi => 'Vs AI';
+  String get modeAi => 'Vs computer';
 
   @override
   String get modeOnline => 'Online';

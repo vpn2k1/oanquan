@@ -9,7 +9,8 @@ import '../../core/game_models/game_config.dart';
 import '../../core/game_models/player.dart';
 import '../game/game_session.dart';
 
-enum PlayMode { local, ai, online }
+/// Hai chế độ: đấu với máy, hoặc chơi với bạn trên cùng một máy.
+enum PlayMode { ai, local }
 
 class _Slot {
   _Slot(this.type, this.level, this.name);
@@ -18,7 +19,7 @@ class _Slot {
   String name;
 }
 
-/// Chọn 2/3/4 người → Local / AI / Online → người/AI & độ khó.
+/// Chọn 2/3/4 người → Đấu máy / Chơi với bạn → người/AI & độ khó.
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key});
 
@@ -69,10 +70,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   }
 
   void _start() {
-    if (_mode == PlayMode.online) {
-      context.push(Routes.online);
-      return;
-    }
     final l = context.l10n;
     final players = [
       for (var i = 0; i < _players; i++)
@@ -143,19 +140,14 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       SegmentedButton<PlayMode>(
         segments: [
           ButtonSegment(
-            value: PlayMode.local,
-            label: Text(l.modeLocal),
-            icon: const FolkIcon(Icons.people_alt_rounded),
-          ),
-          ButtonSegment(
             value: PlayMode.ai,
             label: Text(l.modeAi),
             icon: const FolkIcon(Icons.smart_toy_rounded),
           ),
           ButtonSegment(
-            value: PlayMode.online,
-            label: Text(l.modeOnline),
-            icon: const FolkIcon(Icons.public_rounded),
+            value: PlayMode.local,
+            label: Text(l.modeLocal),
+            icon: const FolkIcon(Icons.people_alt_rounded),
           ),
         ],
         selected: {_mode},
@@ -166,26 +158,14 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       ),
     ];
     final playersSection = <Widget>[
-      if (_mode != PlayMode.online) ...[
-        Text(l.playersSetup, style: theme.textTheme.titleMedium),
-        const SizedBox(height: 8),
-        for (var i = 0; i < _players; i++) _slotTile(i),
-      ] else
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(l.onlineNotice),
-          ),
-        ),
+      Text(l.playersSetup, style: theme.textTheme.titleMedium),
+      const SizedBox(height: 8),
+      for (var i = 0; i < _players; i++) _slotTile(i),
     ];
     final start = FilledButton.icon(
       key: const Key('startGame'),
-      icon: FolkIcon(
-        _mode == PlayMode.online
-            ? Icons.public_rounded
-            : Icons.play_arrow_rounded,
-      ),
-      label: Text(_mode == PlayMode.online ? l.onlineTitle : l.startGame),
+      icon: const FolkIcon(Icons.play_arrow_rounded),
+      label: Text(l.startGame),
       onPressed: _start,
     );
     return Scaffold(

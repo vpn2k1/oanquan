@@ -40,7 +40,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         await tester.tap(find.byKey(Key('players$n')));
         await tester.pump();
-        await tester.tap(find.text('Cùng máy'));
+        await tester.tap(find.text('Chơi với bạn'));
         await tester.pump();
         await tester.scrollUntilVisible(find.byKey(const Key('startGame')), 200,
             scrollable: find.byType(Scrollable).first);

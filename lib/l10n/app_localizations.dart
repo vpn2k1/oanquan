@@ -185,13 +185,13 @@ abstract class AppLocalizations {
   /// No description provided for @modeLocal.
   ///
   /// In vi, this message translates to:
-  /// **'Cùng máy'**
+  /// **'Chơi với bạn'**
   String get modeLocal;
 
   /// No description provided for @modeAi.
   ///
   /// In vi, this message translates to:
-  /// **'Đấu AI'**
+  /// **'Đấu máy'**
   String get modeAi;
 
   /// No description provided for @modeOnline.

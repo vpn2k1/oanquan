@@ -53,10 +53,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get chooseMode => 'Chế độ';
 
   @override
-  String get modeLocal => 'Cùng máy';
+  String get modeLocal => 'Chơi với bạn';
 
   @override
-  String get modeAi => 'Đấu AI';
+  String get modeAi => 'Đấu máy';
 
   @override
   String get modeOnline => 'Online';
