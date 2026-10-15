@@ -486,13 +486,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         handCount = count;
         handPos = g.cells[cellId].center;
         handColor = _cellStoneColor(cellId);
-        await _wait(0.08);
+        await _wait(0.3);
       case DropEvent(:final cellId):
         final to = g.cells[cellId].center;
         final piece = FlyingPiece(
           from: handPos - Offset(0, u * 0.45),
           to: to,
-          duration: 0.12 * visuals.speedFactor,
+          duration: 0.28 * visuals.speedFactor,
           kind: FlyKind.stone,
           radius: u * 0.1,
           color: handColor,
@@ -506,9 +506,11 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         handPos = to;
         if (handCount == 0) handCell = null;
         callbacks.onSound(Sfx.drop);
+        // Nghỉ ngắn sau mỗi viên để người xem đếm kịp.
+        await _wait(0.08);
       case CaptureDanEvent(:final playerId, :final cellId, :final count):
         flash[cellId] = 1;
-        await _wait(0.05);
+        await _wait(0.3);
         final from = g.cells[cellId].center;
         dan[cellId] = 0;
         // Mỗi viên bay vào đúng chỗ trống kế tiếp trong đống quân ăn.
@@ -518,12 +520,12 @@ class OQuanGame extends FlameGame with KeyboardEvents {
           last = FlyingPiece(
             from: from + Offset.fromDirection(i * 1.3, u * 0.12),
             to: _pileTarget(g, playerId, i),
-            duration: 0.3 * visuals.speedFactor,
+            duration: 0.5 * visuals.speedFactor,
             kind: FlyKind.stone,
             radius: g.pebbleRadius,
             color: const Color(0xFFC9C1B2),
             lift: 0.25,
-            delay: i * 0.03 * visuals.speedFactor,
+            delay: i * 0.06 * visuals.speedFactor,
           );
           add(last);
         }
@@ -535,7 +537,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         for (final c in children.whereType<FlyingPiece>().toList()) {
           if (c.done.isCompleted) c.removeFromParent();
         }
-        await _wait(0.05);
+        await _wait(0.25);
       case CaptureQuanEvent(:final playerId, :final cellId, :final value):
         final from = g.cells[cellId].center;
         flash[cellId] = 1;
@@ -544,7 +546,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         final gem = FlyingPiece(
           from: from,
           to: g.pileSlot(playerId, pileQuan[playerId] * 3 + 1),
-          duration: 0.5 * visuals.speedFactor,
+          duration: 0.85 * visuals.speedFactor,
           kind: FlyKind.gem,
           radius: g.pebbleRadius * 2.4,
           lift: 0.3,
@@ -572,7 +574,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         _float('−$cost', g.playerAnchors[playerId], playerColors[playerId]);
         callbacks.onNotice(e);
         callbacks.onSound(Sfx.refill);
-        await _wait(0.4);
+        await _wait(0.7);
       case CollectEvent(:final playerId, :final cellIds, :final count):
         for (final c in cellIds) {
           flash[c] = 1;
@@ -581,7 +583,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
             add(FlyingPiece(
               from: from + Offset.fromDirection(i * 2.1, u * 0.12),
               to: _pileTarget(g, playerId, i),
-              duration: 0.32 * visuals.speedFactor,
+              duration: 0.5 * visuals.speedFactor,
               kind: FlyKind.stone,
               radius: u * 0.11,
               color: playerColors[playerId],
@@ -594,7 +596,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         }
         _float('+$count', g.pileLabel(playerId), Rc.text);
         callbacks.onSound(Sfx.capture);
-        await _wait(0.35);
+        await _wait(0.55);
         scores[playerId] += count * _state.config.ruleset.danValue;
         displayScores.value = [...scores];
       case RepayEvent(:final fromId, :final toId, :final amount):
@@ -604,10 +606,10 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         _float('−$amount', g.playerAnchors[fromId], playerColors[fromId]);
         _float('+$amount', g.playerAnchors[toId], playerColors[toId]);
         callbacks.onNotice(e);
-        await _wait(0.35);
+        await _wait(0.55);
       case EliminateEvent():
         callbacks.onNotice(e);
-        await _wait(0.4);
+        await _wait(0.6);
       case RuleLoopGuardEvent():
         callbacks.onNotice(e);
         await _wait(0.3);
@@ -616,7 +618,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         callbacks.onSound(Sfx.turn);
       case GameOverEvent():
         callbacks.onSound(Sfx.win);
-        await _wait(0.3);
+        await _wait(0.5);
     }
   }
 
