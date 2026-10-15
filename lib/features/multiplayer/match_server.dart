@@ -231,13 +231,18 @@ class MatchServer {
     return out;
   }
 
-  StateSnapshot _snapshot(_Room room, int playerId) => StateSnapshot(
-    room.matchId,
-    room.revision,
-    playerId,
-    room.tokens[playerId],
-    List.unmodifiable(room.names),
-    room.playerCount,
-    room.state == null ? null : GameSerializer.stateToJson(room.state!),
-  );
+  StateSnapshot _snapshot(_Room room, int playerId) {
+    final state = room.state;
+    Map<String, dynamic>? stateJson;
+    if (state != null) stateJson = GameSerializer.stateToJson(state);
+    return StateSnapshot(
+      room.matchId,
+      room.revision,
+      playerId,
+      room.tokens[playerId],
+      List.unmodifiable(room.names),
+      room.playerCount,
+      stateJson,
+    );
+  }
 }

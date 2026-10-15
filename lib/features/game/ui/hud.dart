@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../app/app.dart';
 import '../../../app/folk_art.dart';
 import '../../../app/theme.dart';
 import '../../../app/widgets.dart';
 import '../../../core/game_models/game_state.dart';
 import '../flame/pieces_painter.dart';
+import '../../../l10n/strings.dart';
 
 /// Biểu tượng viên sỏi dân (vẽ bằng code, cùng kiểu với quân trên bàn).
 class StoneIcon extends StatelessWidget {
   const StoneIcon({
     super.key,
-    this.size = 16,
+    double? size,
     this.color = const Color(0xFFEFE3C8),
-  });
-  final double size;
+    // ignore: prefer_initializing_formals — tham số có tên không thể là private.
+  }) : _size = size;
+  final double? _size;
+
+  /// Mặc định co giãn theo màn hình (.r) — không đặt được làm hằng số mặc định.
+  double get size => _size ?? 16.r;
   final Color color;
 
   @override
@@ -43,8 +48,12 @@ class _StonePainter extends CustomPainter {
 
 /// Biểu tượng quan: hòn đá nâu lớn.
 class GemIcon extends StatelessWidget {
-  const GemIcon({super.key, this.size = 20});
-  final double size;
+  // ignore: prefer_initializing_formals — tham số có tên không thể là private.
+  const GemIcon({super.key, double? size}) : _size = size;
+  final double? _size;
+
+  /// Mặc định co giãn theo màn hình (.r) — không đặt được làm hằng số mặc định.
+  double get size => _size ?? 20.r;
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
@@ -87,10 +96,10 @@ class IconCount extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           icon,
-          const SizedBox(width: 3),
+          SizedBox(width: 3.r),
           Text(
             '$value',
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.sp),
           ),
         ],
       ),
@@ -117,46 +126,57 @@ class PlayerChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
     final t = RcTokens.of(context);
     final p = state.players[playerId];
     final isTurn = !state.isOver && state.turnPlayer == playerId;
     final color = playerColors[playerId];
-    final String? status = !p.active
-        ? l.eliminatedShort
-        : thinking
-            ? l.thinkingShort
-            : isTurn
-                ? l.yourTurn
-                : null;
+    final status = _status(p.active, thinking, isTurn);
+    var fill = t.surface;
+    var borderColor = t.text.withValues(alpha: 0.55);
+    var borderWidth = 2.0;
+    var shadows = const <BoxShadow>[];
+    var statusColor = t.muted;
+    if (isTurn) {
+      fill = Color.alphaBlend(Rc.accentSoft, t.surface);
+      borderColor = Rc.accent;
+      borderWidth = 2.8;
+      shadows = [BoxShadow(color: Color(0x40FF8F3A), blurRadius: 14.r)];
+      statusColor = Rc.accent;
+    }
+    var opacity = 0.55;
+    TextDecoration? nameDecoration = TextDecoration.lineThrough;
+    if (p.active) {
+      opacity = 1;
+      nameDecoration = null;
+    }
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       width: width,
-      padding: const EdgeInsets.fromLTRB(8, 7, 12, 7),
+      padding: EdgeInsets.fromLTRB(8.r, 7.r, 12.r, 7.r),
       decoration: ShapeDecoration(
-        color: isTurn ? Color.alphaBlend(Rc.accentSoft, t.surface) : t.surface,
+        color: fill,
         // Viền phấn: cam đậm khi tới lượt, kem mờ khi chờ.
-        shape: ChalkBorder(
-          color: isTurn ? Rc.accent : t.text.withValues(alpha: 0.55),
-          width: isTurn ? 2.8 : 2,
-        ),
-        shadows: isTurn
-            ? const [BoxShadow(color: Color(0x40FF8F3A), blurRadius: 14)]
-            : const [],
+        shape: ChalkBorder(color: borderColor, width: borderWidth),
+        shadows: shadows,
       ),
       child: Opacity(
-        opacity: p.active ? 1 : 0.55,
+        opacity: opacity,
         child: Row(
           children: [
             // Ô vuông avatar có viền màu người chơi (đánh dấu cạnh trên bàn).
             Container(
-              padding: const EdgeInsets.all(2),
+              padding: EdgeInsets.all(2.r),
               decoration: ShapeDecoration(
-                shape: ChalkBorder(radius: 11, color: color, width: 2),
+                shape: ChalkBorder(radius: 11.r, color: color, width: 2.r),
               ),
-              child: PlayerAvatar(playerId: playerId, size: 30, ai: p.isAi, dimmed: !p.active),
+              child: PlayerAvatar(
+                playerId: playerId,
+                size: 30.r,
+                ai: p.isAi,
+                dimmed: !p.active,
+              ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.r),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,33 +188,33 @@ class PlayerChip extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       color: t.text,
-                      decoration: p.active ? null : TextDecoration.lineThrough,
+                      decoration: nameDecoration,
                     ),
                   ),
                   if (status != null)
                     Text(
                       status,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
-                        color: isTurn ? Rc.accent : t.muted,
+                        color: statusColor,
                       ),
                     )
                   else
                     Wrap(
-                      spacing: 8,
+                      spacing: 8.r,
                       children: [
                         IconCount(
-                          icon: const StoneIcon(size: 14),
+                          icon: StoneIcon(size: 14.r),
                           value: p.danCaptured + p.danCollected,
-                          semantics: l.danShort,
+                          semantics: Strings.danShort,
                         ),
                         IconCount(
-                          icon: const GemIcon(size: 15),
+                          icon: GemIcon(size: 15.r),
                           value: p.quanCaptured,
-                          semantics: l.quanShort,
+                          semantics: Strings.quanShort,
                         ),
                       ],
                     ),
@@ -204,14 +224,21 @@ class PlayerChip extends StatelessWidget {
             ValueListenableBuilder<List<int>>(
               valueListenable: scores,
               builder: (context, v, _) {
-                final score = playerId < v.length ? v[playerId] : p.score;
+                var score = p.score;
+                if (playerId < v.length) score = v[playerId];
                 return AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
-                  transitionBuilder: (c, a) => ScaleTransition(scale: a, child: c),
+                  transitionBuilder: (c, a) =>
+                      ScaleTransition(scale: a, child: c),
                   child: Text(
                     '$score',
                     key: ValueKey(score),
-                    style: TextStyle(fontSize: 24, height: 1.1, fontWeight: FontWeight.w900, color: t.text),
+                    style: TextStyle(
+                      fontSize: 24.sp,
+                      height: 1.1,
+                      fontWeight: FontWeight.w900,
+                      color: t.text,
+                    ),
                   ),
                 );
               },
@@ -230,13 +257,17 @@ class HudButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     this.onPressed,
-    this.size = 44,
+    double? size,
     this.label,
-  });
+    // ignore: prefer_initializing_formals — tham số có tên không thể là private.
+  }) : _size = size;
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
-  final double size;
+  final double? _size;
+
+  /// Mặc định co giãn theo màn hình (.r) — không đặt được làm hằng số mặc định.
+  double get size => _size ?? 44.r;
 
   /// Có nhãn → nút dạng viên thuốc (icon + chữ).
   final String? label;
@@ -245,28 +276,46 @@ class HudButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = RcTokens.of(context);
     final enabled = onPressed != null;
-    final fg = enabled ? t.text : t.muted.withValues(alpha: 0.45);
+    var fg = t.muted.withValues(alpha: 0.45);
+    var borderAlpha = 0.35;
+    if (enabled) {
+      fg = t.text;
+      borderAlpha = 0.85;
+    }
+    double? boxWidth = size;
+    var hPad = 0.0;
+    if (label != null) {
+      boxWidth = null;
+      hPad = 12;
+    }
     return Tooltip(
       message: tooltip,
       child: Material(
         color: t.surface,
-        shape: ChalkBorder(color: t.text.withValues(alpha: enabled ? 0.85 : 0.35)),
+        shape: ChalkBorder(color: t.text.withValues(alpha: borderAlpha)),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           onTap: onPressed,
           child: SizedBox(
             height: size,
-            width: label == null ? size : null,
+            width: boxWidth,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: label == null ? 0 : 12),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FolkIcon(icon, size: size * 0.46, color: fg),
                   if (label != null) ...[
-                    const SizedBox(width: 6),
-                    Text(label!, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: fg)),
+                    SizedBox(width: 6.r),
+                    Text(
+                      label!,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14.sp,
+                        color: fg,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -276,4 +325,11 @@ class HudButton extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _status(bool active, bool thinking, bool isTurn) {
+  if (!active) return Strings.eliminatedShort;
+  if (thinking) return Strings.thinkingShort;
+  if (isTurn) return Strings.yourTurn;
+  return null;
 }

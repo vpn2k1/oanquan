@@ -18,18 +18,23 @@ GameState custom(
 }) {
   final base = initial(n);
   assert(dan.length == base.ringLength);
-  final q = quan ?? {for (final c in base.cells) if (c.isQuanCell) c.id};
+  final q =
+      quan ??
+      {
+        for (final c in base.cells)
+          if (c.isQuanCell) c.id,
+      };
   return base.copyWith(
     cells: [
       for (final c in base.cells)
-        c.copyWith(danCount: dan[c.id], hasQuan: c.kind == CellKind.quan && q.contains(c.id)),
+        c.copyWith(
+          danCount: dan[c.id],
+          hasQuan: c.kind == CellKind.quan && q.contains(c.id),
+        ),
     ],
     players: [
       for (final p in base.players)
-        p.copyWith(
-          score: scores?[p.id] ?? 0,
-          active: !inactive.contains(p.id),
-        ),
+        p.copyWith(score: scores?[p.id] ?? 0, active: !inactive.contains(p.id)),
     ],
     turnPlayer: turn,
   );

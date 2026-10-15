@@ -34,6 +34,7 @@ class Replay {
 
   GameState replay(GameState initial, List<Move> moves) {
     final st = steps(initial, moves);
-    return st.isEmpty ? initial : st.last.state;
+    if (st.isEmpty) return initial;
+    return st.last.state;
   }
 }

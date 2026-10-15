@@ -100,7 +100,8 @@ class ArrowButton extends PositionComponent
   void render(Canvas canvas) {
     final r = size.x / 2;
     final c = Offset(r, r);
-    final s = game.visuals.reducedMotion ? 1.0 : Curves.backOut(_appear);
+    var s = 1.0;
+    if (!game.visuals.reducedMotion) s = Curves.backOut(_appear);
     canvas.save();
     canvas.translate(c.dx, c.dy);
     canvas.scale(s);
@@ -109,11 +110,9 @@ class ArrowButton extends PositionComponent
       r * 0.92,
       Paint()..color = const Color(0x55000000),
     );
-    canvas.drawCircle(
-      Offset.zero,
-      r * 0.92,
-      Paint()..color = _hover ? const Color(0xFFFFF4DC) : AppColors.cream,
-    );
+    var faceColor = AppColors.cream;
+    if (_hover) faceColor = const Color(0xFFFFF4DC);
+    canvas.drawCircle(Offset.zero, r * 0.92, Paint()..color = faceColor);
     canvas.drawCircle(
       Offset.zero,
       r * 0.92,
@@ -122,7 +121,8 @@ class ArrowButton extends PositionComponent
         ..strokeWidth = max(2, r * 0.12)
         ..color = AppColors.gold,
     );
-    final dir = direction == Direction.clockwise ? tangent : -tangent;
+    var dir = -tangent;
+    if (direction == Direction.clockwise) dir = tangent;
     canvas.rotate(atan2(dir.dy, dir.dx));
     final a = r * 0.46;
     final path = Path()
@@ -204,14 +204,25 @@ class FlyingPiece extends PositionComponent with HasGameReference<OQuanGame> {
     final t = Curves.easeInOut(min(1, _t));
     final p = _at(t);
     final scale = 1 + sin(t * pi) * 0.35;
-    final double alpha = fadeOut ? 1 - max(0.0, (t - 0.7) / 0.3) : 1.0;
+    var alpha = 1.0;
+    if (fadeOut) alpha = 1 - max(0.0, (t - 0.7) / 0.3);
     if (alpha < 1) {
       canvas.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, alpha));
     }
     if (kind == FlyKind.stone) {
-      PiecesPainter.pebble(canvas, p, radius * scale, variant: identityHashCode(this));
+      PiecesPainter.pebble(
+        canvas,
+        p,
+        radius * scale,
+        variant: identityHashCode(this),
+      );
     } else {
-      PiecesPainter.quanStone(canvas, p, radius * scale * 0.8, glow: sin(t * pi));
+      PiecesPainter.quanStone(
+        canvas,
+        p,
+        radius * scale * 0.8,
+        glow: sin(t * pi),
+      );
     }
     if (alpha < 1) canvas.restore();
   }
@@ -240,10 +251,10 @@ class FloatingText extends PositionComponent with HasGameReference<OQuanGame> {
 
   @override
   void render(Canvas canvas) {
-    final rise = game.visuals.reducedMotion
-        ? 0.0
-        : Curves.easeOut(_t) * fontSize * 1.6;
-    final a = _t < 0.7 ? 1.0 : 1 - (_t - 0.7) / 0.3;
+    var rise = 0.0;
+    if (!game.visuals.reducedMotion) rise = Curves.easeOut(_t) * fontSize * 1.6;
+    var a = 1.0;
+    if (_t >= 0.7) a = 1 - (_t - 0.7) / 0.3;
     final p = at - Offset(0, rise);
     PiecesPainter.text(
       canvas,
@@ -291,8 +302,11 @@ class Sparkle extends PositionComponent with HasGameReference<OQuanGame> {
 }
 
 abstract final class Curves {
-  static double easeInOut(double t) =>
-      t < 0.5 ? 2 * t * t : 1 - pow(-2 * t + 2, 2).toDouble() / 2;
+  static double easeInOut(double t) {
+    if (t < 0.5) return 2 * t * t;
+    return 1 - pow(-2 * t + 2, 2).toDouble() / 2;
+  }
+
   static double easeOut(double t) => 1 - pow(1 - t, 3).toDouble();
   static double backOut(double t) {
     const c1 = 1.70158, c3 = c1 + 1;

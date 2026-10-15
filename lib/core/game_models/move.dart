@@ -6,7 +6,10 @@ enum Direction {
   const Direction(this.step);
   final int step;
 
-  Direction get opposite => this == clockwise ? counterClockwise : clockwise;
+  Direction get opposite {
+    if (this == clockwise) return counterClockwise;
+    return clockwise;
+  }
 }
 
 class Move {
@@ -43,6 +46,9 @@ class Move {
   int get hashCode => Object.hash(playerId, sourceCellId, direction);
 
   @override
-  String toString() =>
-      'Move(p$playerId, #$sourceCellId, ${direction == Direction.clockwise ? '+' : '-'})';
+  String toString() {
+    var sign = '-';
+    if (direction == Direction.clockwise) sign = '+';
+    return 'Move(p$playerId, #$sourceCellId, $sign)';
+  }
 }

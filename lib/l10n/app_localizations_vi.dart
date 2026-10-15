@@ -33,7 +33,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get back => 'Quay lại';
 
   @override
-  String playersCount(int count) {
+  String playersCount(Object count) {
     return '$count người';
   }
 
@@ -71,29 +71,20 @@ class AppLocalizationsVi extends AppLocalizations {
   String get ai => 'AI';
 
   @override
-  String get aiEasy => 'Dễ';
-
-  @override
-  String get aiMedium => 'Vừa';
-
-  @override
-  String get aiHard => 'Khó';
-
-  @override
   String get startGame => 'Bắt đầu';
 
   @override
-  String defaultPlayerName(int n) {
+  String defaultPlayerName(Object n) {
     return 'Người $n';
   }
 
   @override
-  String aiPlayerName(int n) {
+  String aiPlayerName(Object n) {
     return 'Máy $n';
   }
 
   @override
-  String turnOf(String name) {
+  String turnOf(Object name) {
     return 'Lượt: $name';
   }
 
@@ -104,15 +95,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get hintSelectDirection => 'Chọn hướng rải bằng mũi tên';
 
   @override
-  String aiThinking(String name) {
+  String aiThinking(Object name) {
     return '$name đang suy nghĩ…';
   }
 
   @override
   String get animating => 'Đang rải quân… (chạm để tua nhanh)';
-
-  @override
-  String get skip => 'Bỏ qua';
 
   @override
   String get undo => 'Đi lại';
@@ -160,7 +148,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get gameOver => 'Kết thúc ván';
 
   @override
-  String winner(String name) {
+  String winner(Object name) {
     return '$name thắng!';
   }
 
@@ -168,7 +156,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get draw => 'Hòa — đồng hạng nhất';
 
   @override
-  String rank(int n) {
+  String rank(Object n) {
     return 'Hạng $n';
   }
 
@@ -185,12 +173,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get playAgain => 'Chơi lại';
 
   @override
-  String refillMsg(String name) {
+  String refillMsg(Object name) {
     return '$name hết dân — lấy 5 dân đã ăn rải lại mỗi ô 1 dân';
   }
 
   @override
-  String eliminateMsg(String name) {
+  String eliminateMsg(Object name) {
     return '$name hết dân và không vay được — bị loại';
   }
 
@@ -310,6 +298,148 @@ class AppLocalizationsVi extends AppLocalizations {
   String get statsQuanTotal => 'Tổng quan đã ăn';
 
   @override
+  String get onlineTitle => 'Phòng online';
+
+  @override
+  String get onlineNotice =>
+      'Chế độ online cần server xác thực (authoritative). Bản này mới có hợp đồng API và server giả lập chạy trong máy để kiểm thử — chưa kết nối mạng thật.';
+
+  @override
+  String get createRoom => 'Tạo phòng';
+
+  @override
+  String get joinRoom => 'Vào phòng';
+
+  @override
+  String get roomCode => 'Mã phòng';
+
+  @override
+  String roomCreated(Object code) {
+    return 'Đã tạo phòng $code (giả lập cục bộ)';
+  }
+
+  @override
+  String roomJoined(Object code) {
+    return 'Đã vào phòng $code (giả lập cục bộ)';
+  }
+
+  @override
+  String get roomNotFound => 'Không tìm thấy phòng';
+
+  @override
+  String waitingPlayers(Object joined, Object total) {
+    return 'Đang chờ người chơi: $joined/$total';
+  }
+
+  @override
+  String get onlineUnavailable =>
+      'Chưa có server thật — không thể bắt đầu ván online.';
+
+  @override
+  String get noSavedGame => 'Không có ván đã lưu';
+
+  @override
+  String get confirmExit => 'Thoát ván? Ván sẽ được lưu để chơi tiếp.';
+
+  @override
+  String get cancel => 'Hủy';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String moveNumber(Object n) {
+    return 'Nước $n';
+  }
+
+  @override
+  String get currentRules => 'Luật hiện hành (multi_v1)';
+
+  @override
+  String get rulesSummary =>
+      '• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.';
+
+  @override
+  String get addSimulatedClient => '+ Thêm client giả lập';
+
+  @override
+  String borrowMsg(Object name, Object count) {
+    return '$name hết dân, không đủ 5 dân — vay $count dân để rải lại (trả khi tính điểm)';
+  }
+
+  @override
+  String repayMsg(Object name, Object count) {
+    return '$name trả $count dân đã vay';
+  }
+
+  @override
+  String get settingsBoardStyle => 'Mặt sân & nét vẽ';
+
+  @override
+  String get styleRandom => 'Ngẫu nhiên mỗi ván';
+
+  @override
+  String get yourTurn => 'Tới lượt';
+
+  @override
+  String get thinkingShort => 'Đang nghĩ…';
+
+  @override
+  String get eliminatedShort => 'Bị loại';
+
+  @override
+  String get chooseLevel => 'Độ khó';
+
+  @override
+  String get playerNames => 'Tên người chơi';
+
+  @override
+  String get you => 'Bạn';
+
+  @override
+  String get shuffleGround => 'Đổi mặt sân';
+
+  @override
+  String guestName(Object n) {
+    return 'Khách $n';
+  }
+
+  @override
+  String get updateTitle => 'Có bản cập nhật mới';
+
+  @override
+  String get updateSoftMsg =>
+      'Ô Quan Việt có phiên bản mới với nhiều cải tiến. Cập nhật ngay nhé?';
+
+  @override
+  String get updateRequiredMsg =>
+      'Phiên bản này đã cũ, vui lòng cập nhật để tiếp tục chơi.';
+
+  @override
+  String get updateNow => 'Cập nhật';
+
+  @override
+  String get updateLater => 'Để sau';
+
+  @override
+  String get aiEasy => 'Dễ';
+
+  @override
+  String get aiEasyDesc => 'Máy hay đi ngẫu nhiên';
+
+  @override
+  String get aiMedium => 'Vừa';
+
+  @override
+  String get aiMediumDesc => 'Tính trước vài nước';
+
+  @override
+  String get aiHard => 'Khó';
+
+  @override
+  String get aiHardDesc => 'Tính sâu, khó thắng';
+
+  @override
   String get achFirstGame => 'Ván đầu tiên';
 
   @override
@@ -346,128 +476,17 @@ class AppLocalizationsVi extends AppLocalizations {
   String get achAllBoardsDesc => 'Chơi đủ bàn 2, 3 và 4 người';
 
   @override
-  String get onlineTitle => 'Phòng online';
+  String get styleDirtStick => 'Sân đất · que vạch';
 
   @override
-  String get onlineNotice =>
-      'Chế độ online cần server xác thực (authoritative). Bản này mới có hợp đồng API và server giả lập chạy trong máy để kiểm thử — chưa kết nối mạng thật.';
+  String get styleConcreteChalk => 'Xi măng · phấn trắng';
 
   @override
-  String get createRoom => 'Tạo phòng';
+  String get styleTilesChalk => 'Sân gạch bát · phấn';
 
   @override
-  String get joinRoom => 'Vào phòng';
+  String get styleConcreteBrick => 'Xi măng · gạch non';
 
   @override
-  String get roomCode => 'Mã phòng';
-
-  @override
-  String roomCreated(String code) {
-    return 'Đã tạo phòng $code (giả lập cục bộ)';
-  }
-
-  @override
-  String roomJoined(String code) {
-    return 'Đã vào phòng $code (giả lập cục bộ)';
-  }
-
-  @override
-  String get roomNotFound => 'Không tìm thấy phòng';
-
-  @override
-  String waitingPlayers(int joined, int total) {
-    return 'Đang chờ người chơi: $joined/$total';
-  }
-
-  @override
-  String get onlineUnavailable =>
-      'Chưa có server thật — không thể bắt đầu ván online.';
-
-  @override
-  String get noSavedGame => 'Không có ván đã lưu';
-
-  @override
-  String get confirmExit => 'Thoát ván? Ván sẽ được lưu để chơi tiếp.';
-
-  @override
-  String get cancel => 'Hủy';
-
-  @override
-  String get ok => 'OK';
-
-  @override
-  String moveNumber(int n) {
-    return 'Nước $n';
-  }
-
-  @override
-  String get currentRules => 'Luật hiện hành (multi_v1)';
-
-  @override
-  String get rulesSummary =>
-      '• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.';
-
-  @override
-  String get addSimulatedClient => '+ Thêm client giả lập';
-
-  @override
-  String borrowMsg(String name, int count) {
-    return '$name hết dân, không đủ 5 dân — vay $count dân để rải lại (trả khi tính điểm)';
-  }
-
-  @override
-  String repayMsg(String name, int count) {
-    return '$name trả $count dân đã vay';
-  }
-
-  @override
-  String get settingsBoardStyle => 'Mặt sân & nét vẽ';
-
-  @override
-  String get styleRandom => 'Ngẫu nhiên mỗi ván';
-
-  @override
-  String get style_dirt_stick => 'Sân đất · que vạch';
-
-  @override
-  String get style_concrete_chalk => 'Xi măng · phấn trắng';
-
-  @override
-  String get style_tiles_chalk => 'Sân gạch bát · phấn';
-
-  @override
-  String get style_concrete_brick => 'Xi măng · gạch non';
-
-  @override
-  String get style_concrete_charcoal => 'Xi măng · than củi';
-
-  @override
-  String get yourTurn => 'Tới lượt';
-
-  @override
-  String get thinkingShort => 'Đang nghĩ…';
-
-  @override
-  String get eliminatedShort => 'Bị loại';
-
-  @override
-  String get chooseLevel => 'Độ khó';
-
-  @override
-  String get playerNames => 'Tên người chơi';
-
-  @override
-  String get you => 'Bạn';
-
-  @override
-  String get aiEasyDesc => 'Máy hay đi ngẫu nhiên';
-
-  @override
-  String get aiMediumDesc => 'Tính trước vài nước';
-
-  @override
-  String get aiHardDesc => 'Tính sâu, khó thắng';
-
-  @override
-  String get shuffleGround => 'Đổi mặt sân';
+  String get styleConcreteCharcoal => 'Xi măng · than củi';
 }

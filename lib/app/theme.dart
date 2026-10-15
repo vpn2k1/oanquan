@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'folk_art.dart';
 
@@ -61,12 +62,51 @@ class RcTokens {
   factory RcTokens.of(BuildContext context) =>
       RcTokens(Theme.of(context).brightness == Brightness.dark);
   final bool dark;
-  Color get bg => dark ? Rc.bg : Rc.bgLight;
-  Color get surface => dark ? Rc.surface : Rc.surfaceLight;
-  Color get surfaceHigh => dark ? Rc.surfaceHigh : Rc.surfaceHighLight;
-  Color get text => dark ? Rc.text : Rc.textLight;
-  Color get muted => dark ? Rc.muted : Rc.mutedLight;
-  Color get line => dark ? Rc.line : Rc.lineLight;
+  Color get bg {
+    if (dark) return Rc.bg;
+    return Rc.bgLight;
+  }
+
+  Color get surface {
+    if (dark) return Rc.surface;
+    return Rc.surfaceLight;
+  }
+
+  Color get surfaceHigh {
+    if (dark) return Rc.surfaceHigh;
+    return Rc.surfaceHighLight;
+  }
+
+  Color get text {
+    if (dark) return Rc.text;
+    return Rc.textLight;
+  }
+
+  Color get muted {
+    if (dark) return Rc.muted;
+    return Rc.mutedLight;
+  }
+
+  Color get line {
+    if (dark) return Rc.line;
+    return Rc.lineLight;
+  }
+}
+
+/// Màu nét phấn viền nút: kem trên nền tối, nâu sẫm trên nền sáng.
+Color _chalkColor(bool dark) {
+  if (dark) return const Color(0xE6FFF3E2);
+  return const Color(0xCC2D2621);
+}
+
+Color _switchThumb(Set<WidgetState> s, RcTokens t) {
+  if (s.contains(WidgetState.selected)) return Rc.onAccent;
+  return t.muted;
+}
+
+Color _switchTrack(Set<WidgetState> s, RcTokens t) {
+  if (s.contains(WidgetState.selected)) return Rc.accent;
+  return t.surfaceHigh;
 }
 
 ThemeData buildTheme(Brightness b) {
@@ -87,30 +127,35 @@ ThemeData buildTheme(Brightness b) {
         onSecondaryContainer: t.text,
       );
   // Nút viền nét phấn (kem trên nền tối, nâu sẫm trên nền sáng).
-  final chalk = ChalkBorder(
-    color: t.dark ? const Color(0xE6FFF3E2) : const Color(0xCC2D2621),
+  // Theme dựng bên trong ScreenUtilInit → dùng được .r/.sp.
+  final chalk = ChalkBorder(radius: 16.r, color: _chalkColor(t.dark));
+  final chalkOnAccent = ChalkBorder(
+    radius: 16.r,
+    color: const Color(0xF2FFF3E2),
+    width: 2.4,
   );
-  const chalkOnAccent = ChalkBorder(color: Color(0xF2FFF3E2), width: 2.4);
-  const label = TextStyle(fontSize: 16, fontWeight: FontWeight.w800);
+  final label = TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800);
   final base = ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
     brightness: b,
   );
+  // Ghép bộ cỡ chữ chuẩn (englishLike2021) rồi nhân tỉ lệ .sp cho toàn app.
+  final text = Typography.englishLike2021
+      .merge(base.textTheme)
+      .apply(bodyColor: t.text, displayColor: t.text, fontSizeFactor: 1.sp);
   return base.copyWith(
     scaffoldBackgroundColor: t.bg,
-    textTheme: base.textTheme
-        .apply(bodyColor: t.text, displayColor: t.text)
-        .copyWith(
-          titleMedium: base.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: t.text,
-          ),
-          titleSmall: base.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: t.muted,
-          ),
-        ),
+    textTheme: text.copyWith(
+      titleMedium: text.titleMedium?.copyWith(
+        fontWeight: FontWeight.w800,
+        color: t.text,
+      ),
+      titleSmall: text.titleSmall?.copyWith(
+        fontWeight: FontWeight.w800,
+        color: t.muted,
+      ),
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -118,7 +163,7 @@ ThemeData buildTheme(Brightness b) {
       foregroundColor: t.text,
       centerTitle: true,
       titleTextStyle: TextStyle(
-        fontSize: 20,
+        fontSize: 20.sp,
         fontWeight: FontWeight.w900,
         color: t.text,
       ),
@@ -127,20 +172,20 @@ ThemeData buildTheme(Brightness b) {
       color: t.surface,
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: chalk.copyWith(radius: 18),
+      shape: chalk.copyWith(radius: 18.r),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size(48, 52),
+        minimumSize: Size(48.r, 52.r),
         backgroundColor: Rc.accent,
         foregroundColor: Rc.onAccent,
-        textStyle: label.copyWith(fontSize: 17),
+        textStyle: label.copyWith(fontSize: 17.sp),
         shape: chalkOnAccent,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        minimumSize: const Size(48, 48),
+        minimumSize: Size(48.r, 48.r),
         backgroundColor: t.surface,
         foregroundColor: t.text,
         side: BorderSide.none,
@@ -163,28 +208,29 @@ ThemeData buildTheme(Brightness b) {
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.selected) ? Rc.onAccent : t.muted,
-      ),
-      trackColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.selected) ? Rc.accent : t.surfaceHigh,
-      ),
+      thumbColor: WidgetStateProperty.resolveWith((s) => _switchThumb(s, t)),
+      trackColor: WidgetStateProperty.resolveWith((s) => _switchTrack(s, t)),
       trackOutlineColor: WidgetStatePropertyAll(t.line),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: t.surface,
-      shape: chalk.copyWith(radius: 20),
+      shape: chalk.copyWith(radius: 20.r),
     ),
     bottomSheetTheme: BottomSheetThemeData(backgroundColor: t.surface),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: t.surfaceHigh,
       contentTextStyle: TextStyle(color: t.text, fontWeight: FontWeight.w600),
       behavior: SnackBarBehavior.floating,
-      shape: chalk.copyWith(radius: 14),
+      shape: chalk.copyWith(radius: 14.r),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      enabledBorder: ChalkUnderlineInputBorder(color: t.text.withValues(alpha: 0.6)),
-      focusedBorder: const ChalkUnderlineInputBorder(color: Rc.accent, width: 2.6),
+      enabledBorder: ChalkUnderlineInputBorder(
+        color: t.text.withValues(alpha: 0.6),
+      ),
+      focusedBorder: const ChalkUnderlineInputBorder(
+        color: Rc.accent,
+        width: 2.6,
+      ),
     ),
     dividerTheme: DividerThemeData(color: t.line),
   );

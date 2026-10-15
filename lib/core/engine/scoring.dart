@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../game_models/player.dart';
 
 class Standing {
@@ -12,7 +14,7 @@ abstract final class Scoring {
   /// Người có điểm cao nhất (có thể nhiều người — hòa đồng hạng).
   static List<int> winners(List<Player> players) {
     if (players.isEmpty) return const [];
-    final best = players.map((p) => p.score).reduce((a, b) => a > b ? a : b);
+    final best = players.map((p) => p.score).reduce(math.max);
     return [
       for (final p in players)
         if (p.score == best) p.id,
@@ -23,13 +25,15 @@ abstract final class Scoring {
     final sorted = [...players]
       ..sort((a, b) {
         final c = b.score.compareTo(a.score);
-        return c != 0 ? c : a.id.compareTo(b.id);
+        if (c != 0) return c;
+        return a.id.compareTo(b.id);
       });
     final out = <Standing>[];
     for (var i = 0; i < sorted.length; i++) {
-      final rank = (i > 0 && sorted[i].score == sorted[i - 1].score)
-          ? out[i - 1].rank
-          : i + 1;
+      var rank = i + 1;
+      if (i > 0 && sorted[i].score == sorted[i - 1].score) {
+        rank = out[i - 1].rank;
+      }
       out.add(Standing(sorted[i], rank));
     }
     return out;

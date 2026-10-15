@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../app/app.dart';
 import '../../app/router.dart';
-import '../../app/widgets.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,38 +29,12 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
     return Scaffold(
-      body: AppBackground(
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _c,
-            builder: (context, _) {
-              final t = Curves.easeOutBack.transform(_c.value.clamp(0, 1));
-              return Opacity(
-                opacity: _c.value.clamp(0, 1),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Transform.scale(
-                      scale: 0.6 + 0.4 * t,
-                      child: const LogoMark(size: 140),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      l.appTitle,
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    Text(
-                      l.appSubtitle,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+      backgroundColor: const Color(0xFFB55D2D),
+      body: FadeTransition(
+        opacity: _c,
+        child: SizedBox.expand(
+          child: Image.asset('assets/splash.png', fit: BoxFit.contain),
         ),
       ),
     );

@@ -4,27 +4,39 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_quan_viet/core/ai/ai_player.dart';
 import 'package:o_quan_viet/core/engine/move_result.dart';
 import 'package:o_quan_viet/core/engine/rules_engine.dart';
+import 'package:o_quan_viet/core/game_models/cell.dart';
 import 'package:o_quan_viet/core/game_models/game_config.dart';
 import 'package:o_quan_viet/core/game_models/game_state.dart';
+import 'package:o_quan_viet/core/game_models/move.dart';
 import 'package:o_quan_viet/core/game_models/player.dart';
+
+/// Số dân sau khi dọn bàn: ô #3 còn 2, ô của người 0 về 0, còn lại giữ nguyên.
+int _danAfterTrim(Cell c) {
+  if (c.id == 3) return 2;
+  if (c.ownerId == 0) return 0;
+  return c.danCount;
+}
 
 void main() {
   const engine = RulesEngine();
 
-  test('bot luôn tạo nước hợp lệ cho 2/3/4 người, mọi mức độ, và ván kết thúc', () {
-    for (final n in [2, 3, 4]) {
-      for (final level in AiLevel.values) {
-        final ai = AiPlayer();
-        var s = engine.newGame(GameConfig.preset(n, seed: n));
-        while (!s.isOver) {
-          final m = ai.chooseMove(s, level: level);
-          expect(engine.validate(s, m), isNull, reason: '$m phải hợp lệ');
-          s = (engine.applyMove(s, m) as MoveAccepted).state;
+  test(
+    'bot luôn tạo nước hợp lệ cho 2/3/4 người, mọi mức độ, và ván kết thúc',
+    () {
+      for (final n in [2, 3, 4]) {
+        for (final level in AiLevel.values) {
+          final ai = AiPlayer();
+          var s = engine.newGame(GameConfig.preset(n, seed: n));
+          while (!s.isOver) {
+            final m = ai.chooseMove(s, level: level);
+            expect(engine.validate(s, m), isNull, reason: '$m phải hợp lệ');
+            s = (engine.applyMove(s, m) as MoveAccepted).state;
+          }
+          expect(s.winnerIds, isNotEmpty);
         }
-        expect(s.winnerIds, isNotEmpty);
       }
-    }
-  });
+    },
+  );
 
   test('Hard tôn trọng time budget (không đứng)', () {
     for (final n in [2, 3, 4]) {
@@ -53,9 +65,12 @@ void main() {
       final ai = AiPlayer();
       while (!s.isOver) {
         final moves = engine.getLegalMoves(s);
-        final m = s.turnPlayer == aiSide
-            ? ai.chooseMove(s, level: AiLevel.medium)
-            : moves[rng.nextInt(moves.length)];
+        final Move m;
+        if (s.turnPlayer == aiSide) {
+          m = ai.chooseMove(s, level: AiLevel.medium);
+        } else {
+          m = moves[rng.nextInt(moves.length)];
+        }
         s = (engine.applyMove(s, m) as MoveAccepted).state;
       }
       if (s.winnerIds.length == 1 && s.winnerIds.first == aiSide) wins++;
@@ -65,10 +80,11 @@ void main() {
 
   test('chỉ một nước hợp lệ → trả ngay', () {
     final base = engine.newGame(GameConfig.preset(2));
-    final s = base.copyWith(cells: [
-      for (final c in base.cells)
-        c.copyWith(danCount: c.id == 3 ? 2 : (c.ownerId == 0 ? 0 : c.danCount)),
-    ]);
+    final s = base.copyWith(
+      cells: [
+        for (final c in base.cells) c.copyWith(danCount: _danAfterTrim(c)),
+      ],
+    );
     final moves = engine.getLegalMoves(s);
     expect(moves.length, 2);
     final m = AiPlayer().chooseMove(s, level: AiLevel.hard);

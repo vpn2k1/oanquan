@@ -44,11 +44,17 @@ class FakeServerHub {
   final Map<String, StreamController<ServerMessage>> _clients = {};
 
   void _receive(String clientId, String wire) {
-    final msg = ClientMessage.fromJson(jsonDecode(wire) as Map<String, dynamic>);
+    final msg = ClientMessage.fromJson(
+      jsonDecode(wire) as Map<String, dynamic>,
+    );
     for (final o in server.handle(clientId, msg)) {
       final c = _clients[o.clientId];
       if (c == null || c.isClosed) continue;
-      c.add(ServerMessage.fromJson(jsonDecode(jsonEncode(o.message.toJson())) as Map<String, dynamic>));
+      c.add(
+        ServerMessage.fromJson(
+          jsonDecode(jsonEncode(o.message.toJson())) as Map<String, dynamic>,
+        ),
+      );
     }
   }
 }

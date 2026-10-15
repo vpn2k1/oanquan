@@ -1,30 +1,30 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/app.dart';
 import '../../app/widgets.dart';
 import '../../app/folk_art.dart';
-import '../../l10n/app_localizations.dart';
 import 'settings_controller.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/strings.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
     final s = ref.watch(settingsProvider);
     final c = ref.read(settingsProvider.notifier);
     return Scaffold(
-      appBar: AppBar(title: Text(l.settings)),
+      appBar: AppBar(title: Text(Strings.settings)),
       body: AppBackground(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
+            constraints: BoxConstraints(maxWidth: 560.r),
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               children: [
                 Card(
                   child: Column(
@@ -32,13 +32,13 @@ class SettingsScreen extends ConsumerWidget {
                       SwitchListTile(
                         key: const Key('soundSwitch'),
                         secondary: const FolkIcon(Icons.volume_up_rounded),
-                        title: Text(l.settingsSound),
+                        title: Text(Strings.settingsSound),
                         value: s.sound,
                         onChanged: (v) => c.update(s.copyWith(sound: v)),
                       ),
                       SwitchListTile(
                         secondary: const FolkIcon(Icons.vibration_rounded),
-                        title: Text(l.settingsHaptics),
+                        title: Text(Strings.settingsHaptics),
                         value: s.haptics,
                         onChanged: (v) => c.update(s.copyWith(haptics: v)),
                       ),
@@ -53,16 +53,16 @@ class SettingsScreen extends ConsumerWidget {
                         secondary: const FolkIcon(
                           Icons.motion_photos_off_rounded,
                         ),
-                        title: Text(l.settingsReducedMotion),
-                        subtitle: Text(l.settingsReducedMotionDesc),
+                        title: Text(Strings.settingsReducedMotion),
+                        subtitle: Text(Strings.settingsReducedMotionDesc),
                         value: s.reducedMotion,
                         onChanged: (v) =>
                             c.update(s.copyWith(reducedMotion: v)),
                       ),
                       SwitchListTile(
                         secondary: const FolkIcon(Icons.palette_rounded),
-                        title: Text(l.settingsColorBlind),
-                        subtitle: Text(l.settingsColorBlindDesc),
+                        title: Text(Strings.settingsColorBlind),
+                        subtitle: Text(Strings.settingsColorBlindDesc),
                         value: s.colorBlind,
                         onChanged: (v) => c.update(s.copyWith(colorBlind: v)),
                       ),
@@ -71,22 +71,22 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12.r),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l.settingsBoardStyle,
+                          Strings.settingsBoardStyle,
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.r),
                         Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
+                          spacing: 10.r,
+                          runSpacing: 10.r,
                           children: [
                             _StyleTile(
                               key: const Key('style_random'),
-                              label: l.styleRandom,
+                              label: Strings.styleRandom,
                               style: null,
                               selected: s.boardStyle == FolkStyle.randomId,
                               onTap: () => c.update(
@@ -96,7 +96,7 @@ class SettingsScreen extends ConsumerWidget {
                             for (final st in FolkStyle.all)
                               _StyleTile(
                                 key: Key('style_${st.id}'),
-                                label: _styleName(l, st),
+                                label: Strings.styleName(st.id),
                                 style: st,
                                 selected: s.boardStyle == st.id,
                                 onTap: () =>
@@ -110,51 +110,51 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12.r),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l.settingsTheme,
+                          Strings.settingsTheme,
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.r),
                         SegmentedButton<ThemeMode>(
                           segments: [
                             ButtonSegment(
                               value: ThemeMode.system,
-                              label: Text(l.themeSystem),
+                              label: Text(Strings.themeSystem),
                             ),
                             ButtonSegment(
                               value: ThemeMode.light,
-                              label: Text(l.themeLight),
+                              label: Text(Strings.themeLight),
                             ),
                             ButtonSegment(
                               value: ThemeMode.dark,
-                              label: Text(l.themeDark),
+                              label: Text(Strings.themeDark),
                             ),
                           ],
                           selected: {s.themeMode},
                           onSelectionChanged: (v) =>
                               c.update(s.copyWith(themeMode: v.first)),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.r),
                         Text(
-                          l.settingsLanguage,
+                          Strings.settingsLanguage,
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
-                        const SizedBox(height: 8),
-                        SegmentedButton<String>(
-                          segments: const [
-                            ButtonSegment(
-                              value: 'vi',
-                              label: Text('Tiếng Việt'),
-                            ),
-                            ButtonSegment(value: 'en', label: Text('English')),
+                        SizedBox(height: 8.r),
+                        SegmentedButton<AppLanguage>(
+                          segments: [
+                            for (final lang in AppLanguage.values)
+                              ButtonSegment(
+                                value: lang,
+                                label: Text(lang.nativeName),
+                              ),
                           ],
-                          selected: {s.localeCode},
+                          selected: {s.language},
                           onSelectionChanged: (v) =>
-                              c.update(s.copyWith(localeCode: v.first)),
+                              c.update(s.copyWith(language: v.first)),
                         ),
                       ],
                     ),
@@ -168,14 +168,6 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 }
-
-String _styleName(AppLocalizations l, FolkStyle st) => switch (st.id) {
-  'dirt_stick' => l.style_dirt_stick,
-  'tiles_chalk' => l.style_tiles_chalk,
-  'concrete_brick' => l.style_concrete_brick,
-  'concrete_charcoal' => l.style_concrete_charcoal,
-  _ => l.style_concrete_chalk,
-};
 
 /// Ô xem trước: mặt sân + một hàng ô kẻ bằng dụng cụ tương ứng.
 class _StyleTile extends StatelessWidget {
@@ -195,42 +187,45 @@ class _StyleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    var borderColor = scheme.onSurface.withValues(alpha: 0.45);
+    var borderWidth = 1.8;
+    if (selected) {
+      borderColor = scheme.primary;
+      borderWidth = 2.8;
+    }
     return Semantics(
       button: true,
       selected: selected,
       label: label,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         child: Container(
-          width: 132,
-          padding: const EdgeInsets.all(4),
+          width: 132.r,
+          padding: EdgeInsets.all(4.r),
           decoration: ShapeDecoration(
             shape: ChalkBorder(
-              radius: 14,
-              color: selected ? scheme.primary : scheme.onSurface.withValues(alpha: 0.45),
-              width: selected ? 2.8 : 1.8,
+              radius: 14.r,
+              color: borderColor,
+              width: borderWidth,
             ),
           ),
           child: Column(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
                 child: SizedBox(
-                  height: 64,
+                  height: 64.r,
                   width: double.infinity,
                   child: CustomPaint(painter: _PreviewPainter(style)),
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4.r),
               Text(
                 label,
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -268,10 +263,10 @@ class _PreviewPainter extends CustomPainter {
         canvas.restore();
       }
       final tp = TextPainter(
-        text: const TextSpan(
+        text: TextSpan(
           text: '?',
           style: TextStyle(
-            fontSize: 34,
+            fontSize: 34.sp,
             fontWeight: FontWeight.w900,
             color: Color(0xFFF7F4EC),
           ),
@@ -293,8 +288,8 @@ class _PreviewPainter extends CustomPainter {
         -pi / 2,
         pi,
       );
-    FolkPen.stroke(canvas, quan, st.pen, width: 2.6, seed: 1);
-    FolkPen.stroke(canvas, quanR, st.pen, width: 2.6, seed: 2);
+    FolkPen.stroke(canvas, quan, st.pen, width: 2.6.r, seed: 1);
+    FolkPen.stroke(canvas, quanR, st.pen, width: 2.6.r, seed: 2);
     final left = 8 + cell / 2;
     final w = (size.width - 16 - cell) / 3;
     for (var i = 0; i < 3; i++) {
@@ -302,7 +297,7 @@ class _PreviewPainter extends CustomPainter {
         canvas,
         Path()..addRect(Rect.fromLTWH(left + i * w, top, w, cell)),
         st.pen,
-        width: 2.4,
+        width: 2.4.r,
         seed: 10 + i,
       );
     }

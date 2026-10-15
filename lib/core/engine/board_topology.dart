@@ -25,7 +25,10 @@ class BoardTopology {
   bool isQuanIndex(int i) => i % segment == 0;
 
   /// Chủ ô dân; `null` với ô quan.
-  int? ownerOf(int i) => isQuanIndex(i) ? null : i ~/ segment;
+  int? ownerOf(int i) {
+    if (isQuanIndex(i)) return null;
+    return i ~/ segment;
+  }
 
   /// Vị trí j (0..K-1) của ô dân trong đoạn của chủ.
   int danSlot(int i) => i % segment - 1;

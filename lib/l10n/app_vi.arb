@@ -11,9 +11,7 @@
   "playersCount": "{count} người",
   "@playersCount": {
     "placeholders": {
-      "count": {
-        "type": "int"
-      }
+      "count": {}
     }
   },
   "choosePlayers": "Số người chơi",
@@ -27,32 +25,23 @@
   "playersSetup": "Người chơi",
   "human": "Người",
   "ai": "AI",
-  "aiEasy": "Dễ",
-  "aiMedium": "Vừa",
-  "aiHard": "Khó",
   "startGame": "Bắt đầu",
   "defaultPlayerName": "Người {n}",
   "@defaultPlayerName": {
     "placeholders": {
-      "n": {
-        "type": "int"
-      }
+      "n": {}
     }
   },
   "aiPlayerName": "Máy {n}",
   "@aiPlayerName": {
     "placeholders": {
-      "n": {
-        "type": "int"
-      }
+      "n": {}
     }
   },
   "turnOf": "Lượt: {name}",
   "@turnOf": {
     "placeholders": {
-      "name": {
-        "type": "String"
-      }
+      "name": {}
     }
   },
   "hintSelectCell": "Chạm vào một ô sáng bên bạn để chọn",
@@ -60,13 +49,10 @@
   "aiThinking": "{name} đang suy nghĩ…",
   "@aiThinking": {
     "placeholders": {
-      "name": {
-        "type": "String"
-      }
+      "name": {}
     }
   },
   "animating": "Đang rải quân… (chạm để tua nhanh)",
-  "skip": "Bỏ qua",
   "undo": "Đi lại",
   "hint": "Gợi ý",
   "rules": "Luật",
@@ -85,18 +71,14 @@
   "winner": "{name} thắng!",
   "@winner": {
     "placeholders": {
-      "name": {
-        "type": "String"
-      }
+      "name": {}
     }
   },
   "draw": "Hòa — đồng hạng nhất",
   "rank": "Hạng {n}",
   "@rank": {
     "placeholders": {
-      "n": {
-        "type": "int"
-      }
+      "n": {}
     }
   },
   "endAllQuan": "Tất cả quan đã bị ăn",
@@ -106,17 +88,13 @@
   "refillMsg": "{name} hết dân — lấy 5 dân đã ăn rải lại mỗi ô 1 dân",
   "@refillMsg": {
     "placeholders": {
-      "name": {
-        "type": "String"
-      }
+      "name": {}
     }
   },
   "eliminateMsg": "{name} hết dân và không vay được — bị loại",
   "@eliminateMsg": {
     "placeholders": {
-      "name": {
-        "type": "String"
-      }
+      "name": {}
     }
   },
   "loopGuardMsg": "Phát hiện vòng lặp — kết thúc lượt",
@@ -154,6 +132,85 @@
   "statsWinsVsAi": "Thắng AI",
   "statsBestScore": "Điểm cao nhất",
   "statsQuanTotal": "Tổng quan đã ăn",
+  "onlineTitle": "Phòng online",
+  "onlineNotice": "Chế độ online cần server xác thực (authoritative). Bản này mới có hợp đồng API và server giả lập chạy trong máy để kiểm thử — chưa kết nối mạng thật.",
+  "createRoom": "Tạo phòng",
+  "joinRoom": "Vào phòng",
+  "roomCode": "Mã phòng",
+  "roomCreated": "Đã tạo phòng {code} (giả lập cục bộ)",
+  "@roomCreated": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "roomJoined": "Đã vào phòng {code} (giả lập cục bộ)",
+  "@roomJoined": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "roomNotFound": "Không tìm thấy phòng",
+  "waitingPlayers": "Đang chờ người chơi: {joined}/{total}",
+  "@waitingPlayers": {
+    "placeholders": {
+      "joined": {},
+      "total": {}
+    }
+  },
+  "onlineUnavailable": "Chưa có server thật — không thể bắt đầu ván online.",
+  "noSavedGame": "Không có ván đã lưu",
+  "confirmExit": "Thoát ván? Ván sẽ được lưu để chơi tiếp.",
+  "cancel": "Hủy",
+  "ok": "OK",
+  "moveNumber": "Nước {n}",
+  "@moveNumber": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "currentRules": "Luật hiện hành (multi_v1)",
+  "rulesSummary": "• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.",
+  "addSimulatedClient": "+ Thêm client giả lập",
+  "borrowMsg": "{name} hết dân, không đủ 5 dân — vay {count} dân để rải lại (trả khi tính điểm)",
+  "@borrowMsg": {
+    "placeholders": {
+      "name": {},
+      "count": {}
+    }
+  },
+  "repayMsg": "{name} trả {count} dân đã vay",
+  "@repayMsg": {
+    "placeholders": {
+      "name": {},
+      "count": {}
+    }
+  },
+  "settingsBoardStyle": "Mặt sân & nét vẽ",
+  "styleRandom": "Ngẫu nhiên mỗi ván",
+  "yourTurn": "Tới lượt",
+  "thinkingShort": "Đang nghĩ…",
+  "eliminatedShort": "Bị loại",
+  "chooseLevel": "Độ khó",
+  "playerNames": "Tên người chơi",
+  "you": "Bạn",
+  "shuffleGround": "Đổi mặt sân",
+  "guestName": "Khách {n}",
+  "@guestName": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "updateTitle": "Có bản cập nhật mới",
+  "updateSoftMsg": "Ô Quan Việt có phiên bản mới với nhiều cải tiến. Cập nhật ngay nhé?",
+  "updateRequiredMsg": "Phiên bản này đã cũ, vui lòng cập nhật để tiếp tục chơi.",
+  "updateNow": "Cập nhật",
+  "updateLater": "Để sau",
+  "aiEasy": "Dễ",
+  "aiEasyDesc": "Máy hay đi ngẫu nhiên",
+  "aiMedium": "Vừa",
+  "aiMediumDesc": "Tính trước vài nước",
+  "aiHard": "Khó",
+  "aiHardDesc": "Tính sâu, khó thắng",
   "achFirstGame": "Ván đầu tiên",
   "achFirstGameDesc": "Hoàn thành một ván bất kỳ",
   "achBeatAi": "Khắc chế cỗ máy",
@@ -166,92 +223,9 @@
   "achHighScoreDesc": "Đạt từ 40 điểm trong một ván",
   "achAllBoards": "Du ngoạn ba bàn",
   "achAllBoardsDesc": "Chơi đủ bàn 2, 3 và 4 người",
-  "onlineTitle": "Phòng online",
-  "onlineNotice": "Chế độ online cần server xác thực (authoritative). Bản này mới có hợp đồng API và server giả lập chạy trong máy để kiểm thử — chưa kết nối mạng thật.",
-  "createRoom": "Tạo phòng",
-  "joinRoom": "Vào phòng",
-  "roomCode": "Mã phòng",
-  "roomCreated": "Đã tạo phòng {code} (giả lập cục bộ)",
-  "@roomCreated": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "roomJoined": "Đã vào phòng {code} (giả lập cục bộ)",
-  "@roomJoined": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "roomNotFound": "Không tìm thấy phòng",
-  "waitingPlayers": "Đang chờ người chơi: {joined}/{total}",
-  "@waitingPlayers": {
-    "placeholders": {
-      "joined": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "onlineUnavailable": "Chưa có server thật — không thể bắt đầu ván online.",
-  "noSavedGame": "Không có ván đã lưu",
-  "confirmExit": "Thoát ván? Ván sẽ được lưu để chơi tiếp.",
-  "cancel": "Hủy",
-  "ok": "OK",
-  "moveNumber": "Nước {n}",
-  "@moveNumber": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "currentRules": "Luật hiện hành (multi_v1)",
-  "rulesSummary": "• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.",
-  "addSimulatedClient": "+ Thêm client giả lập",
-  "borrowMsg": "{name} hết dân, không đủ 5 dân — vay {count} dân để rải lại (trả khi tính điểm)",
-  "@borrowMsg": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "repayMsg": "{name} trả {count} dân đã vay",
-  "@repayMsg": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsBoardStyle": "Mặt sân & nét vẽ",
-  "styleRandom": "Ngẫu nhiên mỗi ván",
-  "style_dirt_stick": "Sân đất · que vạch",
-  "style_concrete_chalk": "Xi măng · phấn trắng",
-  "style_tiles_chalk": "Sân gạch bát · phấn",
-  "style_concrete_brick": "Xi măng · gạch non",
-  "style_concrete_charcoal": "Xi măng · than củi",
-  "yourTurn": "Tới lượt",
-  "thinkingShort": "Đang nghĩ…",
-  "eliminatedShort": "Bị loại",
-  "chooseLevel": "Độ khó",
-  "playerNames": "Tên người chơi",
-  "you": "Bạn",
-  "aiEasyDesc": "Máy hay đi ngẫu nhiên",
-  "aiMediumDesc": "Tính trước vài nước",
-  "aiHardDesc": "Tính sâu, khó thắng",
-  "shuffleGround": "Đổi mặt sân"
+  "styleDirtStick": "Sân đất · que vạch",
+  "styleConcreteChalk": "Xi măng · phấn trắng",
+  "styleTilesChalk": "Sân gạch bát · phấn",
+  "styleConcreteBrick": "Xi măng · gạch non",
+  "styleConcreteCharcoal": "Xi măng · than củi"
 }

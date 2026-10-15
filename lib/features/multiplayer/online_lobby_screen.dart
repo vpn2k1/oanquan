@@ -2,12 +2,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../app/app.dart';
 import '../../app/widgets.dart';
 import 'multiplayer_repository.dart';
 import 'protocol.dart';
+import '../../l10n/strings.dart';
 
 /// Lobby online — UI + hợp đồng thật, server giả lập cục bộ (chưa có mạng).
+String _errorText(String error) {
+  if (error == 'roomNotFound') return Strings.roomNotFound;
+  return error;
+}
+
+Widget? _seatMark(bool isMe) {
+  if (isMe) return const FolkIcon(Icons.person_pin_rounded);
+  return null;
+}
+
 class OnlineLobbyScreen extends StatefulWidget {
   const OnlineLobbyScreen({super.key});
 
@@ -68,18 +78,17 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
       'guest-${_bots++}-${room.matchId}',
     );
     await guest.send(
-      JoinRoom('${guest.clientId}#0', room.matchId, 'Khách $_bots'),
+      JoinRoom('${guest.clientId}#0', room.matchId, Strings.guestName(_bots)),
     );
     // Giữ kết nối khách mở trong vòng đời demo.
   }
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
     final room = _room;
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l.onlineTitle)),
+      appBar: AppBar(title: Text(Strings.onlineTitle)),
       body: AppBackground(
         child: Center(
           child: ConstrainedBox(
@@ -97,7 +106,7 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            l.onlineNotice,
+                            Strings.onlineNotice,
                             key: const Key('onlineNotice'),
                           ),
                         ),
@@ -110,7 +119,10 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                   SegmentedButton<int>(
                     segments: [
                       for (final n in [2, 3, 4])
-                        ButtonSegment(value: n, label: Text(l.playersCount(n))),
+                        ButtonSegment(
+                          value: n,
+                          label: Text(Strings.playersCount(n)),
+                        ),
                     ],
                     selected: {_count},
                     onSelectionChanged: (v) => setState(() => _count = v.first),
@@ -118,9 +130,9 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                   const SizedBox(height: 10),
                   FilledButton.icon(
                     icon: const FolkIcon(Icons.add_home_rounded),
-                    label: Text(l.createRoom),
+                    label: Text(Strings.createRoom),
                     onPressed: () => _repo.send(
-                      CreateRoom(_aid(), l.defaultPlayerName(1), _count),
+                      CreateRoom(_aid(), Strings.defaultPlayerName(1), _count),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -128,19 +140,19 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                     controller: _code,
                     textCapitalization: TextCapitalization.characters,
                     decoration: InputDecoration(
-                      labelText: l.roomCode,
+                      labelText: Strings.roomCode,
                       border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
                     icon: const FolkIcon(Icons.login_rounded),
-                    label: Text(l.joinRoom),
+                    label: Text(Strings.joinRoom),
                     onPressed: () => _repo.send(
                       JoinRoom(
                         _aid(),
                         _code.text.trim(),
-                        l.defaultPlayerName(2),
+                        Strings.defaultPlayerName(2),
                       ),
                     ),
                   ),
@@ -148,7 +160,7 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Text(
-                        _error == 'roomNotFound' ? l.roomNotFound : _error!,
+                        _errorText(_error!),
                         style: TextStyle(color: theme.colorScheme.error),
                       ),
                     ),
@@ -160,7 +172,7 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l.roomCreated(room.matchId),
+                            Strings.roomCreated(room.matchId),
                             style: theme.textTheme.titleMedium,
                           ),
                           SelectableText(
@@ -172,7 +184,7 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            l.waitingPlayers(
+                            Strings.waitingPlayers(
                               room.seats.length,
                               room.playerCount,
                             ),
@@ -183,9 +195,7 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                               dense: true,
                               leading: PlayerAvatar(playerId: i, size: 28),
                               title: Text(room.seats[i]),
-                              trailing: i == room.playerId
-                                  ? const FolkIcon(Icons.person_pin_rounded)
-                                  : null,
+                              trailing: _seatMark(i == room.playerId),
                             ),
                           if (room.state != null)
                             Text(
@@ -200,13 +210,13 @@ class _OnlineLobbyScreenState extends State<OnlineLobbyScreen> {
                   if (room.seats.length < room.playerCount)
                     OutlinedButton.icon(
                       icon: const FolkIcon(Icons.person_add_alt_rounded),
-                      label: Text(l.addSimulatedClient),
+                      label: Text(Strings.addSimulatedClient),
                       onPressed: _addSimulatedGuest,
                     ),
                   const SizedBox(height: 10),
                   FilledButton.icon(
                     icon: const FolkIcon(Icons.cloud_off_rounded),
-                    label: Text(l.onlineUnavailable),
+                    label: Text(Strings.onlineUnavailable),
                     onPressed: null,
                   ),
                 ],

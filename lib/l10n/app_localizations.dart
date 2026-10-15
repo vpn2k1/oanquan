@@ -150,7 +150,7 @@ abstract class AppLocalizations {
   ///
   /// In vi, this message translates to:
   /// **'{count} người'**
-  String playersCount(int count);
+  String playersCount(Object count);
 
   /// No description provided for @choosePlayers.
   ///
@@ -218,24 +218,6 @@ abstract class AppLocalizations {
   /// **'AI'**
   String get ai;
 
-  /// No description provided for @aiEasy.
-  ///
-  /// In vi, this message translates to:
-  /// **'Dễ'**
-  String get aiEasy;
-
-  /// No description provided for @aiMedium.
-  ///
-  /// In vi, this message translates to:
-  /// **'Vừa'**
-  String get aiMedium;
-
-  /// No description provided for @aiHard.
-  ///
-  /// In vi, this message translates to:
-  /// **'Khó'**
-  String get aiHard;
-
   /// No description provided for @startGame.
   ///
   /// In vi, this message translates to:
@@ -246,19 +228,19 @@ abstract class AppLocalizations {
   ///
   /// In vi, this message translates to:
   /// **'Người {n}'**
-  String defaultPlayerName(int n);
+  String defaultPlayerName(Object n);
 
   /// No description provided for @aiPlayerName.
   ///
   /// In vi, this message translates to:
   /// **'Máy {n}'**
-  String aiPlayerName(int n);
+  String aiPlayerName(Object n);
 
   /// No description provided for @turnOf.
   ///
   /// In vi, this message translates to:
   /// **'Lượt: {name}'**
-  String turnOf(String name);
+  String turnOf(Object name);
 
   /// No description provided for @hintSelectCell.
   ///
@@ -276,19 +258,13 @@ abstract class AppLocalizations {
   ///
   /// In vi, this message translates to:
   /// **'{name} đang suy nghĩ…'**
-  String aiThinking(String name);
+  String aiThinking(Object name);
 
   /// No description provided for @animating.
   ///
   /// In vi, this message translates to:
   /// **'Đang rải quân… (chạm để tua nhanh)'**
   String get animating;
-
-  /// No description provided for @skip.
-  ///
-  /// In vi, this message translates to:
-  /// **'Bỏ qua'**
-  String get skip;
 
   /// No description provided for @undo.
   ///
@@ -384,7 +360,7 @@ abstract class AppLocalizations {
   ///
   /// In vi, this message translates to:
   /// **'{name} thắng!'**
-  String winner(String name);
+  String winner(Object name);
 
   /// No description provided for @draw.
   ///
@@ -396,7 +372,7 @@ abstract class AppLocalizations {
   ///
   /// In vi, this message translates to:
   /// **'Hạng {n}'**
-  String rank(int n);
+  String rank(Object n);
 
   /// No description provided for @endAllQuan.
   ///
@@ -426,13 +402,13 @@ abstract class AppLocalizations {
   ///
   /// In vi, this message translates to:
   /// **'{name} hết dân — lấy 5 dân đã ăn rải lại mỗi ô 1 dân'**
-  String refillMsg(String name);
+  String refillMsg(Object name);
 
   /// No description provided for @eliminateMsg.
   ///
   /// In vi, this message translates to:
   /// **'{name} hết dân và không vay được — bị loại'**
-  String eliminateMsg(String name);
+  String eliminateMsg(Object name);
 
   /// No description provided for @loopGuardMsg.
   ///
@@ -644,6 +620,252 @@ abstract class AppLocalizations {
   /// **'Tổng quan đã ăn'**
   String get statsQuanTotal;
 
+  /// No description provided for @onlineTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Phòng online'**
+  String get onlineTitle;
+
+  /// No description provided for @onlineNotice.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chế độ online cần server xác thực (authoritative). Bản này mới có hợp đồng API và server giả lập chạy trong máy để kiểm thử — chưa kết nối mạng thật.'**
+  String get onlineNotice;
+
+  /// No description provided for @createRoom.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tạo phòng'**
+  String get createRoom;
+
+  /// No description provided for @joinRoom.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vào phòng'**
+  String get joinRoom;
+
+  /// No description provided for @roomCode.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mã phòng'**
+  String get roomCode;
+
+  /// No description provided for @roomCreated.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã tạo phòng {code} (giả lập cục bộ)'**
+  String roomCreated(Object code);
+
+  /// No description provided for @roomJoined.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã vào phòng {code} (giả lập cục bộ)'**
+  String roomJoined(Object code);
+
+  /// No description provided for @roomNotFound.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không tìm thấy phòng'**
+  String get roomNotFound;
+
+  /// No description provided for @waitingPlayers.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang chờ người chơi: {joined}/{total}'**
+  String waitingPlayers(Object joined, Object total);
+
+  /// No description provided for @onlineUnavailable.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có server thật — không thể bắt đầu ván online.'**
+  String get onlineUnavailable;
+
+  /// No description provided for @noSavedGame.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không có ván đã lưu'**
+  String get noSavedGame;
+
+  /// No description provided for @confirmExit.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thoát ván? Ván sẽ được lưu để chơi tiếp.'**
+  String get confirmExit;
+
+  /// No description provided for @cancel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hủy'**
+  String get cancel;
+
+  /// No description provided for @ok.
+  ///
+  /// In vi, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @moveNumber.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nước {n}'**
+  String moveNumber(Object n);
+
+  /// No description provided for @currentRules.
+  ///
+  /// In vi, this message translates to:
+  /// **'Luật hiện hành (multi_v1)'**
+  String get currentRules;
+
+  /// No description provided for @rulesSummary.
+  ///
+  /// In vi, this message translates to:
+  /// **'• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.'**
+  String get rulesSummary;
+
+  /// No description provided for @addSimulatedClient.
+  ///
+  /// In vi, this message translates to:
+  /// **'+ Thêm client giả lập'**
+  String get addSimulatedClient;
+
+  /// No description provided for @borrowMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'{name} hết dân, không đủ 5 dân — vay {count} dân để rải lại (trả khi tính điểm)'**
+  String borrowMsg(Object name, Object count);
+
+  /// No description provided for @repayMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'{name} trả {count} dân đã vay'**
+  String repayMsg(Object name, Object count);
+
+  /// No description provided for @settingsBoardStyle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mặt sân & nét vẽ'**
+  String get settingsBoardStyle;
+
+  /// No description provided for @styleRandom.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ngẫu nhiên mỗi ván'**
+  String get styleRandom;
+
+  /// No description provided for @yourTurn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tới lượt'**
+  String get yourTurn;
+
+  /// No description provided for @thinkingShort.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang nghĩ…'**
+  String get thinkingShort;
+
+  /// No description provided for @eliminatedShort.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bị loại'**
+  String get eliminatedShort;
+
+  /// No description provided for @chooseLevel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Độ khó'**
+  String get chooseLevel;
+
+  /// No description provided for @playerNames.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên người chơi'**
+  String get playerNames;
+
+  /// No description provided for @you.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn'**
+  String get you;
+
+  /// No description provided for @shuffleGround.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đổi mặt sân'**
+  String get shuffleGround;
+
+  /// No description provided for @guestName.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khách {n}'**
+  String guestName(Object n);
+
+  /// No description provided for @updateTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Có bản cập nhật mới'**
+  String get updateTitle;
+
+  /// No description provided for @updateSoftMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ô Quan Việt có phiên bản mới với nhiều cải tiến. Cập nhật ngay nhé?'**
+  String get updateSoftMsg;
+
+  /// No description provided for @updateRequiredMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'Phiên bản này đã cũ, vui lòng cập nhật để tiếp tục chơi.'**
+  String get updateRequiredMsg;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cập nhật'**
+  String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In vi, this message translates to:
+  /// **'Để sau'**
+  String get updateLater;
+
+  /// No description provided for @aiEasy.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dễ'**
+  String get aiEasy;
+
+  /// No description provided for @aiEasyDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Máy hay đi ngẫu nhiên'**
+  String get aiEasyDesc;
+
+  /// No description provided for @aiMedium.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vừa'**
+  String get aiMedium;
+
+  /// No description provided for @aiMediumDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tính trước vài nước'**
+  String get aiMediumDesc;
+
+  /// No description provided for @aiHard.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khó'**
+  String get aiHard;
+
+  /// No description provided for @aiHardDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tính sâu, khó thắng'**
+  String get aiHardDesc;
+
   /// No description provided for @achFirstGame.
   ///
   /// In vi, this message translates to:
@@ -716,227 +938,35 @@ abstract class AppLocalizations {
   /// **'Chơi đủ bàn 2, 3 và 4 người'**
   String get achAllBoardsDesc;
 
-  /// No description provided for @onlineTitle.
-  ///
-  /// In vi, this message translates to:
-  /// **'Phòng online'**
-  String get onlineTitle;
-
-  /// No description provided for @onlineNotice.
-  ///
-  /// In vi, this message translates to:
-  /// **'Chế độ online cần server xác thực (authoritative). Bản này mới có hợp đồng API và server giả lập chạy trong máy để kiểm thử — chưa kết nối mạng thật.'**
-  String get onlineNotice;
-
-  /// No description provided for @createRoom.
-  ///
-  /// In vi, this message translates to:
-  /// **'Tạo phòng'**
-  String get createRoom;
-
-  /// No description provided for @joinRoom.
-  ///
-  /// In vi, this message translates to:
-  /// **'Vào phòng'**
-  String get joinRoom;
-
-  /// No description provided for @roomCode.
-  ///
-  /// In vi, this message translates to:
-  /// **'Mã phòng'**
-  String get roomCode;
-
-  /// No description provided for @roomCreated.
-  ///
-  /// In vi, this message translates to:
-  /// **'Đã tạo phòng {code} (giả lập cục bộ)'**
-  String roomCreated(String code);
-
-  /// No description provided for @roomJoined.
-  ///
-  /// In vi, this message translates to:
-  /// **'Đã vào phòng {code} (giả lập cục bộ)'**
-  String roomJoined(String code);
-
-  /// No description provided for @roomNotFound.
-  ///
-  /// In vi, this message translates to:
-  /// **'Không tìm thấy phòng'**
-  String get roomNotFound;
-
-  /// No description provided for @waitingPlayers.
-  ///
-  /// In vi, this message translates to:
-  /// **'Đang chờ người chơi: {joined}/{total}'**
-  String waitingPlayers(int joined, int total);
-
-  /// No description provided for @onlineUnavailable.
-  ///
-  /// In vi, this message translates to:
-  /// **'Chưa có server thật — không thể bắt đầu ván online.'**
-  String get onlineUnavailable;
-
-  /// No description provided for @noSavedGame.
-  ///
-  /// In vi, this message translates to:
-  /// **'Không có ván đã lưu'**
-  String get noSavedGame;
-
-  /// No description provided for @confirmExit.
-  ///
-  /// In vi, this message translates to:
-  /// **'Thoát ván? Ván sẽ được lưu để chơi tiếp.'**
-  String get confirmExit;
-
-  /// No description provided for @cancel.
-  ///
-  /// In vi, this message translates to:
-  /// **'Hủy'**
-  String get cancel;
-
-  /// No description provided for @ok.
-  ///
-  /// In vi, this message translates to:
-  /// **'OK'**
-  String get ok;
-
-  /// No description provided for @moveNumber.
-  ///
-  /// In vi, this message translates to:
-  /// **'Nước {n}'**
-  String moveNumber(int n);
-
-  /// No description provided for @currentRules.
-  ///
-  /// In vi, this message translates to:
-  /// **'Luật hiện hành (multi_v1)'**
-  String get currentRules;
-
-  /// No description provided for @rulesSummary.
-  ///
-  /// In vi, this message translates to:
-  /// **'• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.'**
-  String get rulesSummary;
-
-  /// No description provided for @addSimulatedClient.
-  ///
-  /// In vi, this message translates to:
-  /// **'+ Thêm client giả lập'**
-  String get addSimulatedClient;
-
-  /// No description provided for @borrowMsg.
-  ///
-  /// In vi, this message translates to:
-  /// **'{name} hết dân, không đủ 5 dân — vay {count} dân để rải lại (trả khi tính điểm)'**
-  String borrowMsg(String name, int count);
-
-  /// No description provided for @repayMsg.
-  ///
-  /// In vi, this message translates to:
-  /// **'{name} trả {count} dân đã vay'**
-  String repayMsg(String name, int count);
-
-  /// No description provided for @settingsBoardStyle.
-  ///
-  /// In vi, this message translates to:
-  /// **'Mặt sân & nét vẽ'**
-  String get settingsBoardStyle;
-
-  /// No description provided for @styleRandom.
-  ///
-  /// In vi, this message translates to:
-  /// **'Ngẫu nhiên mỗi ván'**
-  String get styleRandom;
-
-  /// No description provided for @style_dirt_stick.
+  /// No description provided for @styleDirtStick.
   ///
   /// In vi, this message translates to:
   /// **'Sân đất · que vạch'**
-  String get style_dirt_stick;
+  String get styleDirtStick;
 
-  /// No description provided for @style_concrete_chalk.
+  /// No description provided for @styleConcreteChalk.
   ///
   /// In vi, this message translates to:
   /// **'Xi măng · phấn trắng'**
-  String get style_concrete_chalk;
+  String get styleConcreteChalk;
 
-  /// No description provided for @style_tiles_chalk.
+  /// No description provided for @styleTilesChalk.
   ///
   /// In vi, this message translates to:
   /// **'Sân gạch bát · phấn'**
-  String get style_tiles_chalk;
+  String get styleTilesChalk;
 
-  /// No description provided for @style_concrete_brick.
+  /// No description provided for @styleConcreteBrick.
   ///
   /// In vi, this message translates to:
   /// **'Xi măng · gạch non'**
-  String get style_concrete_brick;
+  String get styleConcreteBrick;
 
-  /// No description provided for @style_concrete_charcoal.
+  /// No description provided for @styleConcreteCharcoal.
   ///
   /// In vi, this message translates to:
   /// **'Xi măng · than củi'**
-  String get style_concrete_charcoal;
-
-  /// No description provided for @yourTurn.
-  ///
-  /// In vi, this message translates to:
-  /// **'Tới lượt'**
-  String get yourTurn;
-
-  /// No description provided for @thinkingShort.
-  ///
-  /// In vi, this message translates to:
-  /// **'Đang nghĩ…'**
-  String get thinkingShort;
-
-  /// No description provided for @eliminatedShort.
-  ///
-  /// In vi, this message translates to:
-  /// **'Bị loại'**
-  String get eliminatedShort;
-
-  /// No description provided for @chooseLevel.
-  ///
-  /// In vi, this message translates to:
-  /// **'Độ khó'**
-  String get chooseLevel;
-
-  /// No description provided for @playerNames.
-  ///
-  /// In vi, this message translates to:
-  /// **'Tên người chơi'**
-  String get playerNames;
-
-  /// No description provided for @you.
-  ///
-  /// In vi, this message translates to:
-  /// **'Bạn'**
-  String get you;
-
-  /// No description provided for @aiEasyDesc.
-  ///
-  /// In vi, this message translates to:
-  /// **'Máy hay đi ngẫu nhiên'**
-  String get aiEasyDesc;
-
-  /// No description provided for @aiMediumDesc.
-  ///
-  /// In vi, this message translates to:
-  /// **'Tính trước vài nước'**
-  String get aiMediumDesc;
-
-  /// No description provided for @aiHardDesc.
-  ///
-  /// In vi, this message translates to:
-  /// **'Tính sâu, khó thắng'**
-  String get aiHardDesc;
-
-  /// No description provided for @shuffleGround.
-  ///
-  /// In vi, this message translates to:
-  /// **'Đổi mặt sân'**
-  String get shuffleGround;
+  String get styleConcreteCharcoal;
 }
 
 class _AppLocalizationsDelegate

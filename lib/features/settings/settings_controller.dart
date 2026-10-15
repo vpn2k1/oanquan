@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../l10n/l10n.dart';
+
 /// SharedPreferences được khởi tạo trong `main` rồi override provider này.
 final sharedPrefsProvider = Provider<SharedPreferences>(
   (ref) => throw UnimplementedError('override sharedPrefsProvider in main'),
@@ -18,7 +20,7 @@ class AppSettings {
     this.reducedMotion = false,
     this.colorBlind = false,
     this.themeMode = ThemeMode.dark,
-    this.localeCode = 'vi',
+    this.language = AppLanguage.vi,
     this.boardStyle = 'random',
   });
 
@@ -27,7 +29,7 @@ class AppSettings {
   final bool reducedMotion;
   final bool colorBlind;
   final ThemeMode themeMode;
-  final String localeCode;
+  final AppLanguage language;
 
   /// Mặt sân + nét vẽ: id `FolkStyle` hoặc `'random'` (ngẫu nhiên mỗi ván).
   final String boardStyle;
@@ -38,7 +40,7 @@ class AppSettings {
     bool? reducedMotion,
     bool? colorBlind,
     ThemeMode? themeMode,
-    String? localeCode,
+    AppLanguage? language,
     String? boardStyle,
   }) => AppSettings(
     sound: sound ?? this.sound,
@@ -46,7 +48,7 @@ class AppSettings {
     reducedMotion: reducedMotion ?? this.reducedMotion,
     colorBlind: colorBlind ?? this.colorBlind,
     themeMode: themeMode ?? this.themeMode,
-    localeCode: localeCode ?? this.localeCode,
+    language: language ?? this.language,
     boardStyle: boardStyle ?? this.boardStyle,
   );
 }
@@ -70,7 +72,7 @@ class SettingsController extends Notifier<AppSettings> {
       reducedMotion: p.getBool('${_prefix}reducedMotion') ?? false,
       colorBlind: p.getBool('${_prefix}colorBlind') ?? false,
       themeMode: pick(ThemeMode.values, 'themeMode', ThemeMode.dark),
-      localeCode: p.getString('${_prefix}locale') ?? 'vi',
+      language: AppLanguage.byCode(p.getString('${_prefix}language')),
       boardStyle: p.getString('${_prefix}boardStyle') ?? 'random',
     );
   }
@@ -83,7 +85,7 @@ class SettingsController extends Notifier<AppSettings> {
     p.setBool('${_prefix}reducedMotion', s.reducedMotion);
     p.setBool('${_prefix}colorBlind', s.colorBlind);
     p.setString('${_prefix}themeMode', s.themeMode.name);
-    p.setString('${_prefix}locale', s.localeCode);
+    p.setString('${_prefix}language', s.language.code);
     p.setString('${_prefix}boardStyle', s.boardStyle);
   }
 

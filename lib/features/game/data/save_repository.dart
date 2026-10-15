@@ -31,5 +31,6 @@ class SaveRepository {
   Future<void> clear() => _prefs.remove(_key);
 }
 
-final saveRepositoryProvider =
-    Provider<SaveRepository>((ref) => SaveRepository(ref.watch(sharedPrefsProvider)));
+final saveRepositoryProvider = Provider<SaveRepository>(
+  (ref) => SaveRepository(ref.watch(sharedPrefsProvider)),
+);

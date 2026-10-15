@@ -10,22 +10,27 @@ import 'package:o_quan_viet/core/game_models/game_state.dart';
 import 'package:o_quan_viet/core/game_models/player.dart';
 import 'package:o_quan_viet/core/persistence/game_serializer.dart';
 
+PlayerType _typeOf(int i) {
+  if (i.isOdd) return PlayerType.ai;
+  return PlayerType.human;
+}
+
 void main() {
   const engine = RulesEngine();
 
   GameState playRandom(int n, int moves, int seed) {
     final rng = Random(seed);
-    var s = engine.newGame(GameConfig.preset(n, seed: seed), players: [
-      for (var i = 0; i < n; i++)
-        Player(
-            id: i,
-            name: 'P$i',
-            type: i.isOdd ? PlayerType.ai : PlayerType.human,
-            aiLevel: AiLevel.hard),
-    ]);
+    var s = engine.newGame(
+      GameConfig.preset(n, seed: seed),
+      players: [
+        for (var i = 0; i < n; i++)
+          Player(id: i, name: 'P$i', type: _typeOf(i), aiLevel: AiLevel.hard),
+      ],
+    );
     for (var i = 0; i < moves && !s.isOver; i++) {
       final ms = engine.getLegalMoves(s);
-      s = (engine.applyMove(s, ms[rng.nextInt(ms.length)]) as MoveAccepted).state;
+      s = (engine.applyMove(s, ms[rng.nextInt(ms.length)]) as MoveAccepted)
+          .state;
     }
     return s;
   }
@@ -50,7 +55,8 @@ void main() {
     final init = engine.newGame(GameConfig.preset(3));
     final cur = playRandom(3, 5, 1);
     final raw = GameSerializer.encodeSave(
-        SavedGame(initial: init, current: cur, savedAt: DateTime.utc(2026, 1, 2)));
+      SavedGame(initial: init, current: cur, savedAt: DateTime.utc(2026, 1, 2)),
+    );
     final g = GameSerializer.decodeSave(raw);
     expect(g.initial.boardKey, init.boardKey);
     expect(g.current.boardKey, cur.boardKey);
@@ -68,9 +74,20 @@ void main() {
     expect(s.isOver, isTrue);
     // Phát lại nước cuối để lấy events.
     final events = <GameEvent>[];
-    var t = engine.newGame(s.config, players: s.players
-        .map((p) => p.copyWith(score: 0, active: true, danCaptured: 0, quanCaptured: 0, refillSpent: 0))
-        .toList());
+    var t = engine.newGame(
+      s.config,
+      players: s.players
+          .map(
+            (p) => p.copyWith(
+              score: 0,
+              active: true,
+              danCaptured: 0,
+              quanCaptured: 0,
+              refillSpent: 0,
+            ),
+          )
+          .toList(),
+    );
     for (final m in s.history) {
       final r = engine.applyMove(t, m) as MoveAccepted;
       events.addAll(r.events);
@@ -86,12 +103,15 @@ void main() {
 
   test('giả định A3: giới hạn nước kết thúc ván với endReason=moveLimit', () {
     const cfg = GameConfig(
-        playerCount: 2, ruleset: RulesetConfig(maxMovesPerPlayer: 2));
+      playerCount: 2,
+      ruleset: RulesetConfig(maxMovesPerPlayer: 2),
+    );
     var s = engine.newGame(cfg);
     final rng = Random(3);
     while (!s.isOver) {
       final ms = engine.getLegalMoves(s);
-      s = (engine.applyMove(s, ms[rng.nextInt(ms.length)]) as MoveAccepted).state;
+      s = (engine.applyMove(s, ms[rng.nextInt(ms.length)]) as MoveAccepted)
+          .state;
     }
     expect(s.moveNumber, lessThanOrEqualTo(4));
     if (s.moveNumber == 4) expect(s.endReason, EndReason.moveLimit);

@@ -65,6 +65,11 @@ class Cell {
   int get hashCode => Object.hash(id, kind, ownerId, danCount, hasQuan);
 
   @override
-  String toString() =>
-      '${kind == CellKind.quan ? 'Q' : 'P${ownerId}C'}#$id(dan=$danCount${hasQuan ? ',quan' : ''})';
+  String toString() {
+    var label = 'P${ownerId}C';
+    if (kind == CellKind.quan) label = 'Q';
+    var quanMark = '';
+    if (hasQuan) quanMark = ',quan';
+    return '$label#$id(dan=$danCount$quanMark)';
+  }
 }

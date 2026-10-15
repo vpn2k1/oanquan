@@ -46,10 +46,13 @@ abstract final class GameSerializer {
           Move.fromJson(m as Map<String, dynamic>),
       ]),
       winnerIds: (j['winnerIds'] as List).cast<int>(),
-      endReason: j['endReason'] == null
-          ? null
-          : EndReason.values.byName(j['endReason'] as String),
+      endReason: _endReasonOf(j['endReason']),
     );
+  }
+
+  static EndReason? _endReasonOf(Object? name) {
+    if (name == null) return null;
+    return EndReason.values.byName(name as String);
   }
 
   /// Ván lưu = trạng thái ban đầu + trạng thái hiện tại (để undo/replay).

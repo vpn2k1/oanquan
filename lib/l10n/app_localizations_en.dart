@@ -33,7 +33,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get back => 'Back';
 
   @override
-  String playersCount(int count) {
+  String playersCount(Object count) {
     return '$count players';
   }
 
@@ -71,29 +71,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ai => 'AI';
 
   @override
-  String get aiEasy => 'Easy';
-
-  @override
-  String get aiMedium => 'Medium';
-
-  @override
-  String get aiHard => 'Hard';
-
-  @override
   String get startGame => 'Start';
 
   @override
-  String defaultPlayerName(int n) {
+  String defaultPlayerName(Object n) {
     return 'Player $n';
   }
 
   @override
-  String aiPlayerName(int n) {
+  String aiPlayerName(Object n) {
     return 'Bot $n';
   }
 
   @override
-  String turnOf(String name) {
+  String turnOf(Object name) {
     return 'Turn: $name';
   }
 
@@ -104,15 +95,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hintSelectDirection => 'Pick a sowing direction';
 
   @override
-  String aiThinking(String name) {
+  String aiThinking(Object name) {
     return '$name is thinking…';
   }
 
   @override
   String get animating => 'Sowing… (tap to fast-forward)';
-
-  @override
-  String get skip => 'Skip';
 
   @override
   String get undo => 'Undo';
@@ -160,7 +148,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameOver => 'Game over';
 
   @override
-  String winner(String name) {
+  String winner(Object name) {
     return '$name wins!';
   }
 
@@ -168,7 +156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get draw => 'Draw — shared first place';
 
   @override
-  String rank(int n) {
+  String rank(Object n) {
     return 'Rank $n';
   }
 
@@ -185,12 +173,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playAgain => 'Play again';
 
   @override
-  String refillMsg(String name) {
+  String refillMsg(Object name) {
     return '$name ran out — puts 5 captured seeds back, one per pit';
   }
 
   @override
-  String eliminateMsg(String name) {
+  String eliminateMsg(Object name) {
     return '$name ran out and cannot borrow — eliminated';
   }
 
@@ -309,6 +297,149 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsQuanTotal => 'Mandarins captured';
 
   @override
+  String get onlineTitle => 'Online rooms';
+
+  @override
+  String get onlineNotice =>
+      'Online play needs an authoritative server. This build only ships the API contract and an in-process fake server for testing — no real network yet.';
+
+  @override
+  String get createRoom => 'Create room';
+
+  @override
+  String get joinRoom => 'Join room';
+
+  @override
+  String get roomCode => 'Room code';
+
+  @override
+  String roomCreated(Object code) {
+    return 'Room $code created (local simulation)';
+  }
+
+  @override
+  String roomJoined(Object code) {
+    return 'Joined room $code (local simulation)';
+  }
+
+  @override
+  String get roomNotFound => 'Room not found';
+
+  @override
+  String waitingPlayers(Object joined, Object total) {
+    return 'Waiting for players: $joined/$total';
+  }
+
+  @override
+  String get onlineUnavailable =>
+      'No real server yet — online games cannot start.';
+
+  @override
+  String get noSavedGame => 'No saved game';
+
+  @override
+  String get confirmExit =>
+      'Leave the game? It will be saved so you can continue.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String moveNumber(Object n) {
+    return 'Move $n';
+  }
+
+  @override
+  String get currentRules => 'Current rules (multi_v1)';
+
+  @override
+  String get rulesSummary =>
+      '• Pick your own pit and a direction, drop 1 seed per pit.\n• Next pit has seeds → pick up and continue; mandarin pit → turn ends.\n• Empty pit then a pit with pieces → capture, chains allowed; 2 empty pits → turn ends.\n• A young mandarin (< 5 seeds in its pit) cannot be captured.\n• Out of seeds: put 5 captured seeds back; borrow if short, repay at scoring.\n• Mandarin pits emptied → game over; seeds left go to each pit\'s owner. 1 mandarin = 10 seeds.';
+
+  @override
+  String get addSimulatedClient => '+ Add simulated client';
+
+  @override
+  String borrowMsg(Object name, Object count) {
+    return '$name ran out and lacks seeds — borrows $count to refill (repaid at scoring)';
+  }
+
+  @override
+  String repayMsg(Object name, Object count) {
+    return '$name repays $count borrowed seeds';
+  }
+
+  @override
+  String get settingsBoardStyle => 'Ground & drawing';
+
+  @override
+  String get styleRandom => 'Random each game';
+
+  @override
+  String get yourTurn => 'Your turn';
+
+  @override
+  String get thinkingShort => 'Thinking…';
+
+  @override
+  String get eliminatedShort => 'Out';
+
+  @override
+  String get chooseLevel => 'Difficulty';
+
+  @override
+  String get playerNames => 'Player names';
+
+  @override
+  String get you => 'You';
+
+  @override
+  String get shuffleGround => 'Change ground';
+
+  @override
+  String guestName(Object n) {
+    return 'Guest $n';
+  }
+
+  @override
+  String get updateTitle => 'Update available';
+
+  @override
+  String get updateSoftMsg =>
+      'A new version of O Quan Viet is available. Update now?';
+
+  @override
+  String get updateRequiredMsg =>
+      'This version is no longer supported. Please update to keep playing.';
+
+  @override
+  String get updateNow => 'Update';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get aiEasy => 'Easy';
+
+  @override
+  String get aiEasyDesc => 'Often plays randomly';
+
+  @override
+  String get aiMedium => 'Medium';
+
+  @override
+  String get aiMediumDesc => 'Looks a few moves ahead';
+
+  @override
+  String get aiHard => 'Hard';
+
+  @override
+  String get aiHardDesc => 'Searches deep, tough to beat';
+
+  @override
   String get achFirstGame => 'First game';
 
   @override
@@ -345,129 +476,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achAllBoardsDesc => 'Play on the 2, 3 and 4 player boards';
 
   @override
-  String get onlineTitle => 'Online rooms';
+  String get styleDirtStick => 'Dirt · stick';
 
   @override
-  String get onlineNotice =>
-      'Online play needs an authoritative server. This build only ships the API contract and an in-process fake server for testing — no real network yet.';
+  String get styleConcreteChalk => 'Concrete · white chalk';
 
   @override
-  String get createRoom => 'Create room';
+  String get styleTilesChalk => 'Brick tiles · chalk';
 
   @override
-  String get joinRoom => 'Join room';
+  String get styleConcreteBrick => 'Concrete · brick shard';
 
   @override
-  String get roomCode => 'Room code';
-
-  @override
-  String roomCreated(String code) {
-    return 'Room $code created (local simulation)';
-  }
-
-  @override
-  String roomJoined(String code) {
-    return 'Joined room $code (local simulation)';
-  }
-
-  @override
-  String get roomNotFound => 'Room not found';
-
-  @override
-  String waitingPlayers(int joined, int total) {
-    return 'Waiting for players: $joined/$total';
-  }
-
-  @override
-  String get onlineUnavailable =>
-      'No real server yet — online games cannot start.';
-
-  @override
-  String get noSavedGame => 'No saved game';
-
-  @override
-  String get confirmExit =>
-      'Leave the game? It will be saved so you can continue.';
-
-  @override
-  String get cancel => 'Cancel';
-
-  @override
-  String get ok => 'OK';
-
-  @override
-  String moveNumber(int n) {
-    return 'Move $n';
-  }
-
-  @override
-  String get currentRules => 'Current rules (multi_v1)';
-
-  @override
-  String get rulesSummary =>
-      '• Pick your own pit and a direction, drop 1 seed per pit.\n• Next pit has seeds → pick up and continue; mandarin pit → turn ends.\n• Empty pit then a pit with pieces → capture, chains allowed; 2 empty pits → turn ends.\n• A young mandarin (< 5 seeds in its pit) cannot be captured.\n• Out of seeds: put 5 captured seeds back; borrow if short, repay at scoring.\n• Mandarin pits emptied → game over; seeds left go to each pit\'s owner. 1 mandarin = 10 seeds.';
-
-  @override
-  String get addSimulatedClient => '+ Add simulated client';
-
-  @override
-  String borrowMsg(String name, int count) {
-    return '$name ran out and lacks seeds — borrows $count to refill (repaid at scoring)';
-  }
-
-  @override
-  String repayMsg(String name, int count) {
-    return '$name repays $count borrowed seeds';
-  }
-
-  @override
-  String get settingsBoardStyle => 'Ground & drawing';
-
-  @override
-  String get styleRandom => 'Random each game';
-
-  @override
-  String get style_dirt_stick => 'Dirt · stick';
-
-  @override
-  String get style_concrete_chalk => 'Concrete · white chalk';
-
-  @override
-  String get style_tiles_chalk => 'Brick tiles · chalk';
-
-  @override
-  String get style_concrete_brick => 'Concrete · brick shard';
-
-  @override
-  String get style_concrete_charcoal => 'Concrete · charcoal';
-
-  @override
-  String get yourTurn => 'Your turn';
-
-  @override
-  String get thinkingShort => 'Thinking…';
-
-  @override
-  String get eliminatedShort => 'Out';
-
-  @override
-  String get chooseLevel => 'Difficulty';
-
-  @override
-  String get playerNames => 'Player names';
-
-  @override
-  String get you => 'You';
-
-  @override
-  String get aiEasyDesc => 'Often plays randomly';
-
-  @override
-  String get aiMediumDesc => 'Looks a few moves ahead';
-
-  @override
-  String get aiHardDesc => 'Searches deep, tough to beat';
-
-  @override
-  String get shuffleGround => 'Change ground';
+  String get styleConcreteCharcoal => 'Concrete · charcoal';
 }

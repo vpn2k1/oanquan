@@ -38,9 +38,9 @@ class SoundService {
   /// Chỉ dùng trong test: các file WAV đã tổng hợp.
   @visibleForTesting
   Map<String, Uint8List> get debugSounds => {
-        for (final e in _bank.entries) e.key.name: e.value,
-        for (var i = 0; i < _drops.length; i++) 'drop$i': _drops[i],
-      };
+    for (final e in _bank.entries) e.key.name: e.value,
+    for (var i = 0; i < _drops.length; i++) 'drop$i': _drops[i],
+  };
 
   void init() {
     if (_bank.isNotEmpty) return;
@@ -73,9 +73,12 @@ class SoundService {
         _pool.add(AudioPlayer()..setReleaseMode(ReleaseMode.stop));
       }
       final p = _pool[_next++ % _pool.length];
-      final bytes = s == Sfx.drop
-          ? _drops[_dropIdx++ % _drops.length]
-          : _bank[s]!;
+      final Uint8List bytes;
+      if (s == Sfx.drop) {
+        bytes = _drops[_dropIdx++ % _drops.length];
+      } else {
+        bytes = _bank[s]!;
+      }
       await p.stop();
       await p.play(
         BytesSource(bytes, mimeType: 'audio/wav'),
@@ -89,9 +92,11 @@ class SoundService {
   void _haptic(Sfx s) {
     if (!haptics) return;
     try {
-      s == Sfx.capture
-          ? HapticFeedback.mediumImpact()
-          : HapticFeedback.selectionClick();
+      if (s == Sfx.capture) {
+        HapticFeedback.mediumImpact();
+      } else {
+        HapticFeedback.selectionClick();
+      }
     } catch (_) {}
   }
 
@@ -240,12 +245,14 @@ class SoundService {
     const notes = [523.25, 587.33, 698.46, 783.99, 880.0, 1046.5];
     final out = _buf(1.9);
     for (var k = 0; k < notes.length; k++) {
-      _mix(
-        out,
-        _bamboo(notes[k], k == notes.length - 1 ? 0.9 : 0.35, bright: 0.45),
-        k * 0.14,
-        k == notes.length - 1 ? 0.85 : 0.65,
-      );
+      var decay = 0.35;
+      var gain = 0.65;
+      // Nốt cuối ngân dài và to hơn.
+      if (k == notes.length - 1) {
+        decay = 0.9;
+        gain = 0.85;
+      }
+      _mix(out, _bamboo(notes[k], decay, bright: 0.45), k * 0.14, gain);
     }
     _mix(out, _bamboo(523.25, 0.9, bright: 0.2), 0.7, 0.35);
     return out;

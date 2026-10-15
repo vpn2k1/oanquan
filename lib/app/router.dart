@@ -7,6 +7,7 @@ import '../features/home/home_screen.dart';
 import '../features/mode_selection/setup_screen.dart';
 import '../features/multiplayer/online_lobby_screen.dart';
 import 'features.dart';
+import 'update/update_gate.dart';
 import '../features/result/result_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
@@ -29,7 +30,10 @@ final routerProvider = Provider<GoRouter>(
     initialLocation: Routes.splash,
     routes: [
       GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
-      GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
+      GoRoute(
+        path: Routes.home,
+        builder: (_, _) => const UpdateGate(child: HomeScreen()),
+      ),
       GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
       GoRoute(path: Routes.game, builder: (_, _) => const GameScreen()),
       GoRoute(path: Routes.result, builder: (_, _) => const ResultScreen()),

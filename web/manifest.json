@@ -1,11 +1,11 @@
 {
-    "name": "o_quan_viet",
-    "short_name": "o_quan_viet",
+    "name": "Ô Quan Việt",
+    "short_name": "Ô Quan Việt",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0B4F4A",
     "theme_color": "#13B5A6",
-    "description": "A new Flutter project.",
+    "description": "Ô Quan Việt — Đấu Trí Dân Gian. A folk strategy duel for 2–4 players.",
     "orientation": "landscape",
     "prefer_related_applications": false,
     "icons": [

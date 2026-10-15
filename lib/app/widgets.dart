@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../features/game/flame/pieces_painter.dart';
 import 'folk_art.dart';
@@ -33,14 +34,11 @@ class AppBackground extends StatelessWidget {
       children: [
         RepaintBoundary(
           child: CustomPaint(
-            painter: GroundPainter(
-              t.dark ? GroundKind.darkDirt : GroundKind.dirt,
-              _seed,
-            ),
+            painter: GroundPainter(_groundKind(t.dark), _seed),
           ),
         ),
         // Tối nhẹ các góc để mắt dồn vào giữa.
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: RadialGradient(
               radius: 1.2,
@@ -54,15 +52,40 @@ class AppBackground extends StatelessWidget {
   }
 }
 
+/// Mặt sân theo chế độ sáng/tối.
+GroundKind _groundKind(bool dark) {
+  if (dark) return GroundKind.darkDirt;
+  return GroundKind.dirt;
+}
+
+Color _dotColor(bool dark) {
+  if (dark) return Rc.text;
+  return Rc.textLight;
+}
+
+double _dotAlpha(bool dark) {
+  if (dark) return 0.07;
+  return 0.08;
+}
+
+/// Dấu hàng: người 0 ở dưới (+1), người còn lại ở trên (-1).
+int _rowSign(int p) {
+  if (p == 0) return 1;
+  return -1;
+}
+
+double _opacity(bool dimmed) {
+  if (dimmed) return 0.4;
+  return 1;
+}
+
 class DotGridPainter extends CustomPainter {
   DotGridPainter(this.dark);
   final bool dark;
 
   static void paintGrid(Canvas canvas, Size size, bool dark) {
     final p = Paint()
-      ..color = (dark ? Rc.text : Rc.textLight).withValues(
-        alpha: dark ? 0.07 : 0.08,
-      );
+      ..color = _dotColor(dark).withValues(alpha: _dotAlpha(dark));
     const step = 14.0;
     for (var y = step / 2; y < size.height; y += step) {
       for (var x = step / 2; x < size.width; x += step) {
@@ -102,10 +125,14 @@ class GroundPainter extends CustomPainter {
   bool shouldRepaint(GroundPainter old) => old.kind != kind || old.seed != seed;
 }
 
-/// Logo quan chibi đã chọn, dùng chung cho màn chào và màn chính.
+/// Logo ứng dụng dùng chung cho màn chào và màn chính.
 class LogoMark extends StatelessWidget {
-  const LogoMark({super.key, this.size = 120});
-  final double size;
+  // ignore: prefer_initializing_formals — tham số có tên không thể là private.
+  const LogoMark({super.key, double? size}) : _size = size;
+  final double? _size;
+
+  /// Mặc định co giãn theo màn hình (.r) — không đặt được làm hằng số mặc định.
+  double get size => _size ?? 120.r;
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
@@ -119,9 +146,14 @@ class LogoMark extends StatelessWidget {
 
 /// Hình thu nhỏ bàn 2/3/4 người cho màn chọn.
 class BoardShapeIcon extends StatelessWidget {
-  const BoardShapeIcon({super.key, required this.players, this.size = 56});
+  const BoardShapeIcon({super.key, required this.players, double? size})
+    // ignore: prefer_initializing_formals — tham số có tên không thể là private.
+    : _size = size;
   final int players;
-  final double size;
+  final double? _size;
+
+  /// Mặc định co giãn theo màn hình (.r) — không đặt được làm hằng số mặc định.
+  double get size => _size ?? 56.r;
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
@@ -157,7 +189,7 @@ class _ShapePainter extends CustomPainter {
       for (var p = 0; p < 2; p++) {
         for (var j = 0; j < 5; j++) {
           final x = rect.left + rect.width * (0.24 + j * 0.13);
-          final y = c.dy + (p == 0 ? 1 : -1) * rect.height * 0.22;
+          final y = c.dy + _rowSign(p) * rect.height * 0.22;
           canvas.drawCircle(
             Offset(x, y),
             rect.height * 0.14,
@@ -210,44 +242,56 @@ class PlayerAvatar extends StatelessWidget {
   const PlayerAvatar({
     super.key,
     required this.playerId,
-    this.size = 32,
+    double? size,
     this.ai = false,
     this.dimmed = false,
-  });
+    // ignore: prefer_initializing_formals — tham số có tên không thể là private.
+  }) : _size = size;
   final int playerId;
-  final double size;
+  final double? _size;
+
+  /// Mặc định co giãn theo màn hình (.r) — không đặt được làm hằng số mặc định.
+  double get size => _size ?? 32.r;
   final bool ai;
   final bool dimmed;
+
+  /// Biểu tượng robot cho người chơi máy; `null` với người thật.
+  Widget? _aiBadge() {
+    if (!ai) return null;
+    return FolkIcon(
+      Icons.smart_toy_rounded,
+      size: size * 0.5,
+      color: Colors.white,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final color = playerColors[playerId];
     return Opacity(
-      opacity: dimmed ? 0.4 : 1,
+      opacity: _opacity(dimmed),
       child: Container(
         width: size,
         height: size,
         decoration: ShapeDecoration(
           color: color,
           // Vòng phấn trắng quanh avatar.
-          shape: ChalkBorder(radius: size / 2, color: Colors.white, width: max(1.6, size * 0.06)),
-          shadows: const [
+          shape: ChalkBorder(
+            radius: size / 2,
+            color: Colors.white,
+            width: max(1.6, size * 0.06),
+          ),
+          shadows: [
             BoxShadow(
               color: Color(0x33000000),
-              blurRadius: 4,
+              blurRadius: 4.r,
               offset: Offset(0, 2),
             ),
           ],
         ),
         child: CustomPaint(
           painter: _SymbolPainter(symbolOf(playerId)),
-          child: ai
-              ? FolkIcon(
-                  Icons.smart_toy_rounded,
-                  size: size * 0.5,
-                  color: Colors.white,
-                )
-              : null,
+          child: _aiBadge(),
         ),
       ),
     );

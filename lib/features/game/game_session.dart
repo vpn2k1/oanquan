@@ -69,15 +69,21 @@ class GameSessionState {
     Move? hint,
     bool clearHint = false,
     int? syncToken,
-  }) => GameSessionState(
-    initial: initial ?? this.initial,
-    current: current ?? this.current,
-    shown: shown ?? this.shown,
-    pending: clearPending ? null : (pending ?? this.pending),
-    aiThinking: aiThinking ?? this.aiThinking,
-    hint: clearHint ? null : (hint ?? this.hint),
-    syncToken: syncToken ?? this.syncToken,
-  );
+  }) {
+    var nextPending = pending ?? this.pending;
+    if (clearPending) nextPending = null;
+    var nextHint = hint ?? this.hint;
+    if (clearHint) nextHint = null;
+    return GameSessionState(
+      initial: initial ?? this.initial,
+      current: current ?? this.current,
+      shown: shown ?? this.shown,
+      pending: nextPending,
+      aiThinking: aiThinking ?? this.aiThinking,
+      hint: nextHint,
+      syncToken: syncToken ?? this.syncToken,
+    );
+  }
 }
 
 /// Chạy AI ngoài UI thread (isolate trên mobile/desktop; trên web `compute`
@@ -96,7 +102,8 @@ Future<Move> computeAiMove(GameState s, AiLevel level) async {
       'level': level.name,
     });
     final m = Move.fromJson(r);
-    return legal.contains(m) ? m : legal.first;
+    if (legal.contains(m)) return m;
+    return legal.first;
   } catch (_) {
     return legal.first; // fallback legal move
   }

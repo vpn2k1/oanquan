@@ -9,6 +9,12 @@ import 'evaluation.dart';
 
 class _Timeout implements Exception {}
 
+/// Độ sâu tìm kiếm: ván 2 người sâu hơn ván nhiều người.
+int _depth(int playerCount, {required int twoPlayers, required int more}) {
+  if (playerCount == 2) return twoPlayers;
+  return more;
+}
+
 class AiSettings {
   const AiSettings({
     required this.maxDepth,
@@ -29,11 +35,11 @@ class AiSettings {
       noise: 0.35,
     ),
     AiLevel.medium => AiSettings(
-      maxDepth: playerCount == 2 ? 3 : 2,
+      maxDepth: _depth(playerCount, twoPlayers: 3, more: 2),
       budget: const Duration(milliseconds: 200),
     ),
     AiLevel.hard => AiSettings(
-      maxDepth: playerCount == 2 ? 9 : 4,
+      maxDepth: _depth(playerCount, twoPlayers: 9, more: 4),
       budget: const Duration(milliseconds: 450),
     ),
   };

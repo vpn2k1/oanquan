@@ -1,13 +1,33 @@
 import 'dart:math';
 import 'dart:ui';
+import 'dart:ui' as ui show instantiateImageCodec;
 
-import 'package:flutter/painting.dart'
-    show TextPainter, TextSpan, TextStyle, FontWeight;
+import 'package:flutter/services.dart';
 
 import '../../../app/theme.dart';
+import 'pieces_text.dart';
+import 'quan_figure_painter.dart';
 
-/// Vẽ quân bằng Canvas — không phụ thuộc file ảnh.
+/// Vẽ quân trên Canvas bằng ảnh, với hình vẽ dự phòng khi ảnh chưa tải.
 abstract final class PiecesPainter {
+  static Image? _pebbleAtlas;
+  static Image? _quanImage;
+
+  static Future<void> loadPieces() async {
+    _pebbleAtlas = await _loadImage('assets/pebbles.png');
+    _quanImage = await _loadImage('assets/quan_stone.png');
+  }
+
+  static Future<Image> _loadImage(String path) async {
+    final data = await rootBundle.load(path);
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    );
+    final image = (await codec.getNextFrame()).image;
+    codec.dispose();
+    return image;
+  }
+
   static final _shadow = Paint()..color = const Color(0x44000000);
   static final _ink = Paint()..color = const Color(0xFF38281E);
 
@@ -19,9 +39,8 @@ abstract final class PiecesPainter {
     Color base, {
     double tint = 0,
   }) {
-    final col = tint == 0
-        ? base
-        : Color.lerp(base, const Color(0xFFFFFFFF), tint)!;
+    var col = base;
+    if (tint != 0) col = Color.lerp(base, const Color(0xFFFFFFFF), tint)!;
     c.save();
     c.translate(p.dx, p.dy);
     c.scale(r);
@@ -90,74 +109,107 @@ abstract final class PiecesPainter {
     Color(0xFF9E9A92),
     Color(0xFFC9C1B2),
     Color(0xFFE6DFD2),
-    Color(0xFF7E7A74),
-    Color(0xFFB9A88F),
-    Color(0xFFA7AEB0),
+    Color(0xFF8F938F),
+    Color(0xFFD4AE79),
+    Color(0xFF71948C),
     Color(0xFFD5CBB8),
   ];
 
-  /// Viên sỏi tự nhiên. `variant` quyết định màu, độ dẹt, góc xoay, đốm —
+  /// Viên sỏi tự nhiên. `variant` quyết định màu, dáng, góc xoay, vân —
   /// cùng variant luôn vẽ giống nhau (không nhấp nháy khi animate).
   static void pebble(Canvas c, Offset p, double r, {int variant = 0}) {
+    final atlas = _pebbleAtlas;
+    if (atlas != null) {
+      final half = atlas.width / 2;
+      final index = variant.abs() % 4;
+      final source = Rect.fromLTWH(
+        (index % 2) * half,
+        (index ~/ 2) * half,
+        half,
+        atlas.height / 2,
+      );
+      c.drawImageRect(
+        atlas,
+        source,
+        Rect.fromCenter(center: p, width: r * 3.7, height: r * 3.7),
+        Paint()..filterQuality = FilterQuality.medium,
+      );
+      return;
+    }
     final h = (variant * 2654435761) & 0x7fffffff;
     final base = _pebbleColors[h % _pebbleColors.length];
-    final stretch = 1.05 + ((h >> 4) % 25) / 100; // 1.05..1.29
+    final stretch = 1.02 + ((h >> 4) % 23) / 100;
     final rot = ((h >> 9) % 628) / 100;
+    final skew = ((h >> 15) % 21 - 10) / 100;
     c.save();
     c.translate(p.dx, p.dy);
     c.rotate(rot);
-    c.scale(r * stretch, r / stretch * 1.08);
-    // Bóng đổ.
-    c.save();
-    c.rotate(-rot);
-    c.drawOval(const Rect.fromLTRB(-0.95, -0.7, 1.15, 1.25), Paint()..color = const Color(0x55000000));
-    c.restore();
-    // Thân sỏi.
+    c.scale(r * stretch, r / stretch);
     final body = Path()
-      ..moveTo(-1, 0.05)
-      ..cubicTo(-1, -0.62, -0.5, -1, 0.08, -0.98)
-      ..cubicTo(0.7, -0.95, 1.02, -0.5, 1, 0.04)
-      ..cubicTo(0.98, 0.62, 0.52, 0.98, -0.04, 0.97)
-      ..cubicTo(-0.62, 0.95, -1, 0.6, -1, 0.05)
+      ..moveTo(-0.96, -0.12)
+      ..cubicTo(-0.94, -0.67, -0.5 + skew, -0.98, 0.04, -0.94)
+      ..cubicTo(0.58, -1.03, 0.99, -0.63, 0.96, -0.13)
+      ..cubicTo(1.08, 0.34, 0.62 - skew, 0.91, 0.12, 0.96)
+      ..cubicTo(-0.48, 1.02, -1.06, 0.62, -0.96, -0.12)
       ..close();
+    c.drawPath(
+      body.shift(const Offset(0.1, 0.17)),
+      Paint()..color = const Color(0x55000000),
+    );
     c.drawPath(
       body,
       Paint()
         ..shader = Gradient.radial(
-          const Offset(-0.35, -0.45),
-          1.5,
+          const Offset(-0.4, -0.55),
+          1.55,
           [
-            Color.lerp(base, const Color(0xFFFFFFFF), 0.35)!,
+            Color.lerp(base, const Color(0xFFFFFFFF), 0.43)!,
             base,
-            Color.lerp(base, const Color(0xFF2A241E), 0.38)!,
+            Color.lerp(base, const Color(0xFF2A241E), 0.46)!,
           ],
-          const [0, 0.55, 1],
+          const [0, 0.53, 1],
         ),
     );
-    // Đốm khoáng.
+    c.drawPath(
+      body,
+      Paint()
+        ..color = Color.lerp(base, const Color(0xFF35291D), 0.4)!
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.055,
+    );
+    // Vân khoáng rất nhẹ, vẫn đọc được khi quân thu nhỏ.
     final dot = Paint();
-    for (var k = 0; k < 4; k++) {
+    for (var k = 0; k < 3; k++) {
       final hh = (h >> (k * 5)) & 0x3ff;
-      final o = Offset(((hh % 100) / 100 - 0.5) * 1.2, (((hh >> 3) % 100) / 100 - 0.5) * 1.1);
-      dot.color = (k.isEven ? const Color(0x33231E18) : const Color(0x40FFFFFF));
-      c.drawCircle(o, 0.06 + (hh % 7) / 100, dot);
+      final o = Offset(
+        ((hh % 100) / 100 - 0.5) * 0.9,
+        (((hh >> 3) % 100) / 100 - 0.5) * 0.8,
+      );
+      if (k.isEven) {
+        dot.color = const Color(0x26FFFFFF);
+      } else {
+        dot.color = const Color(0x24231E18);
+      }
+      c.drawOval(
+        Rect.fromCenter(center: o, width: 0.13 + (hh % 7) / 100, height: 0.045),
+        dot,
+      );
     }
-    // Vân sáng.
     c.drawArc(
-      const Rect.fromLTRB(-0.72, -0.78, 0.3, 0.1),
-      3.5,
-      1.3,
+      const Rect.fromLTRB(-0.75, -0.78, 0.38, 0.2),
+      3.55,
+      1.15,
       false,
       Paint()
-        ..color = const Color(0x66FFFFFF)
+        ..color = const Color(0x99FFFFFF)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.12
+        ..strokeWidth = 0.1
         ..strokeCap = StrokeCap.round,
     );
     c.restore();
   }
 
-  /// Quan: hòn đá nâu đỏ lớn, mặt nhẵn bóng.
+  /// Quan: hòn đá đất nung lớn, có hoa sen khắc để phân biệt với dân.
   static void quanStone(Canvas c, Offset p, double r, {double glow = 0}) {
     if (glow > 0) {
       c.drawCircle(
@@ -168,44 +220,86 @@ abstract final class PiecesPainter {
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.5),
       );
     }
+    final quanImage = _quanImage;
+    if (quanImage != null) {
+      c.drawImageRect(
+        quanImage,
+        Rect.fromLTWH(
+          0,
+          0,
+          quanImage.width.toDouble(),
+          quanImage.height.toDouble(),
+        ),
+        Rect.fromCenter(center: p, width: r * 2.9, height: r * 2.9),
+        Paint()..filterQuality = FilterQuality.medium,
+      );
+      return;
+    }
     c.save();
     c.translate(p.dx, p.dy);
     c.scale(r * 1.12, r * 0.92);
-    c.drawOval(const Rect.fromLTRB(-0.95, -0.72, 1.12, 1.22), Paint()..color = const Color(0x66000000));
     final body = Path()
-      ..moveTo(-1, 0)
-      ..cubicTo(-1, -0.66, -0.48, -1, 0.1, -0.98)
-      ..cubicTo(0.72, -0.94, 1, -0.48, 1, 0.06)
-      ..cubicTo(1, 0.66, 0.5, 1, -0.06, 0.98)
-      ..cubicTo(-0.66, 0.95, -1, 0.56, -1, 0)
+      ..moveTo(-0.99, -0.08)
+      ..cubicTo(-0.98, -0.68, -0.5, -1, 0.1, -0.98)
+      ..cubicTo(0.71, -0.99, 1.01, -0.53, 0.99, 0.02)
+      ..cubicTo(1.04, 0.64, 0.55, 0.99, -0.04, 0.97)
+      ..cubicTo(-0.66, 1, -1.04, 0.55, -0.99, -0.08)
       ..close();
+    c.drawPath(
+      body.shift(const Offset(0.1, 0.18)),
+      Paint()..color = const Color(0x66000000),
+    );
     c.drawPath(
       body,
       Paint()
         ..shader = Gradient.radial(
-          const Offset(-0.32, -0.42),
+          const Offset(-0.4, -0.53),
           1.55,
-          const [Color(0xFFB0735A), Color(0xFF7E4A36), Color(0xFF4A2A1E)],
-          const [0, 0.55, 1],
+          const [Color(0xFFEAA775), Color(0xFFBA6140), Color(0xFF713521)],
+          const [0, 0.56, 1],
         ),
     );
-    final vein = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.04
-      ..color = const Color(0x33FFE3CC);
     c.drawPath(
-      Path()
-        ..moveTo(-0.7, 0.35)
-        ..quadraticBezierTo(-0.1, 0.05, 0.62, 0.42),
-      vein,
+      body,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.065
+        ..color = const Color(0xFF67301F),
+    );
+    // Ba cánh sen khắc chìm; ít nét để còn rõ trong ô quan nhỏ.
+    final lotus = Path()
+      ..moveTo(0, 0.29)
+      ..quadraticBezierTo(-0.25, -0.03, 0, -0.4)
+      ..quadraticBezierTo(0.25, -0.03, 0, 0.29)
+      ..moveTo(-0.02, 0.27)
+      ..quadraticBezierTo(-0.42, 0.17, -0.42, -0.2)
+      ..quadraticBezierTo(-0.15, -0.1, -0.02, 0.27)
+      ..moveTo(0.02, 0.27)
+      ..quadraticBezierTo(0.42, 0.17, 0.42, -0.2)
+      ..quadraticBezierTo(0.15, -0.1, 0.02, 0.27);
+    c.drawPath(
+      lotus.shift(const Offset(0.025, 0.04)),
+      Paint()
+        ..color = const Color(0x88F7C59B)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.075
+        ..strokeCap = StrokeCap.round,
+    );
+    c.drawPath(
+      lotus,
+      Paint()
+        ..color = const Color(0x996A2E20)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.075
+        ..strokeCap = StrokeCap.round,
     );
     c.drawArc(
       const Rect.fromLTRB(-0.72, -0.8, 0.25, 0.05),
       3.5,
-      1.3,
+      1.1,
       false,
       Paint()
-        ..color = const Color(0x77FFFFFF)
+        ..color = const Color(0x88FFE5C6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 0.1
         ..strokeCap = StrokeCap.round,
@@ -216,8 +310,20 @@ abstract final class PiecesPainter {
   /// Số lượng kiểu Recess: chữ kem nhỏ, có viền tối để đọc rõ trên mọi mặt sân.
   static void count(Canvas c, Offset p, double size, int value) {
     final s = '$value';
-    for (final o in const [Offset(0, 1.2), Offset(1, 0), Offset(-1, 0), Offset(0, -1)]) {
-      text(c, s, p + o * (size * 0.08), size, const Color(0xCC1B1410), bold: true);
+    for (final o in const [
+      Offset(0, 1.2),
+      Offset(1, 0),
+      Offset(-1, 0),
+      Offset(0, -1),
+    ]) {
+      text(
+        c,
+        s,
+        p + o * (size * 0.08),
+        size,
+        const Color(0xCC1B1410),
+        bold: true,
+      );
     }
     text(c, s, p, size, const Color(0xFFFFF3E2), bold: true);
   }
@@ -234,129 +340,15 @@ abstract final class PiecesPainter {
     ];
   }
 
-  static double stoneRadius(double cellSize, int count) =>
-      cellSize *
-      (count <= 4
-          ? 0.13
-          : count <= 9
-          ? 0.115
-          : 0.1);
+  static double stoneRadius(double cellSize, int count) {
+    if (count <= 4) return cellSize * 0.13;
+    if (count <= 9) return cellSize * 0.115;
+    return cellSize * 0.1;
+  }
 
   /// Quan chibi mặc áo truyền thống, đội khăn xếp, ngồi trên đài sen.
-  static void quanFigure(Canvas c, Offset p, double r, {double glow = 0}) {
-    if (glow > 0) {
-      c.drawCircle(
-        p,
-        r * (1.5 + glow * 0.4),
-        Paint()
-          ..color = const Color(0xFFFFE08A).withValues(alpha: 0.35 * glow)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
-      );
-    }
-    c.save();
-    c.translate(p.dx, p.dy);
-    c.scale(r);
-    const gold = Color(0xFFFFCD5B);
-    const red = Color(0xFFB73343);
-    const deepRed = Color(0xFF7E2537);
-    const skin = Color(0xFFFFD6AC);
-    // Cánh sen và đế tách khỏi áo để hình đọc rõ ở kích thước nhỏ.
-    c.drawOval(const Rect.fromLTRB(-1.03, 0.64, 1.03, 1.05), _shadow);
-    for (var i = -2; i <= 2; i++) {
-      c.drawOval(
-        Rect.fromCenter(
-          center: Offset(i * 0.36, 0.68),
-          width: 0.55,
-          height: 0.42,
-        ),
-        Paint()
-          ..color = i.isEven
-              ? const Color(0xFFFFB6A6)
-              : const Color(0xFFF28D8C),
-      );
-    }
-    c.drawOval(
-      const Rect.fromLTRB(-0.85, 0.64, 0.85, 0.9),
-      Paint()..color = const Color(0xFFFFD990),
-    );
-    // Áo dài với nẹp vàng và tay áo xòe.
-    final robe = Path()
-      ..moveTo(-0.5, 0.12)
-      ..quadraticBezierTo(-0.8, 0.28, -0.75, 0.7)
-      ..quadraticBezierTo(0, 0.91, 0.75, 0.7)
-      ..quadraticBezierTo(0.8, 0.28, 0.5, 0.12)
-      ..close();
-    c.drawPath(robe, Paint()..color = deepRed);
-    c.drawOval(
-      const Rect.fromLTRB(-0.72, 0.22, 0.72, 0.79),
-      Paint()..color = red,
-    );
-    c.drawPath(
-      Path()
-        ..moveTo(-0.19, 0.17)
-        ..lineTo(0, 0.31)
-        ..lineTo(0.19, 0.17),
-      Paint()
-        ..color = gold
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.09
-        ..strokeJoin = StrokeJoin.round,
-    );
-    c.drawLine(
-      const Offset(0, 0.31),
-      const Offset(0, 0.69),
-      Paint()
-        ..color = gold
-        ..strokeWidth = 0.075,
-    );
-    c.drawCircle(const Offset(0, 0.49), 0.055, Paint()..color = gold);
-    // Mặt tròn, tóc và khăn xếp gợi hình ông quan dân gian.
-    c.drawCircle(const Offset(0, -0.32), 0.61, Paint()..color = deepRed);
-    c.drawCircle(const Offset(0, -0.29), 0.54, Paint()..color = skin);
-    c.drawOval(
-      const Rect.fromLTRB(-0.52, -0.94, 0.52, -0.52),
-      Paint()..color = deepRed,
-    );
-    c.drawRRect(
-      RRect.fromRectAndRadius(
-        const Rect.fromLTRB(-0.66, -0.82, 0.66, -0.56),
-        const Radius.circular(0.12),
-      ),
-      Paint()..color = red,
-    );
-    c.drawLine(
-      const Offset(-0.53, -0.69),
-      const Offset(0.53, -0.69),
-      Paint()
-        ..color = gold
-        ..strokeWidth = 0.075,
-    );
-    c.drawCircle(const Offset(0, -0.7), 0.08, Paint()..color = gold);
-    c.drawCircle(const Offset(-0.22, -0.29), 0.055, _ink);
-    c.drawCircle(const Offset(0.22, -0.29), 0.055, _ink);
-    c.drawCircle(
-      const Offset(-0.4, -0.12),
-      0.09,
-      Paint()..color = const Color(0x99F28F83),
-    );
-    c.drawCircle(
-      const Offset(0.4, -0.12),
-      0.09,
-      Paint()..color = const Color(0x99F28F83),
-    );
-    c.drawArc(
-      const Rect.fromLTRB(-0.15, -0.2, 0.15, 0.04),
-      0.15,
-      pi - 0.3,
-      false,
-      Paint()
-        ..color = _ink.color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.055
-        ..strokeCap = StrokeCap.round,
-    );
-    c.restore();
-  }
+  static void quanFigure(Canvas c, Offset p, double r, {double glow = 0}) =>
+      paintQuanFigure(c, p, r, glow: glow);
 
   /// Badge số lượng; ở chế độ hỗ trợ màu dùng hình dạng của chủ ô.
   static void badge(
@@ -384,8 +376,6 @@ abstract final class PiecesPainter {
     text(c, '$value', p, r * 1.15, const Color(0xFFFFFFFF), bold: true);
   }
 
-  static final Map<String, TextPainter> _textCache = {};
-
   static void text(
     Canvas c,
     String s,
@@ -394,27 +384,13 @@ abstract final class PiecesPainter {
     Color color, {
     bool bold = false,
     double opacity = 1,
-  }) {
-    final key = '$s|${size.toStringAsFixed(1)}|${color.toARGB32()}|$bold';
-    final tp = _textCache[key] ??= (TextPainter(
-      text: TextSpan(
-        text: s,
-        style: TextStyle(
-          fontSize: size,
-          color: color,
-          fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-          height: 1,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout());
-    if (_textCache.length > 400) _textCache.clear();
-    if (opacity < 1) {
-      c.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, opacity));
-      tp.paint(c, center - Offset(tp.width / 2, tp.height / 2));
-      c.restore();
-    } else {
-      tp.paint(c, center - Offset(tp.width / 2, tp.height / 2));
-    }
-  }
+  }) => paintCenteredText(
+    c,
+    s,
+    center,
+    size,
+    color,
+    bold: bold,
+    opacity: opacity,
+  );
 }

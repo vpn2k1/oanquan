@@ -70,7 +70,13 @@ class GameState {
 
   /// Khóa so sánh nội dung bàn (không gồm history) — dùng cho test/AI.
   String get boardKey =>
-      '${cells.map((c) => '${c.danCount}${c.hasQuan ? 'q' : ''}').join(',')}'
-      '|${players.map((p) => '${p.score}${p.active ? '' : 'x'}').join(',')}'
+      '${cells.map((c) => '${c.danCount}${_flag(c.hasQuan, 'q')}').join(',')}'
+      '|${players.map((p) => '${p.score}${_flag(!p.active, 'x')}').join(',')}'
       '|$turnPlayer|${phase.index}';
+}
+
+/// Trả [mark] khi [on] đúng, ngược lại chuỗi rỗng.
+String _flag(bool on, String mark) {
+  if (on) return mark;
+  return '';
 }

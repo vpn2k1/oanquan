@@ -1,9 +1,9 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/app.dart';
 import '../../../app/router.dart';
 import '../../../app/widgets.dart';
 import '../../../core/game_models/game_event.dart';
@@ -11,7 +11,11 @@ import '../../settings/settings_controller.dart';
 import '../audio/sound_service.dart';
 import '../flame/board_game.dart';
 import '../game_session.dart';
+import 'game_notice.dart';
 import 'hud.dart';
+import 'widgets/game_dialogs.dart';
+import 'widgets/game_hud_buttons.dart';
+import 'widgets/game_rails.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key});
@@ -98,25 +102,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _notice(GameEvent e) {
     if (!mounted) return;
-    final l = context.l10n;
     final st = ref.read(gameSessionProvider)?.current;
-    String name(int id) => st?.players[id].name ?? '';
-    final msg = switch (e) {
-      RefillEvent(:final playerId, :final borrowed) =>
-        borrowed.isEmpty
-            ? l.refillMsg(name(playerId))
-            : l.borrowMsg(
-                name(playerId),
-                borrowed.values.fold(0, (a, b) => a + b),
-              ),
-      RepayEvent(:final fromId, :final amount) => l.repayMsg(
-        name(fromId),
-        amount,
-      ),
-      EliminateEvent(:final playerId) => l.eliminateMsg(name(playerId)),
-      RuleLoopGuardEvent() => l.loopGuardMsg,
-      _ => null,
-    };
+    final msg = gameNoticeText(e, (id) => st?.players[id].name ?? '');
     if (msg == null) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -126,43 +113,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Future<void> _pauseMenu() async {
-    final l = context.l10n;
-    final choice = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const FolkIcon(Icons.play_arrow_rounded),
-              title: Text(l.resume),
-              onTap: () => Navigator.pop(ctx, 'resume'),
-            ),
-            ListTile(
-              leading: const FolkIcon(Icons.replay_rounded),
-              title: Text(l.restart),
-              onTap: () => Navigator.pop(ctx, 'restart'),
-            ),
-            ListTile(
-              leading: const FolkIcon(Icons.rule_rounded),
-              title: Text(l.rules),
-              onTap: () => Navigator.pop(ctx, 'rules'),
-            ),
-            ListTile(
-              leading: const FolkIcon(Icons.settings_rounded),
-              title: Text(l.settings),
-              onTap: () => Navigator.pop(ctx, 'settings'),
-            ),
-            ListTile(
-              leading: const FolkIcon(Icons.save_alt_rounded),
-              title: Text(l.saveAndExit),
-              onTap: () => Navigator.pop(ctx, 'exit'),
-            ),
-          ],
-        ),
-      ),
-    );
+    final choice = await showPauseMenu(context);
     if (!mounted) return;
     switch (choice) {
       case 'restart':
@@ -182,21 +133,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     context.go(Routes.home);
   }
 
-  void _showRules() {
-    final l = context.l10n;
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.currentRules),
-        content: SingleChildScrollView(
-          child: Text('${l.rulesSummary}\n\n${l.rulesetNote}'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.ok)),
-        ],
-      ),
-    );
-  }
+  void _showRules() => showRulesDialog(context);
 
   @override
   Widget build(BuildContext context) {
@@ -213,68 +150,31 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (s == null || g == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    final l = context.l10n;
     final shown = s.shown;
     final notifier = ref.read(gameSessionProvider.notifier);
-    final thinkingId = s.aiThinking ? s.current.turnPlayer : null;
+    int? thinkingId;
+    if (s.aiThinking) thinkingId = s.current.turnPlayer;
 
     g.setDark(Theme.of(context).brightness == Brightness.dark);
-    final pause = HudButton(
-      key: const Key('pause'),
-      icon: Icons.pause_rounded,
-      tooltip: l.pause,
-      onPressed: _pauseMenu,
-    );
-    final ground = HudButton(
-      key: const Key('shuffleGround'),
-      icon: Icons.palette_rounded,
-      tooltip: l.shuffleGround,
-      onPressed: g.shuffleGround,
-    );
-    final sound = HudButton(
-      icon: settings.sound ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-      tooltip: settings.sound ? l.soundOff : l.soundOn,
-      onPressed: ref.read(settingsProvider.notifier).toggleSound,
-    );
-    final rules = HudButton(
-      icon: Icons.menu_book_rounded,
-      tooltip: l.rules,
-      onPressed: _showRules,
-    );
-    final undo = HudButton(
-      key: const Key('undo'),
-      icon: Icons.undo_rounded,
-      tooltip: l.undo,
-      onPressed: s.canUndo ? notifier.undo : null,
-    );
-    final hint = HudButton(
-      key: const Key('hint'),
-      icon: Icons.lightbulb_outline_rounded,
-      tooltip: l.hint,
-      label: l.hint,
-      onPressed: s.humanTurn && !s.busy ? notifier.requestHint : null,
+    VoidCallback? onUndo;
+    if (s.canUndo) onUndo = notifier.undo;
+    VoidCallback? onHint;
+    if (s.humanTurn && !s.busy) onHint = notifier.requestHint;
+    final buttons = GameHudButtons(
+      onPause: _pauseMenu,
+      onShuffleGround: g.shuffleGround,
+      soundOn: settings.sound,
+      onToggleSound: ref.read(settingsProvider.notifier).toggleSound,
+      onRules: _showRules,
+      onUndo: onUndo,
+      onHint: onHint,
     );
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        final ok = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            content: Text(l.confirmExit),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(l.cancel),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l.ok),
-              ),
-            ],
-          ),
-        );
+        final ok = await confirmExitDialog(context);
         if (ok == true) _exit();
       },
       child: Scaffold(
@@ -301,137 +201,107 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
               final overlays = <Widget>[];
               if (landscape) {
-                final panelW = (c.maxWidth * 0.3).clamp(210.0, 300.0);
+                // Bàn ở giữa, gần kín màn; hai cột bằng nhau hai bên:
+                // trái = người chơi (đối thủ trên, mình dưới), phải = nút.
+                final area = Size(
+                  c.maxWidth - pad.horizontal,
+                  c.maxHeight - pad.vertical,
+                );
+                final railW = gameRailWidth(area, n);
+                final wide = isWideRail(railW);
+                final edge = 10.r;
+                final side = edge + railW + 6.r;
                 g.setBoardInsets(
                   EdgeInsets.fromLTRB(
-                    pad.left + 8,
-                    pad.top + 8,
-                    pad.right + panelW + 20,
-                    pad.bottom + 8,
+                    pad.left + side,
+                    pad.top + 4.r,
+                    pad.right + side,
+                    pad.bottom + 4.r,
                   ),
                 );
-                overlays.add(
+                Widget railChip(int id) {
+                  if (wide) return chip(id, railW);
+                  return RailPlayerChip(
+                    key: Key('player$id'),
+                    state: shown,
+                    playerId: id,
+                    scores: g.displayScores,
+                    thinking: thinkingId == id,
+                  );
+                }
+
+                var (railTop, railBottom) = buttons.railGroups();
+                if (wide) {
+                  railTop = [buttons.railTopRow()];
+                  railBottom = [buttons.actionRow()];
+                }
+                overlays.addAll([
                   Positioned(
-                    right: pad.right + 12,
-                    top: pad.top + 10,
-                    bottom: pad.bottom + 10,
-                    width: panelW,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            pause,
-                            const Spacer(),
-                            ground,
-                            const SizedBox(width: 6),
-                            sound,
-                            const SizedBox(width: 6),
-                            rules,
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Expanded(
-                          child: ListView(
-                            padding: EdgeInsets.zero,
-                            children: [
-                              for (final id in order)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: chip(id, panelW),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(child: hint),
-                            const SizedBox(width: 8),
-                            undo,
-                          ],
-                        ),
-                      ],
+                    left: pad.left + edge,
+                    top: pad.top + edge,
+                    bottom: pad.bottom + edge,
+                    width: railW,
+                    child: GameRail(
+                      top: [for (final id in order.take(n - 1)) railChip(id)],
+                      bottom: [railChip(0)],
                     ),
                   ),
-                );
+                  Positioned(
+                    right: pad.right + edge,
+                    top: pad.top + edge,
+                    bottom: pad.bottom + edge,
+                    width: railW,
+                    child: GameRail(top: railTop, bottom: railBottom),
+                  ),
+                ]);
               } else {
-                final w = c.maxWidth - pad.horizontal - 24;
-                final perRow = n - 1 >= 2 ? 2 : 1;
+                final w = c.maxWidth - pad.horizontal - 24.r;
+                var perRow = 1;
+                if (n - 1 >= 2) perRow = 2;
                 final oppRows = ((n - 1) / perRow).ceil();
-                final oppW = (w - (perRow - 1) * 8) / perRow;
-                final top = pad.top + 10 + 44 + 10 + oppRows * 62 + 6;
-                final bottom = pad.bottom + 10 + 60 + 10 + 44 + 10;
+                final oppW = (w - (perRow - 1) * 8.r) / perRow;
+                final top = pad.top + (10 + 44 + 10 + 6).r + oppRows * 62.r;
+                final bottom = pad.bottom + (10 + 60 + 10 + 44 + 10).r;
                 g.setBoardInsets(
-                  EdgeInsets.fromLTRB(pad.left + 4, top, pad.right + 4, bottom),
+                  EdgeInsets.fromLTRB(
+                    pad.left + 4.r,
+                    top,
+                    pad.right + 4.r,
+                    bottom,
+                  ),
                 );
                 overlays.addAll([
                   Positioned(
-                    left: pad.left + 12,
-                    right: pad.right + 12,
-                    top: pad.top + 10,
-                    child: Row(
-                      children: [
-                        pause,
-                        const Spacer(),
-                        ground,
-                        const SizedBox(width: 6),
-                        sound,
-                        const SizedBox(width: 8),
-                        rules,
-                      ],
-                    ),
+                    left: pad.left + 12.r,
+                    right: pad.right + 12.r,
+                    top: pad.top + 10.r,
+                    child: buttons.topBar(8.r),
                   ),
                   Positioned(
-                    left: pad.left + 12,
-                    right: pad.right + 12,
-                    top: pad.top + 64,
+                    left: pad.left + 12.r,
+                    right: pad.right + 12.r,
+                    top: pad.top + 64.r,
                     child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 8.r,
+                      runSpacing: 8.r,
                       children: [for (var i = 1; i < n; i++) chip(i, oppW)],
                     ),
                   ),
                   Positioned(
-                    left: pad.left + 12,
-                    right: pad.right + 12,
-                    bottom: pad.bottom + 10,
+                    left: pad.left + 12.r,
+                    right: pad.right + 12.r,
+                    bottom: pad.bottom + 10.r,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Row(
-                          children: [
-                            Expanded(child: hint),
-                            const SizedBox(width: 8),
-                            undo,
-                          ],
-                        ),
-                        const SizedBox(height: 10),
+                        buttons.actionRow(),
+                        SizedBox(height: 10.r),
                         chip(0, w),
                       ],
                     ),
                   ),
                 ]);
-              }
-              if (s.pending != null) {
-                final ins = g.boardInsets;
-                overlays.add(
-                  Positioned(
-                    left: ins.left,
-                    right: ins.right,
-                    bottom: ins.bottom + 6,
-                    child: Center(
-                      child: HudButton(
-                        key: const Key('skipAnim'),
-                        icon: Icons.fast_forward_rounded,
-                        tooltip: l.skip,
-                        label: l.skip,
-                        onPressed: g.skipAnimation,
-                      ),
-                    ),
-                  ),
-                );
               }
               return Stack(
                 children: [

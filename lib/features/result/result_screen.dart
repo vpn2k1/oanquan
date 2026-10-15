@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../app/app.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../app/widgets.dart';
@@ -10,13 +10,13 @@ import '../../core/engine/scoring.dart';
 import '../../core/game_models/game_state.dart';
 import '../game/game_session.dart';
 import '../game/ui/hud.dart';
+import '../../l10n/strings.dart';
 
 class ResultScreen extends ConsumerWidget {
   const ResultScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
     final s = ref.watch(gameSessionProvider)?.current;
     if (s == null || !s.isOver) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -26,20 +26,19 @@ class ResultScreen extends ConsumerWidget {
     }
     final theme = Theme.of(context);
     final standings = Scoring.standings(s.players);
-    final title = s.winnerIds.length > 1
-        ? l.draw
-        : l.winner(s.players[s.winnerIds.first].name);
+    var title = Strings.winner(s.players[s.winnerIds.first].name);
+    if (s.winnerIds.length > 1) title = Strings.draw;
     final reason = switch (s.endReason) {
-      EndReason.allQuanCaptured => l.endAllQuan,
-      EndReason.lastPlayerStanding => l.endLastStanding,
-      EndReason.moveLimit => l.endMoveLimit,
+      EndReason.allQuanCaptured => Strings.endAllQuan,
+      EndReason.lastPlayerStanding => Strings.endLastStanding,
+      EndReason.moveLimit => Strings.endMoveLimit,
       null => '',
     };
     final header = <Widget>[
-      const Center(child: LogoMark(size: 96)),
-      const SizedBox(height: 12),
+      Center(child: LogoMark(size: 96.r)),
+      SizedBox(height: 12.r),
       Text(
-        l.gameOver,
+        Strings.gameOver,
         textAlign: TextAlign.center,
         style: theme.textTheme.titleMedium,
       ),
@@ -51,7 +50,7 @@ class ResultScreen extends ConsumerWidget {
           fontWeight: FontWeight.w900,
         ),
       ),
-      const SizedBox(height: 4),
+      SizedBox(height: 4.r),
       Text(
         reason,
         textAlign: TextAlign.center,
@@ -72,26 +71,29 @@ class ResultScreen extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             subtitle: Wrap(
-              spacing: 10,
+              spacing: 10.r,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text(l.rank(st.rank)),
+                Text(Strings.rank(st.rank)),
                 IconCount(
-                  icon: StoneIcon(size: 16, color: playerColors[st.player.id]),
+                  icon: StoneIcon(
+                    size: 16.r,
+                    color: playerColors[st.player.id],
+                  ),
                   value: st.player.danCaptured,
-                  semantics: l.danShort,
+                  semantics: Strings.danShort,
                 ),
                 IconCount(
-                  icon: const GemIcon(size: 18),
+                  icon: GemIcon(size: 18.r),
                   value: st.player.quanCaptured,
-                  semantics: l.quanShort,
+                  semantics: Strings.quanShort,
                 ),
                 if (st.player.refillSpent > 0)
                   Text('−${st.player.refillSpent}'),
                 if (!st.player.active)
                   FolkIcon(
                     Icons.block_rounded,
-                    size: 16,
+                    size: 16.r,
                     color: Colors.red.shade400,
                   ),
               ],
@@ -99,7 +101,7 @@ class ResultScreen extends ConsumerWidget {
             trailing: Text(
               '${st.player.score}',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 24.sp,
                 fontWeight: FontWeight.w900,
                 color: playerColors[st.player.id],
               ),
@@ -111,16 +113,16 @@ class ResultScreen extends ConsumerWidget {
       FilledButton.icon(
         key: const Key('playAgain'),
         icon: const FolkIcon(Icons.replay_rounded),
-        label: Text(l.playAgain),
+        label: Text(Strings.playAgain),
         onPressed: () {
           ref.read(gameSessionProvider.notifier).restart();
           context.pushReplacement(Routes.game);
         },
       ),
-      const SizedBox(height: 10),
+      SizedBox(height: 10.r),
       OutlinedButton.icon(
         icon: const FolkIcon(Icons.home_rounded),
-        label: Text(l.home),
+        label: Text(Strings.home),
         onPressed: () {
           ref.read(gameSessionProvider.notifier).abandon();
           context.go(Routes.home);
@@ -130,52 +132,22 @@ class ResultScreen extends ConsumerWidget {
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, c) {
-              if (c.maxWidth > c.maxHeight && c.maxWidth > 560) {
-                return Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1000),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ListView(
-                            padding: const EdgeInsets.all(16),
-                            children: [
-                              ...header,
-                              const SizedBox(height: 16),
-                              ...buttons,
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: ListView(
-                            padding: const EdgeInsets.all(16),
-                            children: standingsList,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              return Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: ListView(
-                    padding: const EdgeInsets.all(20),
-                    shrinkWrap: true,
-                    children: [
-                      ...header,
-                      const SizedBox(height: 16),
-                      ...standingsList,
-                      const SizedBox(height: 16),
-                      ...buttons,
-                    ],
-                  ),
-                ),
-              );
-            },
+          // Ngang hay dọc đều xếp một cột: tiêu đề, bảng xếp hạng, các nút.
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 480.r),
+              child: ListView(
+                padding: EdgeInsets.all(20.r),
+                shrinkWrap: true,
+                children: [
+                  ...header,
+                  SizedBox(height: 16.r),
+                  ...standingsList,
+                  SizedBox(height: 16.r),
+                  ...buttons,
+                ],
+              ),
+            ),
           ),
         ),
       ),

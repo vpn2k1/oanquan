@@ -16,12 +16,29 @@ sealed class ClientMessage {
   static ClientMessage fromJson(Map<String, dynamic> j) {
     final a = j['actionId'] as String;
     return switch (j['type']) {
-      'CreateRoom' => CreateRoom(a, j['playerName'] as String, j['playerCount'] as int),
-      'JoinRoom' => JoinRoom(a, j['matchId'] as String, j['playerName'] as String),
-      'SubmitMove' => SubmitMove(a, j['matchId'] as String, j['playerId'] as int,
-          j['revision'] as int, Move.fromJson(j['move'] as Map<String, dynamic>)),
+      'CreateRoom' => CreateRoom(
+        a,
+        j['playerName'] as String,
+        j['playerCount'] as int,
+      ),
+      'JoinRoom' => JoinRoom(
+        a,
+        j['matchId'] as String,
+        j['playerName'] as String,
+      ),
+      'SubmitMove' => SubmitMove(
+        a,
+        j['matchId'] as String,
+        j['playerId'] as int,
+        j['revision'] as int,
+        Move.fromJson(j['move'] as Map<String, dynamic>),
+      ),
       'PlayerReconnect' => PlayerReconnect(
-          a, j['matchId'] as String, j['playerId'] as int, j['sessionToken'] as String),
+        a,
+        j['matchId'] as String,
+        j['playerId'] as int,
+        j['sessionToken'] as String,
+      ),
       final t => throw FormatException('Unknown client message $t'),
     };
   }
@@ -34,8 +51,12 @@ class CreateRoom extends ClientMessage {
   @override
   String get type => 'CreateRoom';
   @override
-  Map<String, dynamic> toJson() =>
-      {'type': type, 'actionId': actionId, 'playerName': playerName, 'playerCount': playerCount};
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'actionId': actionId,
+    'playerName': playerName,
+    'playerCount': playerCount,
+  };
 }
 
 class JoinRoom extends ClientMessage {
@@ -45,12 +66,22 @@ class JoinRoom extends ClientMessage {
   @override
   String get type => 'JoinRoom';
   @override
-  Map<String, dynamic> toJson() =>
-      {'type': type, 'actionId': actionId, 'matchId': matchId, 'playerName': playerName};
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'actionId': actionId,
+    'matchId': matchId,
+    'playerName': playerName,
+  };
 }
 
 class SubmitMove extends ClientMessage {
-  const SubmitMove(super.actionId, this.matchId, this.playerId, this.revision, this.move);
+  const SubmitMove(
+    super.actionId,
+    this.matchId,
+    this.playerId,
+    this.revision,
+    this.move,
+  );
   final String matchId;
   final int playerId;
 
@@ -61,17 +92,22 @@ class SubmitMove extends ClientMessage {
   String get type => 'SubmitMove';
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'actionId': actionId,
-        'matchId': matchId,
-        'playerId': playerId,
-        'revision': revision,
-        'move': move.toJson(),
-      };
+    'type': type,
+    'actionId': actionId,
+    'matchId': matchId,
+    'playerId': playerId,
+    'revision': revision,
+    'move': move.toJson(),
+  };
 }
 
 class PlayerReconnect extends ClientMessage {
-  const PlayerReconnect(super.actionId, this.matchId, this.playerId, this.sessionToken);
+  const PlayerReconnect(
+    super.actionId,
+    this.matchId,
+    this.playerId,
+    this.sessionToken,
+  );
   final String matchId;
   final int playerId;
   final String sessionToken;
@@ -79,12 +115,12 @@ class PlayerReconnect extends ClientMessage {
   String get type => 'PlayerReconnect';
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'actionId': actionId,
-        'matchId': matchId,
-        'playerId': playerId,
-        'sessionToken': sessionToken,
-      };
+    'type': type,
+    'actionId': actionId,
+    'matchId': matchId,
+    'playerId': playerId,
+    'sessionToken': sessionToken,
+  };
 }
 
 sealed class ServerMessage {
@@ -97,19 +133,32 @@ sealed class ServerMessage {
     final m = j['matchId'] as String;
     return switch (j['type']) {
       'StateSnapshot' => StateSnapshot(
-          m,
-          j['revision'] as int,
-          j['playerId'] as int?,
-          j['sessionToken'] as String?,
-          (j['seats'] as List).cast<String>(),
-          j['playerCount'] as int,
-          j['state'] as Map<String, dynamic>?),
-      'MoveAccepted' => MoveAccepted(m, j['actionId'] as String, j['revision'] as int,
-          Move.fromJson(j['move'] as Map<String, dynamic>),
-          (j['events'] as List).cast<Map<String, dynamic>>()),
+        m,
+        j['revision'] as int,
+        j['playerId'] as int?,
+        j['sessionToken'] as String?,
+        (j['seats'] as List).cast<String>(),
+        j['playerCount'] as int,
+        j['state'] as Map<String, dynamic>?,
+      ),
+      'MoveAccepted' => MoveAccepted(
+        m,
+        j['actionId'] as String,
+        j['revision'] as int,
+        Move.fromJson(j['move'] as Map<String, dynamic>),
+        (j['events'] as List).cast<Map<String, dynamic>>(),
+      ),
       'MoveRejected' => MoveRejected(
-          m, j['actionId'] as String, j['reason'] as String, j['revision'] as int),
-      'GameEnded' => GameEnded(m, j['revision'] as int, (j['winnerIds'] as List).cast<int>()),
+        m,
+        j['actionId'] as String,
+        j['reason'] as String,
+        j['revision'] as int,
+      ),
+      'GameEnded' => GameEnded(
+        m,
+        j['revision'] as int,
+        (j['winnerIds'] as List).cast<int>(),
+      ),
       final t => throw FormatException('Unknown server message $t'),
     };
   }
@@ -117,8 +166,15 @@ sealed class ServerMessage {
 
 /// Ảnh chụp trạng thái có thẩm quyền. `state` null khi phòng chưa đủ người.
 class StateSnapshot extends ServerMessage {
-  const StateSnapshot(super.matchId, this.revision, this.playerId, this.sessionToken,
-      this.seats, this.playerCount, this.state);
+  const StateSnapshot(
+    super.matchId,
+    this.revision,
+    this.playerId,
+    this.sessionToken,
+    this.seats,
+    this.playerCount,
+    this.state,
+  );
   final int revision;
 
   /// Ghế của người nhận (null nếu chỉ xem).
@@ -131,19 +187,25 @@ class StateSnapshot extends ServerMessage {
   String get type => 'StateSnapshot';
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'matchId': matchId,
-        'revision': revision,
-        'playerId': playerId,
-        'sessionToken': sessionToken,
-        'seats': seats,
-        'playerCount': playerCount,
-        'state': state,
-      };
+    'type': type,
+    'matchId': matchId,
+    'revision': revision,
+    'playerId': playerId,
+    'sessionToken': sessionToken,
+    'seats': seats,
+    'playerCount': playerCount,
+    'state': state,
+  };
 }
 
 class MoveAccepted extends ServerMessage {
-  const MoveAccepted(super.matchId, this.actionId, this.revision, this.move, this.events);
+  const MoveAccepted(
+    super.matchId,
+    this.actionId,
+    this.revision,
+    this.move,
+    this.events,
+  );
   final String actionId;
   final int revision;
   final Move move;
@@ -152,13 +214,13 @@ class MoveAccepted extends ServerMessage {
   String get type => 'MoveAccepted';
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'matchId': matchId,
-        'actionId': actionId,
-        'revision': revision,
-        'move': move.toJson(),
-        'events': events,
-      };
+    'type': type,
+    'matchId': matchId,
+    'actionId': actionId,
+    'revision': revision,
+    'move': move.toJson(),
+    'events': events,
+  };
 }
 
 /// Từ chối nước đi hoặc thao tác phòng (`reason` là mã máy đọc được).
@@ -171,12 +233,12 @@ class MoveRejected extends ServerMessage {
   String get type => 'MoveRejected';
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'matchId': matchId,
-        'actionId': actionId,
-        'reason': reason,
-        'revision': revision,
-      };
+    'type': type,
+    'matchId': matchId,
+    'actionId': actionId,
+    'reason': reason,
+    'revision': revision,
+  };
 }
 
 class GameEnded extends ServerMessage {
@@ -186,6 +248,10 @@ class GameEnded extends ServerMessage {
   @override
   String get type => 'GameEnded';
   @override
-  Map<String, dynamic> toJson() =>
-      {'type': type, 'matchId': matchId, 'revision': revision, 'winnerIds': winnerIds};
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'matchId': matchId,
+    'revision': revision,
+    'winnerIds': winnerIds,
+  };
 }
