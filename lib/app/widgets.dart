@@ -227,11 +227,11 @@ class PlayerAvatar extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
+        decoration: ShapeDecoration(
           color: color,
-          border: Border.all(color: Colors.white, width: 2),
-          boxShadow: const [
+          // Vòng phấn trắng quanh avatar.
+          shape: ChalkBorder(radius: size / 2, color: Colors.white, width: max(1.6, size * 0.06)),
+          shadows: const [
             BoxShadow(
               color: Color(0x33000000),
               blurRadius: 4,

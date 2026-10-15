@@ -5,12 +5,11 @@ import 'dart:ui';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart' show EdgeInsets;
+import 'package:flutter/painting.dart' show Alignment, EdgeInsets, RadialGradient;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show KeyEventResult;
 
 import '../../../app/theme.dart';
-import '../../../app/widgets.dart' show DotGridPainter;
 import '../../../core/engine/board_topology.dart';
 import '../../../core/engine/rules_engine.dart';
 import '../../../core/game_models/game_event.dart';
@@ -833,27 +832,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     final rec = PictureRecorder();
     final canvas = Canvas(rec)..scale(dpr);
     final st = style;
-    // Nền app (lưới chấm) bên ngoài khay.
-    canvas.drawRect(Offset.zero & sz, Paint()..color = dark ? Rc.bg : Rc.bgLight);
-    DotGridPainter.paintGrid(canvas, sz, dark);
-    // Khay bàn: mặt sân dân dã trong một khung bo góc.
-    final u = g.unit;
-    var b = g.boardOutline.getBounds().inflate(u * 0.5);
-    for (final (pa, pb) in g.playerPiles) {
-      b = b.expandToInclude(Rect.fromPoints(pa, pb).inflate(u * 0.34));
-    }
-    final tray = RRect.fromRectAndRadius(
-      Rect.fromLTRB(max(4, b.left), max(4, b.top), min(sz.width - 4, b.right), min(sz.height - 4, b.bottom)),
-      Radius.circular(u * 0.35),
-    );
-    canvas.drawRRect(
-      tray.shift(Offset(0, u * 0.1)),
-      Paint()
-        ..color = const Color(0x8C000000)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.25),
-    );
-    canvas.save();
-    canvas.clipRRect(tray);
+    // Mặt sân dân dã trải kín toàn màn hình (bàn kẻ thẳng lên sân).
     final ground = GroundCache.image(sz, dpr, st.ground, _state.config.seed);
     canvas.drawImageRect(
       ground,
@@ -861,22 +840,20 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       Offset.zero & sz,
       Paint(),
     );
-    // Viền trong tối nhẹ cho khay có chiều sâu.
-    canvas.drawRRect(
-      tray.deflate(u * 0.06),
+    // Tối nhẹ các mép màn để HUD nổi và mắt dồn vào bàn.
+    final screen = Offset.zero & sz;
+    canvas.drawRect(
+      screen,
       Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = u * 0.14
-        ..color = const Color(0x40000000)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.08),
-    );
-    canvas.restore();
-    canvas.drawRRect(
-      tray,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..color = dark ? Rc.line : Rc.lineLight,
+        ..shader = RadialGradient(
+          center: Alignment(
+            (g.boardOutline.getBounds().center.dx / sz.width) * 2 - 1,
+            (g.boardOutline.getBounds().center.dy / sz.height) * 2 - 1,
+          ),
+          radius: 1.1,
+          colors: const [Color(0x00000000), Color(0x00000000), Color(0x80000000)],
+          stops: const [0, 0.5, 1],
+        ).createShader(screen),
     );
     _drawSketchBoard(canvas, g, st);
     final pic = rec.endRecording();

@@ -133,11 +133,14 @@ class PlayerChip extends StatelessWidget {
       duration: const Duration(milliseconds: 250),
       width: width,
       padding: const EdgeInsets.fromLTRB(8, 7, 12, 7),
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: isTurn ? Color.alphaBlend(Rc.accentSoft, t.surface) : t.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isTurn ? Rc.accent : t.line, width: 2),
-        boxShadow: isTurn
+        // Viền phấn: cam đậm khi tới lượt, kem mờ khi chờ.
+        shape: ChalkBorder(
+          color: isTurn ? Rc.accent : t.text.withValues(alpha: 0.55),
+          width: isTurn ? 2.8 : 2,
+        ),
+        shadows: isTurn
             ? const [BoxShadow(color: Color(0x40FF8F3A), blurRadius: 14)]
             : const [],
       ),
@@ -148,9 +151,8 @@ class PlayerChip extends StatelessWidget {
             // Ô vuông avatar có viền màu người chơi (đánh dấu cạnh trên bàn).
             Container(
               padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(11),
-                border: Border.all(color: color, width: 2),
+              decoration: ShapeDecoration(
+                shape: ChalkBorder(radius: 11, color: color, width: 2),
               ),
               child: PlayerAvatar(playerId: playerId, size: 30, ai: p.isAi, dimmed: !p.active),
             ),

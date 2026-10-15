@@ -205,11 +205,11 @@ class _StyleTile extends StatelessWidget {
         child: Container(
           width: 132,
           padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: selected ? scheme.primary : scheme.outlineVariant,
-              width: selected ? 3 : 1,
+          decoration: ShapeDecoration(
+            shape: ChalkBorder(
+              radius: 14,
+              color: selected ? scheme.primary : scheme.onSurface.withValues(alpha: 0.45),
+              width: selected ? 2.8 : 1.8,
             ),
           ),
           child: Column(

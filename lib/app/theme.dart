@@ -86,7 +86,6 @@ ThemeData buildTheme(Brightness b) {
         secondaryContainer: Rc.accentSoft,
         onSecondaryContainer: t.text,
       );
-  final border = BorderSide(color: t.line, width: 2);
   // Nút viền nét phấn (kem trên nền tối, nâu sẫm trên nền sáng).
   final chalk = ChalkBorder(
     color: t.dark ? const Color(0xE6FFF3E2) : const Color(0xCC2D2621),
@@ -128,10 +127,7 @@ ThemeData buildTheme(Brightness b) {
       color: t.surface,
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: border,
-      ),
+      shape: chalk.copyWith(radius: 18),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -177,28 +173,18 @@ ThemeData buildTheme(Brightness b) {
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: t.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: border,
-      ),
+      shape: chalk.copyWith(radius: 20),
     ),
     bottomSheetTheme: BottomSheetThemeData(backgroundColor: t.surface),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: t.surfaceHigh,
       contentTextStyle: TextStyle(color: t.text, fontWeight: FontWeight.w600),
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: border,
-      ),
+      shape: chalk.copyWith(radius: 14),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: t.line, width: 2),
-      ),
-      focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Rc.accent, width: 2),
-      ),
+      enabledBorder: ChalkUnderlineInputBorder(color: t.text.withValues(alpha: 0.6)),
+      focusedBorder: const ChalkUnderlineInputBorder(color: Rc.accent, width: 2.6),
     ),
     dividerTheme: DividerThemeData(color: t.line),
   );

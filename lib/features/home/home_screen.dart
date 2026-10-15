@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/app.dart';
+import '../../app/folk_art.dart';
 import '../../app/router.dart';
 import '../../app/widgets.dart';
 import '../game/data/save_repository.dart';
@@ -87,10 +88,9 @@ class HomeScreen extends ConsumerWidget {
     ];
     final note = <Widget>[
       DecoratedBox(
-        decoration: BoxDecoration(
+        decoration: ShapeDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: theme.colorScheme.outline, width: 2),
+          shape: ChalkBorder(radius: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
