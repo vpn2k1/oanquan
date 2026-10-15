@@ -452,30 +452,6 @@ abstract class AppLocalizations {
   /// **'Rung phản hồi'**
   String get settingsHaptics;
 
-  /// No description provided for @settingsAnimSpeed.
-  ///
-  /// In vi, this message translates to:
-  /// **'Tốc độ animation'**
-  String get settingsAnimSpeed;
-
-  /// No description provided for @speedSlow.
-  ///
-  /// In vi, this message translates to:
-  /// **'Chậm'**
-  String get speedSlow;
-
-  /// No description provided for @speedNormal.
-  ///
-  /// In vi, this message translates to:
-  /// **'Vừa'**
-  String get speedNormal;
-
-  /// No description provided for @speedFast.
-  ///
-  /// In vi, this message translates to:
-  /// **'Nhanh'**
-  String get speedFast;
-
   /// No description provided for @settingsReducedMotion.
   ///
   /// In vi, this message translates to:

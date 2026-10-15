@@ -6,6 +6,7 @@ import '../features/game/ui/game_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/mode_selection/setup_screen.dart';
 import '../features/multiplayer/online_lobby_screen.dart';
+import 'features.dart';
 import '../features/result/result_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
@@ -34,6 +35,8 @@ final routerProvider = Provider<GoRouter>((ref) => GoRouter(
         GoRoute(path: Routes.tutorial, builder: (_, _) => const TutorialScreen()),
         GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
         GoRoute(path: Routes.achievements, builder: (_, _) => const AchievementsScreen()),
-        GoRoute(path: Routes.online, builder: (_, _) => const OnlineLobbyScreen()),
+        // Online tạm ẩn: bật lại bằng `kOnlineEnabled` trong lib/app/features.dart.
+        if (kOnlineEnabled)
+          GoRoute(path: Routes.online, builder: (_, _) => const OnlineLobbyScreen()),
       ],
     ));

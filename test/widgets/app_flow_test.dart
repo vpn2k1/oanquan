@@ -59,7 +59,7 @@ void main() {
         // Gửi một nước như khi chạm ô + mũi tên; Flame phát animation rồi báo xong.
         final m = const RulesEngine().getLegalMoves(s.current).first;
         c.read(gameSessionProvider.notifier).submitMove(m);
-        for (var i = 0; i < 120 && c.read(gameSessionProvider)!.pending != null; i++) {
+        for (var i = 0; i < 600 && c.read(gameSessionProvider)!.pending != null; i++) {
           await tester.pump(const Duration(milliseconds: 100));
         }
         expect(c.read(gameSessionProvider)!.pending, isNull, reason: 'animation phải kết thúc');

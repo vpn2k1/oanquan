@@ -204,18 +204,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settingsHaptics => 'Rung phản hồi';
 
   @override
-  String get settingsAnimSpeed => 'Tốc độ animation';
-
-  @override
-  String get speedSlow => 'Chậm';
-
-  @override
-  String get speedNormal => 'Vừa';
-
-  @override
-  String get speedFast => 'Nhanh';
-
-  @override
   String get settingsReducedMotion => 'Giảm chuyển động';
 
   @override

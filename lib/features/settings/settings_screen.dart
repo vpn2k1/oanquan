@@ -46,40 +46,6 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
                 Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l.settingsAnimSpeed,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        SegmentedButton<AnimSpeed>(
-                          segments: [
-                            ButtonSegment(
-                              value: AnimSpeed.slow,
-                              label: Text(l.speedSlow),
-                            ),
-                            ButtonSegment(
-                              value: AnimSpeed.normal,
-                              label: Text(l.speedNormal),
-                            ),
-                            ButtonSegment(
-                              value: AnimSpeed.fast,
-                              label: Text(l.speedFast),
-                            ),
-                          ],
-                          selected: {s.speed},
-                          onSelectionChanged: (v) =>
-                              c.update(s.copyWith(speed: v.first)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Card(
                   child: Column(
                     children: [
                       SwitchListTile(
@@ -204,12 +170,12 @@ class SettingsScreen extends ConsumerWidget {
 }
 
 String _styleName(AppLocalizations l, FolkStyle st) => switch (st.id) {
-      'dirt_stick' => l.style_dirt_stick,
-      'tiles_chalk' => l.style_tiles_chalk,
-      'concrete_brick' => l.style_concrete_brick,
-      'concrete_charcoal' => l.style_concrete_charcoal,
-      _ => l.style_concrete_chalk,
-    };
+  'dirt_stick' => l.style_dirt_stick,
+  'tiles_chalk' => l.style_tiles_chalk,
+  'concrete_brick' => l.style_concrete_brick,
+  'concrete_charcoal' => l.style_concrete_charcoal,
+  _ => l.style_concrete_chalk,
+};
 
 /// Ô xem trước: mặt sân + một hàng ô kẻ bằng dụng cụ tương ứng.
 class _StyleTile extends StatelessWidget {
@@ -261,7 +227,10 @@ class _StyleTile extends StatelessWidget {
                 label,
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -280,9 +249,19 @@ class _PreviewPainter extends CustomPainter {
     final st = style;
     if (st == null) {
       // "Ngẫu nhiên": ghép bốn mảnh mặt sân.
-      final kinds = [GroundKind.dirt, GroundKind.concrete, GroundKind.tiles, GroundKind.concrete];
+      final kinds = [
+        GroundKind.dirt,
+        GroundKind.concrete,
+        GroundKind.tiles,
+        GroundKind.concrete,
+      ];
       for (var i = 0; i < 4; i++) {
-        final r = Rect.fromLTWH(i * size.width / 4, 0, size.width / 4, size.height);
+        final r = Rect.fromLTWH(
+          i * size.width / 4,
+          0,
+          size.width / 4,
+          size.height,
+        );
         canvas.save();
         canvas.clipRect(r);
         FolkGround.paint(canvas, size, kinds[i], 3 + i);
@@ -291,7 +270,11 @@ class _PreviewPainter extends CustomPainter {
       final tp = TextPainter(
         text: const TextSpan(
           text: '?',
-          style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900, color: Color(0xFFF7F4EC)),
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFFF7F4EC),
+          ),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -305,7 +288,11 @@ class _PreviewPainter extends CustomPainter {
       ..addArc(Rect.fromLTWH(8, top, cell, cell), pi / 2, pi)
       ..lineTo(8 + cell / 2, top + cell);
     final quanR = Path()
-      ..addArc(Rect.fromLTWH(size.width - 8 - cell, top, cell, cell), -pi / 2, pi);
+      ..addArc(
+        Rect.fromLTWH(size.width - 8 - cell, top, cell, cell),
+        -pi / 2,
+        pi,
+      );
     FolkPen.stroke(canvas, quan, st.pen, width: 2.6, seed: 1);
     FolkPen.stroke(canvas, quanR, st.pen, width: 2.6, seed: 2);
     final left = 8 + cell / 2;

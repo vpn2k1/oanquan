@@ -48,7 +48,7 @@ test/  engine/ ai/ persistence/ game/ multiplayer/ widgets/
 
 - **State:** `flutter_riverpod` 3 (Notifier). **Routing:** `go_router`.
 - **Màn hình ngang mặc định:** khóa landscape trên Android (`sensorLandscape`), iOS (`UISupportedInterfaceOrientations`) và trong `main.dart`. Home, Setup, Kết quả, Hướng dẫn có bố cục 2 cột khi ngang.
-- **Giao diện tham khảo Recess (rachoi.app):** tông tối ấm mặc định (nền `#1B1410` lưới chấm, thẻ `#2D2621` viền kem 20%, chữ `#FFF3E2`, nhấn cam `#FF8F3A`), có bản sáng tương ứng; token trong `Rc`/`RcTokens` (`lib/app/theme.dart`). Bàn đặt trong khay bo góc; quân là sỏi tự nhiên, quan là đá nâu lớn; số đếm chữ kem nhỏ ở góc ô. Quân ăn được bay vào **đống quân trên khay** (bàn 2 người: ngoài mép bàn phía người ăn; bàn 3–4 người: phần trống trong lòng bàn sát cạnh mình), quan nằm đầu hàng, số điểm ở cuối hàng. Nhịp rải vừa phải (Vừa ≈ 0,36 s/viên, máy chờ 0,7 s trước khi đi); nút **Chậm/Vừa/Nhanh** trên HUD. Màn chơi: ngang → bảng phải (nút, thẻ người chơi, Gợi ý/Đi lại); dọc → đối thủ trên, mình dưới.
+- **Giao diện tham khảo Recess (rachoi.app):** tông tối ấm mặc định (nền `#1B1410` lưới chấm, thẻ `#2D2621` viền kem 20%, chữ `#FFF3E2`, nhấn cam `#FF8F3A`), có bản sáng tương ứng; token trong `Rc`/`RcTokens` (`lib/app/theme.dart`). Bàn đặt trong khay bo góc; quân là sỏi tự nhiên, quan là đá nâu lớn; số đếm chữ kem nhỏ ở góc ô. Quân ăn được bay vào **đống quân trên khay** (bàn 2 người: ngoài mép bàn phía người ăn; bàn 3–4 người: phần trống trong lòng bàn sát cạnh mình), quan nằm đầu hàng, số điểm ở cuối hàng. Nhịp rải cố định ở mức **chậm** (≈ 0,58 s/viên, `kAnimSpeedFactor` = 1,6), không có tùy chỉnh tốc độ; máy chờ 0,7 s trước khi đi. Màn chơi: ngang → bảng phải (nút, thẻ người chơi, Gợi ý/Đi lại); dọc → đối thủ trên, mình dưới.
 - **Mặt sân dân dã, bàn kẻ tay** (`lib/app/folk_art.dart`, vẽ thủ tục bằng Canvas, không dùng ảnh): 3 mặt sân (đất, xi măng, sân gạch bát) × nét vẽ (que vạch đất, phấn, gạch non, than củi) → 5 kiểu. Mặc định **ngẫu nhiên mỗi ván** theo seed ván; chọn cố định trong Cài đặt → "Mặt sân & nét vẽ". Nét run tay bằng nhiễu mượt, đứt phấn, bụi/vụn đất; mặt sân + bàn được raster hóa một lần thành ảnh nên không tốn chi phí mỗi frame.
 - **Bàn chơi toàn màn hình:** HUD nổi ở các góc. Thẻ người chơi nằm ở góc gần cạnh của người đó. Dân và quan đã ăn hiển thị bằng hình viên sỏi và viên ngọc kèm số, không dùng chữ. Giao diện mặc định là theme sáng, tông tươi.
 - Trạng thái logic và trạng thái hiển thị được tách riêng. Engine tính ra trạng thái cuối cùng cùng
@@ -101,7 +101,10 @@ Các điểm dự án tự bổ sung, vì luật dân gian không quy định:
 | `test/multiplayer` | Server authoritative: sai ghế, sai lượt, revision cũ, idempotency theo `actionId`, reconnect cần token, chơi hết ván qua server. |
 | `test/widgets` | Geometry ở viewport mobile, tablet và desktop: không đè ô, đúng chiều kim đồng hồ, Q nằm ở góc, vùng chạm ≥ 44 px. Luồng app Home → Setup → Game → một nước đi cho 2/3/4 người trên 3 kích thước màn hình. Tutorial, cài đặt, đổi ngôn ngữ, thành tích. |
 
-## Online (Milestone D — mới là hợp đồng API, **chưa có mạng thật**)
+## Online (Milestone D — **đang tạm ẩn**, mới là hợp đồng API, chưa có mạng thật)
+
+Tắt bằng `kOnlineEnabled = false` trong `lib/app/features.dart`: không có route hay nút nào dẫn vào; code và test vẫn giữ. Màn chọn chế độ chỉ có **Đấu máy** và **Chơi với bạn**.
+
 
 - `protocol.dart` định nghĩa `CreateRoom`, `JoinRoom`, `SubmitMove`, `PlayerReconnect`,
   `StateSnapshot`, `MoveAccepted`, `MoveRejected`, `GameEnded`. Các message có `matchId`,

@@ -7,22 +7,14 @@ final sharedPrefsProvider = Provider<SharedPreferences>(
   (ref) => throw UnimplementedError('override sharedPrefsProvider in main'),
 );
 
-enum AnimSpeed { slow, normal, fast }
-
-extension AnimSpeedX on AnimSpeed {
-  /// Hệ số nhân thời lượng animation.
-  double get factor => switch (this) {
-        AnimSpeed.slow => 1.6,
-        AnimSpeed.normal => 1.0,
-        AnimSpeed.fast => 0.5,
-      };
-}
+/// Nhịp animation cố định ở mức "chậm" (không cho chỉnh) để người chơi
+/// theo dõi được từng viên rải.
+const kAnimSpeedFactor = 1.6;
 
 class AppSettings {
   const AppSettings({
     this.sound = true,
     this.haptics = true,
-    this.speed = AnimSpeed.normal,
     this.reducedMotion = false,
     this.colorBlind = false,
     this.themeMode = ThemeMode.dark,
@@ -32,7 +24,6 @@ class AppSettings {
 
   final bool sound;
   final bool haptics;
-  final AnimSpeed speed;
   final bool reducedMotion;
   final bool colorBlind;
   final ThemeMode themeMode;
@@ -44,23 +35,20 @@ class AppSettings {
   AppSettings copyWith({
     bool? sound,
     bool? haptics,
-    AnimSpeed? speed,
     bool? reducedMotion,
     bool? colorBlind,
     ThemeMode? themeMode,
     String? localeCode,
     String? boardStyle,
-  }) =>
-      AppSettings(
-        sound: sound ?? this.sound,
-        haptics: haptics ?? this.haptics,
-        speed: speed ?? this.speed,
-        reducedMotion: reducedMotion ?? this.reducedMotion,
-        colorBlind: colorBlind ?? this.colorBlind,
-        themeMode: themeMode ?? this.themeMode,
-        localeCode: localeCode ?? this.localeCode,
-        boardStyle: boardStyle ?? this.boardStyle,
-      );
+  }) => AppSettings(
+    sound: sound ?? this.sound,
+    haptics: haptics ?? this.haptics,
+    reducedMotion: reducedMotion ?? this.reducedMotion,
+    colorBlind: colorBlind ?? this.colorBlind,
+    themeMode: themeMode ?? this.themeMode,
+    localeCode: localeCode ?? this.localeCode,
+    boardStyle: boardStyle ?? this.boardStyle,
+  );
 }
 
 class SettingsController extends Notifier<AppSettings> {
@@ -79,7 +67,6 @@ class SettingsController extends Notifier<AppSettings> {
     return AppSettings(
       sound: p.getBool('${_prefix}sound') ?? true,
       haptics: p.getBool('${_prefix}haptics') ?? true,
-      speed: pick(AnimSpeed.values, 'speed', AnimSpeed.normal),
       reducedMotion: p.getBool('${_prefix}reducedMotion') ?? false,
       colorBlind: p.getBool('${_prefix}colorBlind') ?? false,
       themeMode: pick(ThemeMode.values, 'themeMode', ThemeMode.dark),
@@ -93,7 +80,6 @@ class SettingsController extends Notifier<AppSettings> {
     final p = _prefs;
     p.setBool('${_prefix}sound', s.sound);
     p.setBool('${_prefix}haptics', s.haptics);
-    p.setString('${_prefix}speed', s.speed.name);
     p.setBool('${_prefix}reducedMotion', s.reducedMotion);
     p.setBool('${_prefix}colorBlind', s.colorBlind);
     p.setString('${_prefix}themeMode', s.themeMode.name);
@@ -104,5 +90,6 @@ class SettingsController extends Notifier<AppSettings> {
   void toggleSound() => update(state.copyWith(sound: !state.sound));
 }
 
-final settingsProvider =
-    NotifierProvider<SettingsController, AppSettings>(SettingsController.new);
+final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
+  SettingsController.new,
+);

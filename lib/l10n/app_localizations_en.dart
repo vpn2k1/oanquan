@@ -204,18 +204,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsHaptics => 'Haptic feedback';
 
   @override
-  String get settingsAnimSpeed => 'Animation speed';
-
-  @override
-  String get speedSlow => 'Slow';
-
-  @override
-  String get speedNormal => 'Normal';
-
-  @override
-  String get speedFast => 'Fast';
-
-  @override
   String get settingsReducedMotion => 'Reduce motion';
 
   @override
