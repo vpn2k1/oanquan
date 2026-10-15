@@ -9,6 +9,7 @@ import '../../app/widgets.dart';
 import '../../core/game_models/game_config.dart';
 import '../../core/game_models/player.dart';
 import '../game/game_session.dart';
+import '../settings/settings_controller.dart';
 
 /// Hai chế độ: đấu với máy, hoặc chơi với bạn trên cùng một máy.
 enum PlayMode { ai, local }
@@ -29,9 +30,23 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   /// Tên người chơi cho chế độ "Chơi với bạn" (4 ô, dùng `_players` ô đầu).
   final List<TextEditingController> _names = [];
 
+  /// Seed ván được bốc ngay khi mở màn này để vẽ sẵn mặt sân ở nền.
+  final int _seed = DateTime.now().millisecondsSinceEpoch & 0x7fffffff;
+  bool _warmed = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (!_warmed) {
+      _warmed = true;
+      final size = MediaQuery.sizeOf(context);
+      final dpr = MediaQuery.devicePixelRatioOf(context);
+      final style = FolkStyle.resolve(ref.read(settingsProvider).boardStyle, _seed);
+      // Chờ frame đầu của màn này vẽ xong rồi mới vẽ sân (không giật lúc chuyển màn).
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => GroundCache.warmUp(size, dpr, style.ground, _seed),
+      );
+    }
     if (_names.isEmpty) {
       final l = context.l10n;
       _names.addAll([
@@ -77,7 +92,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         .start(
           GameConfig(
             playerCount: _players,
-            seed: DateTime.now().millisecondsSinceEpoch & 0x7fffffff,
+            seed: _seed,
           ),
           players,
         );

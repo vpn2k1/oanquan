@@ -158,5 +158,6 @@
   "you": "You",
   "aiEasyDesc": "Often plays randomly",
   "aiMediumDesc": "Looks a few moves ahead",
-  "aiHardDesc": "Searches deep, tough to beat"
+  "aiHardDesc": "Searches deep, tough to beat",
+  "shuffleGround": "Change ground"
 }

@@ -170,7 +170,27 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   }
 
   /// Mặt sân + nét vẽ của ván này (ngẫu nhiên theo seed ván nếu chọn "ngẫu nhiên").
-  FolkStyle get style => FolkStyle.resolve(visuals.styleSetting, _state.config.seed);
+  FolkStyle get style =>
+      _styleOverride ?? FolkStyle.resolve(visuals.styleSetting, _state.config.seed);
+
+  /// Mặt sân do người chơi bấm "đổi mặt sân" (chỉ đổi hình, không đổi ván).
+  FolkStyle? _styleOverride;
+  int? _groundSeedOverride;
+  int get groundSeed => _groundSeedOverride ?? _state.config.seed;
+
+  /// Bốc ngẫu nhiên kiểu sân khác + bố trí mới; vẽ ngầm xong mới thay (không chớp).
+  Future<void> shuffleGround() async {
+    final rnd = Random();
+    final cur = style;
+    final others = [for (final s in FolkStyle.all) if (s != cur) s];
+    final next = others[rnd.nextInt(others.length)];
+    final seed = rnd.nextInt(1 << 30);
+    final dpr = PlatformDispatcher.instance.views.first.devicePixelRatio;
+    await GroundCache.warmUp(Size(size.x, size.y), dpr, next.ground, seed);
+    _styleOverride = next;
+    _groundSeedOverride = seed;
+    _boardImage = null;
+  }
 
   // ---------------------------------------------------------------------------
   // Đồng bộ trạng thái
@@ -833,13 +853,22 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     final canvas = Canvas(rec)..scale(dpr);
     final st = style;
     // Mặt sân dân dã trải kín toàn màn hình (bàn kẻ thẳng lên sân).
-    final ground = GroundCache.image(sz, dpr, st.ground, _state.config.seed);
-    canvas.drawImageRect(
-      ground,
-      Rect.fromLTWH(0, 0, ground.width.toDouble(), ground.height.toDouble()),
-      Offset.zero & sz,
-      Paint(),
-    );
+    final ground = GroundCache.peek(sz, dpr, st.ground, groundSeed);
+    if (ground != null) {
+      canvas.drawImageRect(
+        ground,
+        Rect.fromLTWH(0, 0, ground.width.toDouble(), ground.height.toDouble()),
+        Offset.zero & sz,
+        Paint(),
+      );
+    } else {
+      // Chưa vẽ sẵn: tô màu nền của mặt sân, vẽ ngầm rồi thay khi xong.
+      canvas.drawRect(Offset.zero & sz, Paint()..color = FolkGround.baseColor(st.ground));
+      final key = (st, groundSeed, sz);
+      GroundCache.warmUp(sz, dpr, st.ground, groundSeed).then((_) {
+        if ((style, groundSeed, Size(size.x, size.y)) == key) _boardImage = null;
+      });
+    }
     // Tối nhẹ các mép màn để HUD nổi và mắt dồn vào bàn.
     final screen = Offset.zero & sz;
     canvas.drawRect(

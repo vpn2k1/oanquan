@@ -42,6 +42,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _sound
       ..enabled = settings.sound
       ..haptics = settings.haptics;
+    // Tổng hợp sẵn âm thanh sau frame đầu (tránh giật ở lần rải đầu tiên).
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sound.init());
     if (session == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) context.go(Routes.home);
@@ -223,6 +225,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       tooltip: l.pause,
       onPressed: _pauseMenu,
     );
+    final ground = HudButton(
+      key: const Key('shuffleGround'),
+      icon: Icons.palette_rounded,
+      tooltip: l.shuffleGround,
+      onPressed: g.shuffleGround,
+    );
     final sound = HudButton(
       icon: settings.sound ? Icons.volume_up_rounded : Icons.volume_off_rounded,
       tooltip: settings.sound ? l.soundOff : l.soundOn,
@@ -315,6 +323,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                           children: [
                             pause,
                             const Spacer(),
+                            ground,
+                            const SizedBox(width: 6),
                             sound,
                             const SizedBox(width: 6),
                             rules,
@@ -364,6 +374,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       children: [
                         pause,
                         const Spacer(),
+                        ground,
+                        const SizedBox(width: 6),
                         sound,
                         const SizedBox(width: 8),
                         rules,

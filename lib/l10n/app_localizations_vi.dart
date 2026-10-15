@@ -467,4 +467,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get aiHardDesc => 'Tính sâu, khó thắng';
+
+  @override
+  String get shuffleGround => 'Đổi mặt sân';
 }

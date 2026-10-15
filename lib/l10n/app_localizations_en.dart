@@ -467,4 +467,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiHardDesc => 'Searches deep, tough to beat';
+
+  @override
+  String get shuffleGround => 'Change ground';
 }

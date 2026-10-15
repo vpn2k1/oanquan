@@ -931,6 +931,12 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Tính sâu, khó thắng'**
   String get aiHardDesc;
+
+  /// No description provided for @shuffleGround.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đổi mặt sân'**
+  String get shuffleGround;
 }
 
 class _AppLocalizationsDelegate

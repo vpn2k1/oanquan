@@ -51,6 +51,7 @@ test/  engine/ ai/ persistence/ game/ multiplayer/ widgets/
 - **Giao diện tham khảo Recess (rachoi.app):** tông tối ấm mặc định (nền `#1B1410` lưới chấm, thẻ `#2D2621` viền kem 20%, chữ `#FFF3E2`, nhấn cam `#FF8F3A`), có bản sáng tương ứng; token trong `Rc`/`RcTokens` (`lib/app/theme.dart`). quân là sỏi tự nhiên, quan là đá nâu lớn; số đếm chữ kem nhỏ ở góc ô. Quân ăn được bay vào **đống quân trên khay** (bàn 2 người: ngoài mép bàn phía người ăn; bàn 3–4 người: phần trống trong lòng bàn sát cạnh mình), quan nằm đầu hàng, số điểm ở cuối hàng. Nhịp rải cố định ở mức **chậm** (≈ 0,58 s/viên, `kAnimSpeedFactor` = 1,6), không có tùy chỉnh tốc độ; máy chờ 0,7 s trước khi đi. Màn chơi: ngang → bảng phải (nút, thẻ người chơi, Gợi ý/Đi lại); dọc → đối thủ trên, mình dưới.
 - **Menu nền đất sỏi + nút viền phấn:** các màn menu dùng `GroundKind.darkDirt` (đất sỏi sẫm; bản sáng dùng đất sáng). **Mọi viền** đều là nét phấn run tay: nút, thẻ (Card), thẻ người chơi, avatar, hộp thoại, thông báo, thẻ lựa chọn (`ChalkBorder`) và gạch chân ô nhập (`ChalkUnderlineInputBorder`); seed theo kích thước nên không nhấp nháy. **Màn chơi** trải mặt sân của ván (đất/xi măng/gạch bát) kín toàn màn hình, không còn khay.
 - **Mặt sân dân dã, bàn kẻ tay** (`lib/app/folk_art.dart`, vẽ thủ tục bằng Canvas, không dùng ảnh): 3 mặt sân (đất, xi măng, sân gạch bát) × nét vẽ (que vạch đất, phấn, gạch non, than củi) → 5 kiểu. Mặc định **ngẫu nhiên mỗi ván** theo seed ván; chọn cố định trong Cài đặt → "Mặt sân & nét vẽ". Nét run tay bằng nhiễu mượt, đứt phấn, bụi/vụn đất; mặt sân + bàn được raster hóa một lần thành ảnh nên không tốn chi phí mỗi frame.
+- **Mặt sân vẽ sẵn:** màn chọn chế độ bốc seed ván và vẽ sẵn mặt sân ở nền (`GroundCache.warmUp`, bất đồng bộ); trang chủ vẽ sẵn sân của ván đã lưu. Nút **Đổi mặt sân** trên màn chơi bốc ngẫu nhiên kiểu sân + bố trí mới (vẽ ngầm xong mới thay).
 - **Bàn chơi toàn màn hình:** HUD nổi ở các góc. Thẻ người chơi nằm ở góc gần cạnh của người đó. Dân và quan đã ăn hiển thị bằng hình viên sỏi và viên ngọc kèm số, không dùng chữ. Giao diện mặc định là theme sáng, tông tươi.
 - Trạng thái logic và trạng thái hiển thị được tách riêng. Engine tính ra trạng thái cuối cùng cùng
   danh sách event. Flame phát lại các event đó thành animation (bốc, rải từng viên theo đường cong,
@@ -120,7 +121,7 @@ Tắt bằng `kOnlineEnabled = false` trong `lib/app/features.dart`: không có 
 
 ## Đã biết / TODO
 
-- Âm thanh là WAV tổng hợp, phát qua `audioplayers`. Nếu nền tảng không phát được thì game im lặng
+- Âm thanh tổng hợp bằng code (44,1 kHz): sỏi rơi mô phỏng cộng hưởng đá (6 biến thể luân phiên), ăn dân = vốc nắm sỏi, ăn quan = đá nặng + 2 nốt đàn t'rưng, thắng = giai điệu ngũ cung; có vang nhẹ, chuẩn hoá âm lượng. Phát qua `audioplayers`. Nếu nền tảng không phát được thì game im lặng
   và không báo lỗi. Trên web, trình duyệt chỉ cho phát sau lần chạm đầu tiên.
 - Trên web, `compute` chạy AI ngay trên main thread. Mức Hard có thể chặn UI tới khoảng 450 ms.
 - Bàn tam giác trên điện thoại dọc 360 px có ô khoảng 35 px. Vùng chạm vẫn ≥ 44 px, nhưng chưa có

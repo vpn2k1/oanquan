@@ -8,6 +8,20 @@ import '../../app/router.dart';
 import '../../app/widgets.dart';
 import '../game/data/save_repository.dart';
 import '../game/game_session.dart';
+import '../settings/settings_controller.dart';
+
+/// Vẽ sẵn mặt sân của ván đã lưu để "Tiếp tục ván" vào là có ngay.
+void _warmSavedGround(BuildContext context, WidgetRef ref) {
+  final size = MediaQuery.sizeOf(context);
+  final dpr = MediaQuery.devicePixelRatioOf(context);
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final save = ref.read(saveRepositoryProvider).load();
+    if (save == null) return;
+    final seed = save.current.config.seed;
+    final style = FolkStyle.resolve(ref.read(settingsProvider).boardStyle, seed);
+    GroundCache.warmUp(size, dpr, style.ground, seed);
+  });
+}
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -16,6 +30,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final hasSave = ref.watch(saveRepositoryProvider).hasSave;
+    if (hasSave) _warmSavedGround(context, ref);
     final theme = Theme.of(context);
     final brand = <Widget>[
       const Center(child: LogoMark(size: 128)),
