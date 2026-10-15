@@ -1,93 +1,70 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/game/flame/pieces_painter.dart';
+import '../features/settings/settings_controller.dart';
+import 'folk_art.dart';
 import 'folk_icon.dart';
 import 'theme.dart';
 
 export 'folk_icon.dart';
 
-/// Nền chung: xanh ngọc đậm (tối) hoặc kem (sáng) với hoa văn mờ.
-class AppBackground extends StatelessWidget {
-  const AppBackground({super.key, required this.child});
+/// Nền chung: mặt sân dân dã (đất / xi măng / gạch bát) theo cài đặt,
+/// phủ một lớp sáng mỏng để chữ trên menu dễ đọc.
+class AppBackground extends ConsumerWidget {
+  const AppBackground({super.key, required this.child, this.veil = true});
   final Widget child;
 
+  /// Lớp phủ làm dịu nền.
+  final bool veil;
+
+  /// Seed cho chế độ "ngẫu nhiên": cố định trong một lần mở app.
+  static final launchSeed = Random().nextInt(1 << 30);
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final setting = ref.watch(settingsProvider.select((s) => s.boardStyle));
+    final style = FolkStyle.resolve(setting, launchSeed);
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: dark
-              ? const [AppColors.tealMid, AppColors.tealDeep]
-              : const [AppColors.cream, AppColors.mint],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        RepaintBoundary(
+          child: CustomPaint(painter: GroundPainter(style.ground, launchSeed)),
         ),
-      ),
-      child: CustomPaint(painter: _PatternPainter(dark), child: child),
+        if (veil)
+          ColoredBox(
+            color: dark ? const Color(0x99102020) : const Color(0x59FFF8EA),
+          ),
+        child,
+      ],
     );
   }
 }
 
-class _PatternPainter extends CustomPainter {
-  _PatternPainter(this.dark);
-  final bool dark;
+/// Vẽ mặt sân từ ảnh đã raster hóa (cache).
+class GroundPainter extends CustomPainter {
+  GroundPainter(this.kind, this.seed);
+  final GroundKind kind;
+  final int seed;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..color = (dark ? Colors.white : AppColors.turquoise).withValues(
-        alpha: dark ? 0.05 : 0.12,
-      );
-    const step = 72.0;
-    for (var y = -step; y < size.height + step; y += step) {
-      for (var x = -step; x < size.width + step; x += step) {
-        final o = Offset(x + ((y / step).round().isOdd ? step / 2 : 0), y);
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: o - const Offset(0, 9),
-            width: 12,
-            height: 22,
-          ),
-          p,
-        );
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: o + const Offset(-8, 1),
-            width: 12,
-            height: 19,
-          ),
-          p,
-        );
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: o + const Offset(8, 1),
-            width: 12,
-            height: 19,
-          ),
-          p,
-        );
-        canvas.drawArc(
-          Rect.fromCenter(
-            center: o + const Offset(0, 8),
-            width: 32,
-            height: 13,
-          ),
-          0,
-          pi,
-          false,
-          p,
-        );
-      }
-    }
+    if (size.isEmpty) return;
+    final dpr = WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
+    final img = GroundCache.image(size, dpr, kind, seed);
+    canvas.drawImageRect(
+      img,
+      Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble()),
+      Offset.zero & size,
+      Paint()..filterQuality = FilterQuality.medium,
+    );
   }
 
   @override
-  bool shouldRepaint(_PatternPainter old) => old.dark != dark;
+  bool shouldRepaint(GroundPainter old) => old.kind != kind || old.seed != seed;
 }
 
 /// Logo quan chibi đã chọn, dùng chung cho màn chào và màn chính.

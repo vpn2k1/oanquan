@@ -65,8 +65,11 @@ ThemeData buildTheme(Brightness b) {
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
+      // Nền đặc để nút đọc rõ trên mọi mặt sân (đất, xi măng, gạch đỏ).
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(48, 48),
+        backgroundColor: dark ? const Color(0xE612403C) : const Color(0xE6FFFBF2),
+        side: BorderSide(color: dark ? const Color(0xFF6FE6D6) : AppColors.teal, width: 1.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     ),

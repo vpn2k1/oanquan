@@ -240,5 +240,12 @@
         "type": "int"
       }
     }
-  }
+  },
+  "settingsBoardStyle": "Mặt sân & nét vẽ",
+  "styleRandom": "Ngẫu nhiên mỗi ván",
+  "style_dirt_stick": "Sân đất · que vạch",
+  "style_concrete_chalk": "Xi măng · phấn trắng",
+  "style_tiles_chalk": "Sân gạch bát · phấn",
+  "style_concrete_brick": "Xi măng · gạch non",
+  "style_concrete_charcoal": "Xi măng · than củi"
 }

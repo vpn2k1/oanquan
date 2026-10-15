@@ -27,6 +27,7 @@ class AppSettings {
     this.colorBlind = false,
     this.themeMode = ThemeMode.light,
     this.localeCode = 'vi',
+    this.boardStyle = 'random',
   });
 
   final bool sound;
@@ -37,6 +38,9 @@ class AppSettings {
   final ThemeMode themeMode;
   final String localeCode;
 
+  /// Mặt sân + nét vẽ: id `FolkStyle` hoặc `'random'` (ngẫu nhiên mỗi ván).
+  final String boardStyle;
+
   AppSettings copyWith({
     bool? sound,
     bool? haptics,
@@ -45,6 +49,7 @@ class AppSettings {
     bool? colorBlind,
     ThemeMode? themeMode,
     String? localeCode,
+    String? boardStyle,
   }) =>
       AppSettings(
         sound: sound ?? this.sound,
@@ -54,6 +59,7 @@ class AppSettings {
         colorBlind: colorBlind ?? this.colorBlind,
         themeMode: themeMode ?? this.themeMode,
         localeCode: localeCode ?? this.localeCode,
+        boardStyle: boardStyle ?? this.boardStyle,
       );
 }
 
@@ -78,6 +84,7 @@ class SettingsController extends Notifier<AppSettings> {
       colorBlind: p.getBool('${_prefix}colorBlind') ?? false,
       themeMode: pick(ThemeMode.values, 'themeMode', ThemeMode.light),
       localeCode: p.getString('${_prefix}locale') ?? 'vi',
+      boardStyle: p.getString('${_prefix}boardStyle') ?? 'random',
     );
   }
 
@@ -91,6 +98,7 @@ class SettingsController extends Notifier<AppSettings> {
     p.setBool('${_prefix}colorBlind', s.colorBlind);
     p.setString('${_prefix}themeMode', s.themeMode.name);
     p.setString('${_prefix}locale', s.localeCode);
+    p.setString('${_prefix}boardStyle', s.boardStyle);
   }
 
   void toggleSound() => update(state.copyWith(sound: !state.sound));

@@ -5,8 +5,7 @@ import 'dart:ui';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart'
-    show LinearGradient, Alignment, EdgeInsets;
+import 'package:flutter/painting.dart' show EdgeInsets;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show KeyEventResult;
 
@@ -18,6 +17,7 @@ import '../../../core/game_models/game_state.dart';
 import '../../../core/game_models/move.dart';
 import '../audio/sound_service.dart';
 import '../game_session.dart';
+import '../../../app/folk_art.dart';
 import 'board_geometry.dart';
 import 'components.dart';
 import 'pieces_painter.dart';
@@ -27,10 +27,14 @@ class BoardVisuals {
     this.reducedMotion = false,
     this.speedFactor = 1.0,
     this.colorBlind = false,
+    this.styleSetting = FolkStyle.randomId,
   });
   final bool reducedMotion;
   final double speedFactor;
   final bool colorBlind;
+
+  /// Id [FolkStyle] hoặc [FolkStyle.randomId].
+  final String styleSetting;
 }
 
 class BoardCallbacks {
@@ -93,7 +97,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   Offset handPos = Offset.zero;
   Color handColor = AppColors.cream;
 
-  Picture? _boardPicture;
+  Image? _boardImage;
   Set<int> _legal = const {};
 
   GameState get state => _state;
@@ -133,7 +137,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       Size(size.x, size.y),
       area: area,
     );
-    _boardPicture = null;
+    _boardImage = null;
     for (final h in _hits) {
       final c = geo!.cells[h.cellId];
       h.place(c.center, c.hitRadius);
@@ -151,10 +155,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   }
 
   void updateVisuals(BoardVisuals v) {
-    final cb = v.colorBlind != visuals.colorBlind;
+    final redraw = v.colorBlind != visuals.colorBlind || v.styleSetting != visuals.styleSetting;
     visuals = v;
-    if (cb) _boardPicture = null;
+    if (redraw) _boardImage = null;
   }
+
+  /// Mặt sân + nét vẽ của ván này (ngẫu nhiên theo seed ván nếu chọn "ngẫu nhiên").
+  FolkStyle get style => FolkStyle.resolve(visuals.styleSetting, _state.config.seed);
 
   // ---------------------------------------------------------------------------
   // Đồng bộ trạng thái
@@ -594,7 +601,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   void renderBoard(Canvas canvas) {
     final g = geo;
     if (g == null) return;
-    canvas.drawPicture(_boardPicture ??= _recordStatic(g));
+    final img = _boardImage ??= _rasterStatic(g);
+    canvas.drawImageRect(
+      img,
+      Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble()),
+      Rect.fromLTWH(0, 0, size.x, size.y),
+      Paint()..filterQuality = FilterQuality.medium,
+    );
     final u = g.unit;
 
     // Dải màu người đến lượt sáng lên.
@@ -624,13 +637,20 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         );
       }
       if (_legal.contains(i)) {
-        final a = 0.45 + 0.4 * (0.5 + 0.5 * sin(_clock * 4.2 + i * 0.3));
+        final a = 0.5 + 0.4 * (0.5 + 0.5 * sin(_clock * 4.2 + i * 0.3));
         canvas.drawPath(
           c.outline,
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = max(2, u * 0.06)
-            ..color = const Color(0xFFFFE6A0).withValues(alpha: a),
+            ..strokeWidth = max(3, u * 0.1)
+            ..color = const Color(0xFF3A2410).withValues(alpha: a * 0.35),
+        );
+        canvas.drawPath(
+          c.outline,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = max(2, u * 0.055)
+            ..color = const Color(0xFFFFD447).withValues(alpha: a),
         );
       }
       if (hint?.sourceCellId == i) {
@@ -644,6 +664,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         );
       }
       if (selected == i) {
+        canvas.drawPath(
+          c.outline,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = max(5, u * 0.16)
+            ..color = const Color(0x66000000),
+        );
         canvas.drawPath(
           c.outline,
           Paint()
@@ -760,125 +787,74 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     }
   }
 
-  Picture _recordStatic(BoardGeometry g) {
+  /// Mặt sân + bàn kẻ tay → một ảnh (vẽ lại chỉ khi đổi kích thước/kiểu).
+  Image _rasterStatic(BoardGeometry g) {
+    final dpr = PlatformDispatcher.instance.views.first.devicePixelRatio;
+    final sz = Size(size.x, size.y);
+    final w = max(1, (sz.width * dpr).round());
+    final h = max(1, (sz.height * dpr).round());
     final rec = PictureRecorder();
-    final canvas = Canvas(rec);
-    final u = g.unit;
-    final bounds = g.boardOutline.getBounds();
+    final canvas = Canvas(rec)..scale(dpr);
+    final st = style;
+    final ground = GroundCache.image(sz, dpr, st.ground, _state.config.seed);
+    canvas.drawImageRect(
+      ground,
+      Rect.fromLTWH(0, 0, ground.width.toDouble(), ground.height.toDouble()),
+      Offset.zero & sz,
+      Paint(),
+    );
+    _drawSketchBoard(canvas, g, st);
+    final pic = rec.endRecording();
+    final img = pic.toImageSync(w, h);
+    pic.dispose();
+    return img;
+  }
 
-    // Bóng mềm.
-    canvas.drawPath(
-      g.boardOutline.shift(Offset(0, u * 0.18)),
-      Paint()
-        ..color = const Color(0x66000000)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.3),
-    );
-    // Gỗ mật ong.
-    canvas.drawPath(
-      g.boardOutline,
-      Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.woodLight, AppColors.wood, AppColors.woodDark],
-        ).createShader(bounds),
-    );
-    // Vân gỗ.
-    canvas.save();
-    canvas.clipPath(g.boardOutline);
-    final grain = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = max(1, u * 0.03)
-      ..color = const Color(0x14000000);
-    final rnd = Random(7);
-    for (var k = 0; k < 14; k++) {
-      final y = bounds.top + bounds.height * (k + rnd.nextDouble() * 0.6) / 14;
-      final path = Path()..moveTo(bounds.left - 10, y);
-      for (var x = bounds.left; x <= bounds.right + 20; x += u) {
-        path.quadraticBezierTo(
-          x + u * 0.5,
-          y + (rnd.nextDouble() - 0.5) * u * 0.25,
-          x + u,
-          y,
+  void _drawSketchBoard(Canvas canvas, BoardGeometry g, FolkStyle st) {
+    final u = g.unit;
+    final seed = _state.config.seed;
+    final lineW = max(2.0, u * (st.pen == PenKind.stick ? 0.075 : 0.065));
+
+    // Ô trên đất được khoét nông; trên xi măng/gạch chỉ là nét kẻ.
+    if (st.ground == GroundKind.dirt) {
+      for (final c in g.cells) {
+        canvas.drawPath(
+          c.outline,
+          Paint()
+            ..color = const Color(0x2E4A2E14)
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.08),
         );
       }
-      canvas.drawPath(path, grain);
     }
-    canvas.restore();
-    // Rãnh khắc thủ công.
-    canvas.drawPath(
-      g.innerGroove,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = max(1.5, u * 0.05)
-        ..color = AppColors.groove.withValues(alpha: 0.55),
-    );
-    canvas.drawPath(
-      g.innerGroove.shift(Offset(0, max(1, u * 0.03))),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = max(1, u * 0.025)
-        ..color = const Color(0x40FFFFFF),
-    );
-    canvas.drawPath(
-      g.boardOutline,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = max(1.5, u * 0.04)
-        ..color = AppColors.woodDark,
-    );
 
-    // Dải màu chủ sở hữu.
+    // Khung bàn và các ô — mỗi nét có seed riêng nên run tay khác nhau.
+    FolkPen.stroke(canvas, g.boardOutline, st.pen, width: lineW * 1.1, seed: seed * 31 + 1);
+    for (final c in g.cells) {
+      FolkPen.stroke(canvas, c.outline, st.pen, width: lineW, seed: seed * 31 + 7 + c.id * 13);
+    }
+
+    // Dải phấn màu đánh dấu cạnh của từng người.
     for (var p = 0; p < g.playerEdges.length; p++) {
       final (a, b) = g.playerEdges[p];
-      canvas.drawLine(
-        a,
-        b,
-        Paint()
-          ..color = playerColors[p].withValues(alpha: 0.75)
-          ..strokeWidth = u * 0.12
-          ..strokeCap = StrokeCap.round,
-      );
+      final path = Path()
+        ..moveTo(a.dx, a.dy)
+        ..lineTo(b.dx, b.dy);
+      FolkPen.stroke(canvas, path, PenKind.chalk,
+          width: u * 0.1, color: playerColors[p], seed: seed * 31 + 500 + p);
       if (visuals.colorBlind) {
-        final mid = (a + b) / 2;
         paintPlayerSymbol(
           canvas,
-          mid,
+          (a + b) / 2,
           u * 0.12,
           symbolOf(p),
-          Paint()..color = const Color(0xFFFFFFFF),
+          Paint()..color = st.ink,
         );
       }
     }
-
-    // Hố ô.
-    for (final c in g.cells) {
-      canvas.drawPath(
-        c.outline.shift(Offset(0, -u * 0.025)),
-        Paint()..color = const Color(0x40FFFFFF),
-      );
-      canvas.drawPath(c.outline, Paint()..color = AppColors.well);
-      canvas.drawPath(
-        c.outline.shift(Offset(0, u * 0.04)),
-        Paint()
-          ..color = AppColors.wellLight
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.05),
-      );
-      final owner = topo.ownerOf(c.id);
-      canvas.drawPath(
-        c.outline,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = max(1.5, u * (c.isQuan ? 0.06 : 0.05))
-          ..color = owner == null ? AppColors.gold : playerColors[owner],
-      );
-    }
-    return rec.endRecording();
   }
 
   @override
   void onRemove() {
-    _boardPicture?.dispose();
     displayScores.dispose();
     super.onRemove();
   }

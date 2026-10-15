@@ -859,6 +859,48 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'{name} trả {count} dân đã vay'**
   String repayMsg(String name, int count);
+
+  /// No description provided for @settingsBoardStyle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mặt sân & nét vẽ'**
+  String get settingsBoardStyle;
+
+  /// No description provided for @styleRandom.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ngẫu nhiên mỗi ván'**
+  String get styleRandom;
+
+  /// No description provided for @style_dirt_stick.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sân đất · que vạch'**
+  String get style_dirt_stick;
+
+  /// No description provided for @style_concrete_chalk.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xi măng · phấn trắng'**
+  String get style_concrete_chalk;
+
+  /// No description provided for @style_tiles_chalk.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sân gạch bát · phấn'**
+  String get style_tiles_chalk;
+
+  /// No description provided for @style_concrete_brick.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xi măng · gạch non'**
+  String get style_concrete_brick;
+
+  /// No description provided for @style_concrete_charcoal.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xi măng · than củi'**
+  String get style_concrete_charcoal;
 }
 
 class _AppLocalizationsDelegate

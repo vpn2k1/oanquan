@@ -31,6 +31,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     reducedMotion: s.reducedMotion,
     speedFactor: s.speed.factor,
     colorBlind: s.colorBlind,
+    styleSetting: s.boardStyle,
   );
 
   @override

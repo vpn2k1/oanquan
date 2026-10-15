@@ -431,4 +431,25 @@ class AppLocalizationsVi extends AppLocalizations {
   String repayMsg(String name, int count) {
     return '$name trả $count dân đã vay';
   }
+
+  @override
+  String get settingsBoardStyle => 'Mặt sân & nét vẽ';
+
+  @override
+  String get styleRandom => 'Ngẫu nhiên mỗi ván';
+
+  @override
+  String get style_dirt_stick => 'Sân đất · que vạch';
+
+  @override
+  String get style_concrete_chalk => 'Xi măng · phấn trắng';
+
+  @override
+  String get style_tiles_chalk => 'Sân gạch bát · phấn';
+
+  @override
+  String get style_concrete_brick => 'Xi măng · gạch non';
+
+  @override
+  String get style_concrete_charcoal => 'Xi măng · than củi';
 }

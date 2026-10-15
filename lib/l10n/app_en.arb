@@ -146,5 +146,12 @@
         "type": "int"
       }
     }
-  }
+  },
+  "settingsBoardStyle": "Ground & drawing",
+  "styleRandom": "Random each game",
+  "style_dirt_stick": "Dirt · stick",
+  "style_concrete_chalk": "Concrete · white chalk",
+  "style_tiles_chalk": "Brick tiles · chalk",
+  "style_concrete_brick": "Concrete · brick shard",
+  "style_concrete_charcoal": "Concrete · charcoal"
 }

@@ -8,6 +8,11 @@ import '../../app/widgets.dart';
 import '../game/data/save_repository.dart';
 import '../game/game_session.dart';
 
+const _chalkShadow = [
+  Shadow(color: Color(0xCC2B1A0C), blurRadius: 6, offset: Offset(0, 1.5)),
+  Shadow(color: Color(0x662B1A0C), blurRadius: 14),
+];
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -22,15 +27,20 @@ class HomeScreen extends ConsumerWidget {
       Text(
         l.appTitle,
         textAlign: TextAlign.center,
+        // Chữ phấn: trắng ngà, bóng tối để nổi trên đất/xi măng/gạch.
         style: theme.textTheme.headlineLarge?.copyWith(
           fontWeight: FontWeight.w900,
+          color: const Color(0xFFFFFBF0),
+          shadows: _chalkShadow,
         ),
       ),
       Text(
         l.appSubtitle,
         textAlign: TextAlign.center,
         style: theme.textTheme.titleMedium?.copyWith(
-          color: theme.colorScheme.primary,
+          color: const Color(0xFFFFE9A8),
+          fontWeight: FontWeight.w700,
+          shadows: _chalkShadow,
         ),
       ),
     ];
@@ -84,10 +94,19 @@ class HomeScreen extends ConsumerWidget {
       ),
     ];
     final note = <Widget>[
-      Text(
-        l.rulesetNote,
-        textAlign: TextAlign.center,
-        style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Text(
+            l.rulesetNote,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall,
+          ),
+        ),
       ),
     ];
     return Scaffold(

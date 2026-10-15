@@ -431,4 +431,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String repayMsg(String name, int count) {
     return '$name repays $count borrowed seeds';
   }
+
+  @override
+  String get settingsBoardStyle => 'Ground & drawing';
+
+  @override
+  String get styleRandom => 'Random each game';
+
+  @override
+  String get style_dirt_stick => 'Dirt · stick';
+
+  @override
+  String get style_concrete_chalk => 'Concrete · white chalk';
+
+  @override
+  String get style_tiles_chalk => 'Brick tiles · chalk';
+
+  @override
+  String get style_concrete_brick => 'Concrete · brick shard';
+
+  @override
+  String get style_concrete_charcoal => 'Concrete · charcoal';
 }
