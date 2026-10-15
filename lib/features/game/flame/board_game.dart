@@ -183,7 +183,22 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     pulse = List.filled(s.ringLength, 0);
     flash = List.filled(s.ringLength, 0);
     displayScores.value = [for (final p in s.players) p.score];
+    pileQuan = [for (final p in s.players) p.quanCaptured];
   }
+
+  /// Số quan đang nằm trong đống quân ăn của từng người (hiển thị).
+  List<int> pileQuan = const [];
+
+  /// Số sỏi hiển thị trong đống của người `p` = điểm hiển thị − giá trị quan.
+  int pileDan(int p) {
+    final sc = displayScores.value;
+    if (p >= sc.length) return 0;
+    return max(0, sc[p] - pileQuan[p] * _state.config.ruleset.quanValue);
+  }
+
+  /// Vị trí ô trống kế tiếp trong đống của người `p` (đích bay của quân ăn).
+  Offset _pileTarget(BoardGeometry g, int p, int extra) =>
+      g.pileSlot(p, pileQuan[p] * 3 + pileDan(p) + extra);
 
   /// Đồng bộ cứng (ván mới, undo, khôi phục).
   void syncTo(GameState s) {
@@ -429,6 +444,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       case CaptureQuanEvent(:final playerId, :final cellId, :final value):
         flash[cellId] = 1;
         scores[playerId] += value;
+        pileQuan[playerId]++;
         if (g != null) {
           _float('+$value', g.cells[cellId].center, AppColors.gold);
         }
@@ -470,13 +486,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         handCount = count;
         handPos = g.cells[cellId].center;
         handColor = _cellStoneColor(cellId);
-        await _wait(0.16);
+        await _wait(0.08);
       case DropEvent(:final cellId):
         final to = g.cells[cellId].center;
         final piece = FlyingPiece(
           from: handPos - Offset(0, u * 0.45),
           to: to,
-          duration: 0.17 * visuals.speedFactor,
+          duration: 0.12 * visuals.speedFactor,
           kind: FlyKind.stone,
           radius: u * 0.1,
           color: handColor,
@@ -492,30 +508,34 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         callbacks.onSound(Sfx.drop);
       case CaptureDanEvent(:final playerId, :final cellId, :final count):
         flash[cellId] = 1;
-        await _wait(0.12);
+        await _wait(0.05);
         final from = g.cells[cellId].center;
-        final color = _cellStoneColor(cellId);
         dan[cellId] = 0;
-        for (var i = 0; i < min(count, 6); i++) {
-          add(
-            FlyingPiece(
-              from: from + Offset.fromDirection(i * 1.3, u * 0.12),
-              to: g.playerAnchors[playerId],
-              duration: 0.42 * visuals.speedFactor,
-              kind: FlyKind.stone,
-              radius: u * 0.11,
-              color: color,
-              lift: 0.25,
-              fadeOut: true,
-              delay: i * 0.04,
-            ),
+        // Mỗi viên bay vào đúng chỗ trống kế tiếp trong đống quân ăn.
+        final shown = min(count, 12);
+        FlyingPiece? last;
+        for (var i = 0; i < shown; i++) {
+          last = FlyingPiece(
+            from: from + Offset.fromDirection(i * 1.3, u * 0.12),
+            to: _pileTarget(g, playerId, i),
+            duration: 0.3 * visuals.speedFactor,
+            kind: FlyKind.stone,
+            radius: g.pebbleRadius,
+            color: const Color(0xFFC9C1B2),
+            lift: 0.25,
+            delay: i * 0.03 * visuals.speedFactor,
           );
+          add(last);
         }
-        _float('+$count', from, playerColors[playerId]);
+        _float('+$count', from, Rc.text);
+        callbacks.onSound(Sfx.capture);
+        await last?.done.future;
         scores[playerId] += count * _state.config.ruleset.danValue;
         displayScores.value = [...scores];
-        callbacks.onSound(Sfx.capture);
-        await _wait(0.5);
+        for (final c in children.whereType<FlyingPiece>().toList()) {
+          if (c.done.isCompleted) c.removeFromParent();
+        }
+        await _wait(0.05);
       case CaptureQuanEvent(:final playerId, :final cellId, :final value):
         final from = g.cells[cellId].center;
         flash[cellId] = 1;
@@ -523,19 +543,20 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         add(Sparkle(from, u * 0.8));
         final gem = FlyingPiece(
           from: from,
-          to: g.playerAnchors[playerId],
-          duration: 0.75 * visuals.speedFactor,
+          to: g.pileSlot(playerId, pileQuan[playerId] * 3 + 1),
+          duration: 0.5 * visuals.speedFactor,
           kind: FlyKind.gem,
-          radius: u * 0.42,
+          radius: g.pebbleRadius * 2.4,
           lift: 0.3,
-          fadeOut: true,
         );
         add(gem);
         _float('+$value', from - Offset(0, u * 0.3), AppColors.gold, big: true);
-        scores[playerId] += value;
-        displayScores.value = [...scores];
         callbacks.onSound(Sfx.quan);
         await gem.done.future;
+        gem.removeFromParent();
+        pileQuan[playerId]++;
+        scores[playerId] += value;
+        displayScores.value = [...scores];
       case RefillEvent(:final playerId, :final cellIds, :final cost, :final borrowed):
         for (final b in borrowed.entries) {
           scores[b.key] -= b.value;
@@ -551,7 +572,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         _float('−$cost', g.playerAnchors[playerId], playerColors[playerId]);
         callbacks.onNotice(e);
         callbacks.onSound(Sfx.refill);
-        await _wait(0.6);
+        await _wait(0.4);
       case CollectEvent(:final playerId, :final cellIds, :final count):
         for (final c in cellIds) {
           flash[c] = 1;
@@ -559,8 +580,8 @@ class OQuanGame extends FlameGame with KeyboardEvents {
           for (var i = 0; i < min(dan[c], 3); i++) {
             add(FlyingPiece(
               from: from + Offset.fromDirection(i * 2.1, u * 0.12),
-              to: g.playerAnchors[playerId],
-              duration: 0.45 * visuals.speedFactor,
+              to: _pileTarget(g, playerId, i),
+              duration: 0.32 * visuals.speedFactor,
               kind: FlyKind.stone,
               radius: u * 0.11,
               color: playerColors[playerId],
@@ -571,11 +592,11 @@ class OQuanGame extends FlameGame with KeyboardEvents {
           }
           dan[c] = 0;
         }
-        _float('+$count', g.playerAnchors[playerId], playerColors[playerId]);
+        _float('+$count', g.pileLabel(playerId), Rc.text);
+        callbacks.onSound(Sfx.capture);
+        await _wait(0.35);
         scores[playerId] += count * _state.config.ruleset.danValue;
         displayScores.value = [...scores];
-        callbacks.onSound(Sfx.capture);
-        await _wait(0.55);
       case RepayEvent(:final fromId, :final toId, :final amount):
         scores[fromId] -= amount;
         scores[toId] += amount;
@@ -583,10 +604,10 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         _float('−$amount', g.playerAnchors[fromId], playerColors[fromId]);
         _float('+$amount', g.playerAnchors[toId], playerColors[toId]);
         callbacks.onNotice(e);
-        await _wait(0.5);
+        await _wait(0.35);
       case EliminateEvent():
         callbacks.onNotice(e);
-        await _wait(0.5);
+        await _wait(0.4);
       case RuleLoopGuardEvent():
         callbacks.onNotice(e);
         await _wait(0.3);
@@ -595,7 +616,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         callbacks.onSound(Sfx.turn);
       case GameOverEvent():
         callbacks.onSound(Sfx.win);
-        await _wait(0.4);
+        await _wait(0.3);
     }
   }
 
@@ -618,6 +639,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       Rect.fromLTWH(0, 0, size.x, size.y),
       Paint()..filterQuality = FilterQuality.medium,
     );
+    _renderPiles(canvas, g);
     final u = g.unit;
 
     // Dải màu người đến lượt sáng lên.
@@ -734,6 +756,25 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     }
   }
 
+  /// Đống quân đã ăn của từng người: quan (đá nâu) đầu hàng, rồi sỏi; số điểm cuối hàng.
+  void _renderPiles(Canvas canvas, BoardGeometry g) {
+    final r = g.pebbleRadius;
+    final scores = displayScores.value;
+    for (var p = 0; p < g.playerPiles.length && p < pileQuan.length; p++) {
+      for (var q = 0; q < pileQuan[p]; q++) {
+        PiecesPainter.quanStone(canvas, g.pileSlot(p, q * 3 + 1), r * 1.92);
+      }
+      final n = min(pileDan(p), 60);
+      final start = pileQuan[p] * 3;
+      for (var k = 0; k < n; k++) {
+        PiecesPainter.pebble(canvas, g.pileSlot(p, start + k), r, variant: p * 997 + k);
+      }
+      if (p < scores.length) {
+        PiecesPainter.count(canvas, g.pileLabel(p), max(11, g.unit * 0.26), scores[p]);
+      }
+    }
+  }
+
   void _renderCellContents(Canvas canvas, CellGeometry c, double u) {
     final i = c.id;
     final count = dan[i];
@@ -795,7 +836,10 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     DotGridPainter.paintGrid(canvas, sz, dark);
     // Khay bàn: mặt sân dân dã trong một khung bo góc.
     final u = g.unit;
-    final b = g.boardOutline.getBounds().inflate(u * 0.5);
+    var b = g.boardOutline.getBounds().inflate(u * 0.5);
+    for (final (pa, pb) in g.playerPiles) {
+      b = b.expandToInclude(Rect.fromPoints(pa, pb).inflate(u * 0.34));
+    }
     final tray = RRect.fromRectAndRadius(
       Rect.fromLTRB(max(4, b.left), max(4, b.top), min(sz.width - 4, b.right), min(sz.height - 4, b.bottom)),
       Radius.circular(u * 0.35),

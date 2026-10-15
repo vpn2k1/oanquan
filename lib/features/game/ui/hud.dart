@@ -258,15 +258,15 @@ class HudButton extends StatelessWidget {
             height: size,
             width: label == null ? size : null,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: label == null ? 0 : 16),
+              padding: EdgeInsets.symmetric(horizontal: label == null ? 0 : 12),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FolkIcon(icon, size: size * 0.46, color: fg),
                   if (label != null) ...[
-                    const SizedBox(width: 8),
-                    Text(label!, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: fg)),
+                    const SizedBox(width: 6),
+                    Text(label!, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: fg)),
                   ],
                 ],
               ),

@@ -12,9 +12,9 @@ enum AnimSpeed { slow, normal, fast }
 extension AnimSpeedX on AnimSpeed {
   /// Hệ số nhân thời lượng animation.
   double get factor => switch (this) {
-        AnimSpeed.slow => 1.5,
+        AnimSpeed.slow => 1.7,
         AnimSpeed.normal => 1.0,
-        AnimSpeed.fast => 0.55,
+        AnimSpeed.fast => 0.45,
       };
 }
 

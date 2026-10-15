@@ -223,6 +223,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       tooltip: l.pause,
       onPressed: _pauseMenu,
     );
+    final speedNames = {
+      AnimSpeed.slow: l.speedSlow,
+      AnimSpeed.normal: l.speedNormal,
+      AnimSpeed.fast: l.speedFast,
+    };
+    // Như Recess: chạm để đổi nhịp rải Chậm → Vừa → Nhanh.
+    final speed = HudButton(
+      key: const Key('speed'),
+      icon: Icons.speed_rounded,
+      tooltip: l.settingsAnimSpeed,
+      label: speedNames[settings.speed],
+      onPressed: () {
+        final next = AnimSpeed
+            .values[(settings.speed.index + 1) % AnimSpeed.values.length];
+        ref
+            .read(settingsProvider.notifier)
+            .update(settings.copyWith(speed: next));
+      },
+    );
     final sound = HudButton(
       icon: settings.sound ? Icons.volume_up_rounded : Icons.volume_off_rounded,
       tooltip: settings.sound ? l.soundOff : l.soundOn,
@@ -313,9 +332,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         Row(
                           children: [
                             pause,
+                            const SizedBox(width: 6),
+                            speed,
                             const Spacer(),
                             sound,
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             rules,
                           ],
                         ),
@@ -362,6 +383,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     child: Row(
                       children: [
                         pause,
+                        const SizedBox(width: 8),
+                        speed,
                         const Spacer(),
                         sound,
                         const SizedBox(width: 8),

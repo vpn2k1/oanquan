@@ -108,7 +108,7 @@ class GameSessionController extends Notifier<GameSessionState?> {
   int _session = 0;
 
   /// Độ trễ tối thiểu trước nước AI để người xem theo kịp.
-  Duration aiDelay = const Duration(milliseconds: 450);
+  Duration aiDelay = const Duration(milliseconds: 250);
 
   @override
   GameSessionState? build() => null;

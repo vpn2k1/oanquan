@@ -53,6 +53,7 @@ class BoardGeometry {
     required this.innerGroove,
     required this.playerAnchors,
     required this.playerEdges,
+    required this.playerPiles,
   });
 
   final GameConfig config;
@@ -69,6 +70,32 @@ class BoardGeometry {
 
   /// Đoạn cạnh thuộc từng người (vẽ dải màu chủ sở hữu).
   final List<(Offset, Offset)> playerEdges;
+
+  /// Hàng quân đã ăn của từng người (đầu → cuối), toạ độ màn hình.
+  final List<(Offset, Offset)> playerPiles;
+
+  /// Vị trí viên thứ `index` trong đống quân ăn: xếp theo hàng, đầy thì chồng
+  /// hàng lệch nửa viên (tối đa 3 lớp).
+  Offset pileSlot(int player, int index, {double? radius}) {
+    final (a, b) = playerPiles[player];
+    final r = radius ?? pebbleRadius;
+    final len = (b - a).distance;
+    final dir = (b - a) / len;
+    final perRow = max(1, (len / (r * 2.15)).floor());
+    final row = min(2, index ~/ perRow);
+    final slot = index % perRow;
+    final n = Offset(-dir.dy, dir.dx);
+    return a + dir * (r + slot * r * 2.15 + (row.isOdd ? r : 0)) + n * (row * r * 0.55);
+  }
+
+  double get pebbleRadius => unit * 0.11;
+
+  /// Điểm đặt số điểm ở cuối hàng.
+  Offset pileLabel(int player) {
+    final (a, b) = playerPiles[player];
+    final dir = (b - a) / (b - a).distance;
+    return b + dir * (unit * 0.42);
+  }
 
   static const _danRatio = 0.84;
 
@@ -119,6 +146,7 @@ class BoardGeometry {
               tf(a).dy.clamp(8, max(8, viewport.height - 8))),
       ],
       playerEdges: [for (final e in raw.edges) (tf(e.$1), tf(e.$2))],
+      playerPiles: [for (final e in raw.piles) (tf(e.$1), tf(e.$2))],
     );
   }
 
@@ -227,8 +255,13 @@ class BoardGeometry {
         (Offset(half * u, 1.12 * u), Offset(-half * u, 1.12 * u)),
         (Offset(-half * u, -1.12 * u), Offset(half * u, -1.12 * u)),
       ],
-      // Vùng chứa: bàn + mũi tên chọn hướng phía ngoài mỗi hàng.
-      bounds: Rect.fromLTRB(-bw - 0.1, -2.05 * u, bw + 0.1, 2.05 * u),
+      // Như Recess: quân ăn xếp thành hàng ngoài mép bàn, phía người ăn.
+      piles: [
+        (Offset(-bw + 0.2 * u, 1.62 * u), Offset(bw - 0.9 * u, 1.62 * u)),
+        (Offset(-bw + 0.2 * u, -1.62 * u), Offset(bw - 0.9 * u, -1.62 * u)),
+      ],
+      // Vùng chứa: bàn + hàng quân ăn + lề khay.
+      bounds: Rect.fromLTRB(-bw - 0.5 * u, -2.05 * u, bw + 0.5 * u, 2.05 * u),
     );
   }
 
@@ -249,6 +282,7 @@ class BoardGeometry {
     final cells = List<_RawCell?>.filled(cfg.ringLength, null);
     final anchors = <Offset>[];
     final edges = <(Offset, Offset)>[];
+    final piles = <(Offset, Offset)>[];
     final apothem = r * cos(pi / n);
     for (var p = 0; p < n; p++) {
       final a = verts[p];
@@ -286,6 +320,9 @@ class BoardGeometry {
       );
       anchors.add(out * (apothem + 1.6 * u));
       edges.add((a + dir * (0.9 * u) + out * (0.62 * u), b - dir * (0.9 * u) + out * (0.62 * u)));
+      // Bàn đa giác: lòng bàn còn trống → xếp quân ăn ở phía trong, sát cạnh mình.
+      final inner = -out * (0.88 * u);
+      piles.add((a + dir * (1.9 * u) + inner, b - dir * (2.4 * u) + inner));
     }
     // Viền bàn: đa giác giãn ra ngoài, bo góc.
     Path inflated(double d, double radius) {
@@ -317,6 +354,7 @@ class BoardGeometry {
       groove: groove,
       anchors: anchors,
       edges: edges,
+      piles: piles,
       bounds: bounds.inflate(0.4 * u),
     );
   }
@@ -389,6 +427,7 @@ class _Raw {
     required this.groove,
     required this.anchors,
     required this.edges,
+    required this.piles,
     required this.bounds,
   });
   final double unit;
@@ -397,5 +436,8 @@ class _Raw {
   final Path groove;
   final List<Offset> anchors;
   final List<(Offset, Offset)> edges;
+
+  /// Hàng đặt quân đã ăn của từng người: (đầu, cuối) — số điểm ở sau đầu cuối.
+  final List<(Offset, Offset)> piles;
   final Rect bounds;
 }
