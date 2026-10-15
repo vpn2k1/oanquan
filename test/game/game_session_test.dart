@@ -99,6 +99,9 @@ void main() {
     expect(s.current.isOver, isTrue);
     if (s.pending != null) ctl.animationDone(s.pending!.id);
     expect(c.read(statsProvider).played, 1);
+    expect(c.read(gameSessionProvider)!.canUndo, isFalse, reason: 'ván xong không undo được');
+    ctl.undo();
+    expect(c.read(gameSessionProvider)!.current.isOver, isTrue);
     expect(c.read(saveRepositoryProvider).hasSave, isFalse, reason: 'ván xong thì xóa bản lưu');
     expect(s.current.history.where((m) => m.playerId == 1), isNotEmpty);
   });

@@ -83,7 +83,7 @@ Các điểm khác:
 - `rulesetConfig` cho phép chỉnh `initialDan`, `quanValue`, `quanCaptureThreshold`, `refillCost`.
   `RulesetConfig.isPreset` cho biết ván có dùng preset hay không. Chế độ xếp hạng chưa có.
 
-## Test (78 test)
+## Test (80 test)
 
 | Nhóm | Nội dung |
 |---|---|

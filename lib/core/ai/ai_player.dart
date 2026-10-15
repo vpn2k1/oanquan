@@ -10,7 +10,11 @@ import 'evaluation.dart';
 class _Timeout implements Exception {}
 
 class AiSettings {
-  const AiSettings({required this.maxDepth, required this.budget, this.noise = 0});
+  const AiSettings({
+    required this.maxDepth,
+    required this.budget,
+    this.noise = 0,
+  });
 
   final int maxDepth;
   final Duration budget;
@@ -19,15 +23,20 @@ class AiSettings {
   final double noise;
 
   static AiSettings forLevel(AiLevel level, int playerCount) => switch (level) {
-        AiLevel.easy => const AiSettings(
-            maxDepth: 1, budget: Duration(milliseconds: 60), noise: 0.35),
-        AiLevel.medium => AiSettings(
-            maxDepth: playerCount == 2 ? 3 : 2,
-            budget: const Duration(milliseconds: 200)),
-        AiLevel.hard => AiSettings(
-            maxDepth: playerCount == 2 ? 9 : 4,
-            budget: const Duration(milliseconds: 450)),
-      };
+    AiLevel.easy => const AiSettings(
+      maxDepth: 1,
+      budget: Duration(milliseconds: 60),
+      noise: 0.35,
+    ),
+    AiLevel.medium => AiSettings(
+      maxDepth: playerCount == 2 ? 3 : 2,
+      budget: const Duration(milliseconds: 200),
+    ),
+    AiLevel.hard => AiSettings(
+      maxDepth: playerCount == 2 ? 9 : 4,
+      budget: const Duration(milliseconds: 450),
+    ),
+  };
 }
 
 /// AI thuần Dart: Minimax + alpha-beta (2 người), Max-N (3/4 người).
@@ -40,15 +49,24 @@ class AiPlayer {
   late Duration _budget;
   int nodes = 0;
 
-  Move chooseMove(GameState s, {AiLevel? level, AiSettings? settings, int? seed}) {
+  Move chooseMove(
+    GameState s, {
+    AiLevel? level,
+    AiSettings? settings,
+    int? seed,
+  }) {
     final legal = engine.getLegalMoves(s);
     if (legal.isEmpty) {
       throw StateError('Không có nước hợp lệ cho người ${s.turnPlayer}');
     }
     if (legal.length == 1) return legal.first;
     final me = s.turnPlayer;
-    final cfg = settings ??
-        AiSettings.forLevel(level ?? s.players[me].aiLevel, s.config.playerCount);
+    final cfg =
+        settings ??
+        AiSettings.forLevel(
+          level ?? s.players[me].aiLevel,
+          s.config.playerCount,
+        );
     final rng = Random(seed ?? (s.config.seed * 7919 + s.moveNumber * 31 + me));
 
     if (cfg.noise > 0 && rng.nextDouble() < cfg.noise) {
@@ -73,17 +91,24 @@ class AiPlayer {
     return best;
   }
 
-  Move? _searchRoot(GameState s, List<Move> legal, int depth, int me, Random rng) {
+  Move? _searchRoot(
+    GameState s,
+    List<Move> legal,
+    int depth,
+    int me,
+    Random rng,
+  ) {
     final ordered = _orderMoves(s, legal, me);
     final twoPlayer = s.config.playerCount == 2;
     double bestVal = double.negativeInfinity;
     final bests = <Move>[];
-    var alpha = double.negativeInfinity;
     for (final m in ordered) {
       final child = _apply(s, m);
       final double v;
       if (twoPlayer) {
-        v = _alphaBeta(child, depth - 1, alpha, double.infinity, me);
+        // Alpha thấp hơn bestVal một chút để nước đồng giá trả về giá trị đúng,
+        // còn nước kém hơn chỉ trả cận trên < bestVal (không lọt vào nhóm đồng hạng).
+        v = _alphaBeta(child, depth - 1, bestVal - 1e-6, double.infinity, me);
       } else {
         v = _maxN(child, depth - 1)[me];
       }
@@ -95,7 +120,6 @@ class AiPlayer {
       } else if ((v - bestVal).abs() <= 1e-9) {
         bests.add(m);
       }
-      if (v > alpha) alpha = v;
     }
     if (bests.isEmpty) return null;
     return bests[rng.nextInt(bests.length)];
@@ -116,7 +140,10 @@ class AiPlayer {
   List<Move> _orderMoves(GameState s, List<Move> moves, int me) {
     final scored = [
       for (final m in moves)
-        (m, Evaluation.relative(Evaluation.playerValues(_applyNoTick(s, m)), me)),
+        (
+          m,
+          Evaluation.relative(Evaluation.playerValues(_applyNoTick(s, m)), me),
+        ),
     ]..sort((a, b) => b.$2.compareTo(a.$2));
     return [for (final e in scored) e.$1];
   }

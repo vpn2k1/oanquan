@@ -84,6 +84,25 @@ void main() {
     expect((bad.single.message as MoveRejected).reason, 'unauthorized');
   });
 
+  test('reconnect thu hồi quyền của kết nối cũ', () {
+    final id = startRoom();
+    final r = server.handle('a2', PlayerReconnect('r1', id, 0, tokens['a']!));
+    expect(r.single.message, isA<StateSnapshot>());
+    const m0 = Move(playerId: 0, sourceCellId: 1, direction: Direction.clockwise);
+    expect((server.handle('a', SubmitMove('y1', id, 0, 0, m0)).single.message as MoveRejected).reason,
+        'unauthorized');
+    expect(server.handle('a2', SubmitMove('y2', id, 0, 0, m0)).first.message, isA<MoveAccepted>());
+  });
+
+  test('một client không giữ hai ghế; actionId trùng giữa các client không lẫn cache', () {
+    final created = server.handle('a', const CreateRoom('a1', 'An', 3));
+    final id = (created.single.message as StateSnapshot).matchId;
+    expect((server.handle('a', JoinRoom('a2', id, 'An 2')).single.message as MoveRejected).reason,
+        'alreadySeated');
+    final j = server.handle('b', JoinRoom('a1', id.toLowerCase(), 'Bình'));
+    expect(j.map((o) => o.clientId).toSet(), {'a', 'b'});
+  });
+
   test('chơi hết ván qua server → GameEnded; state client khớp engine', () {
     final id = startRoom();
     const engine = RulesEngine();

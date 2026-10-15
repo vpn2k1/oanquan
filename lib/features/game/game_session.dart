@@ -55,7 +55,9 @@ class GameSessionState {
   bool get humanTurn =>
       !current.isOver && current.currentPlayer.type == PlayerType.human;
   bool get canUndo =>
-      !busy && current.history.any((m) => !current.players[m.playerId].isAi);
+      !busy &&
+      !current.isOver &&
+      current.history.any((m) => !current.players[m.playerId].isAi);
 
   GameSessionState copyWith({
     GameState? initial,
@@ -67,16 +69,15 @@ class GameSessionState {
     Move? hint,
     bool clearHint = false,
     int? syncToken,
-  }) =>
-      GameSessionState(
-        initial: initial ?? this.initial,
-        current: current ?? this.current,
-        shown: shown ?? this.shown,
-        pending: clearPending ? null : (pending ?? this.pending),
-        aiThinking: aiThinking ?? this.aiThinking,
-        hint: clearHint ? null : (hint ?? this.hint),
-        syncToken: syncToken ?? this.syncToken,
-      );
+  }) => GameSessionState(
+    initial: initial ?? this.initial,
+    current: current ?? this.current,
+    shown: shown ?? this.shown,
+    pending: clearPending ? null : (pending ?? this.pending),
+    aiThinking: aiThinking ?? this.aiThinking,
+    hint: clearHint ? null : (hint ?? this.hint),
+    syncToken: syncToken ?? this.syncToken,
+  );
 }
 
 /// Chạy AI ngoài UI thread (isolate trên mobile/desktop; trên web `compute`
@@ -253,14 +254,17 @@ class GameSessionController extends Notifier<GameSessionState?> {
   void _persist() {
     final st = state;
     if (st == null || st.current.isOver) return;
-    _saves.save(SavedGame(
-      initial: st.initial,
-      current: st.current,
-      savedAt: DateTime.now(),
-    ));
+    _saves.save(
+      SavedGame(
+        initial: st.initial,
+        current: st.current,
+        savedAt: DateTime.now(),
+      ),
+    );
   }
 }
 
 final gameSessionProvider =
     NotifierProvider<GameSessionController, GameSessionState?>(
-        GameSessionController.new);
+      GameSessionController.new,
+    );

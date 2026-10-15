@@ -34,7 +34,7 @@ class _Room {
 /// vì chỉ phụ thuộc engine thuần.
 class MatchServer {
   MatchServer({Random? random, this.engine = const RulesEngine()})
-      : _rng = random ?? Random();
+    : _rng = random ?? Random();
 
   final RulesEngine engine;
   final Random _rng;
@@ -47,18 +47,27 @@ class MatchServer {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     String c;
     do {
-      c = List.generate(5, (_) => alphabet[_rng.nextInt(alphabet.length)]).join();
+      c = List.generate(
+        5,
+        (_) => alphabet[_rng.nextInt(alphabet.length)],
+      ).join();
     } while (_rooms.containsKey(c));
     return c;
   }
 
-  String _token() => List.generate(16, (_) => _rng.nextInt(16).toRadixString(16)).join();
+  String _token() =>
+      List.generate(16, (_) => _rng.nextInt(16).toRadixString(16)).join();
 
   List<Outgoing> handle(String clientId, ClientMessage msg) {
     switch (msg) {
       case CreateRoom(:final actionId, :final playerName, :final playerCount):
         if (playerCount < 2 || playerCount > 4) {
-          return [Outgoing(clientId, MoveRejected('', actionId, 'invalidPlayerCount', 0))];
+          return [
+            Outgoing(
+              clientId,
+              MoveRejected('', actionId, 'invalidPlayerCount', 0),
+            ),
+          ];
         }
         final room = _Room(_code(), playerCount);
         _rooms[room.matchId] = room;
@@ -66,37 +75,97 @@ class MatchServer {
       case JoinRoom(:final actionId, :final matchId, :final playerName):
         final room = _rooms[matchId.toUpperCase()];
         if (room == null) {
-          return [Outgoing(clientId, MoveRejected(matchId, actionId, 'roomNotFound', 0))];
+          return [
+            Outgoing(
+              clientId,
+              MoveRejected(matchId, actionId, 'roomNotFound', 0),
+            ),
+          ];
         }
-        final cached = room.processed[actionId];
+        final cached = room.processed[_key(clientId, actionId)];
         if (cached != null) return cached;
+        // Một client chỉ giữ một ghế trong phòng.
+        if (room.clientOf.containsValue(clientId)) {
+          return [
+            Outgoing(
+              clientId,
+              MoveRejected(
+                room.matchId,
+                actionId,
+                'alreadySeated',
+                room.revision,
+              ),
+            ),
+          ];
+        }
         if (room.names.length >= room.playerCount) {
-          return [Outgoing(clientId, MoveRejected(matchId, actionId, 'roomFull', room.revision))];
+          return [
+            Outgoing(
+              clientId,
+              MoveRejected(matchId, actionId, 'roomFull', room.revision),
+            ),
+          ];
         }
         return _seat(room, clientId, playerName, actionId);
-      case PlayerReconnect(:final actionId, :final matchId, :final playerId, :final sessionToken):
-        final room = _rooms[matchId];
+      case PlayerReconnect(
+        :final actionId,
+        :final matchId,
+        :final playerId,
+        :final sessionToken,
+      ):
+        final room = _rooms[matchId.toUpperCase()];
         if (room == null ||
             playerId < 0 ||
             playerId >= room.tokens.length ||
             room.tokens[playerId] != sessionToken) {
-          return [Outgoing(clientId, MoveRejected(matchId, actionId, 'unauthorized', room?.revision ?? 0))];
+          return [
+            Outgoing(
+              clientId,
+              MoveRejected(
+                matchId,
+                actionId,
+                'unauthorized',
+                room?.revision ?? 0,
+              ),
+            ),
+          ];
         }
+        // Thu hồi quyền của kết nối cũ cho ghế này.
+        final old = room.clientOf[playerId];
+        if (old != null && old != clientId) _seatOfClient.remove(old);
         room.clientOf[playerId] = clientId;
-        _seatOfClient[clientId] = (matchId, playerId);
+        _seatOfClient[clientId] = (room.matchId, playerId);
         return [Outgoing(clientId, _snapshot(room, playerId))];
-      case SubmitMove(:final actionId, :final matchId, :final playerId, :final revision, :final move):
-        final room = _rooms[matchId];
+      case SubmitMove(
+        :final actionId,
+        :final matchId,
+        :final playerId,
+        :final revision,
+        :final move,
+      ):
+        final room = _rooms[matchId.toUpperCase()];
         if (room == null) {
-          return [Outgoing(clientId, MoveRejected(matchId, actionId, 'roomNotFound', 0))];
+          return [
+            Outgoing(
+              clientId,
+              MoveRejected(matchId, actionId, 'roomNotFound', 0),
+            ),
+          ];
         }
-        final cached = room.processed[actionId];
+        final cached = room.processed[_key(clientId, actionId)];
         if (cached != null) return cached;
-        List<Outgoing> reject(String reason) =>
-            [Outgoing(clientId, MoveRejected(matchId, actionId, reason, room.revision))];
+        List<Outgoing> reject(String reason) => [
+          Outgoing(
+            clientId,
+            MoveRejected(matchId, actionId, reason, room.revision),
+          ),
+        ];
         final seat = _seatOfClient[clientId];
         // Client chỉ được đi cho ghế của chính mình.
-        if (seat == null || seat.$1 != matchId || seat.$2 != playerId || move.playerId != playerId) {
+        if (seat == null ||
+            seat.$1 != room.matchId ||
+            seat.$2 != playerId ||
+            move.playerId != playerId) {
           return reject('unauthorized');
         }
         final state = room.state;
@@ -111,19 +180,35 @@ class MatchServer {
             room.revision++;
             final out = <Outgoing>[
               for (final c in room.clientOf.values)
-                Outgoing(c, MoveAccepted(matchId, actionId, room.revision, move,
-                    [for (final e in events) e.toJson()])),
+                Outgoing(
+                  c,
+                  MoveAccepted(matchId, actionId, room.revision, move, [
+                    for (final e in events) e.toJson(),
+                  ]),
+                ),
               if (next.isOver)
                 for (final c in room.clientOf.values)
-                  Outgoing(c, GameEnded(matchId, room.revision, next.winnerIds)),
+                  Outgoing(
+                    c,
+                    GameEnded(matchId, room.revision, next.winnerIds),
+                  ),
             ];
-            room.processed[actionId] = out;
+            room.processed[_key(clientId, actionId)] = out;
             return out;
         }
     }
   }
 
-  List<Outgoing> _seat(_Room room, String clientId, String name, String actionId) {
+  /// Khóa idempotency theo từng client — actionId trùng giữa các client
+  /// không được trả về phản hồi của client khác.
+  static String _key(String clientId, String actionId) => '$clientId|$actionId';
+
+  List<Outgoing> _seat(
+    _Room room,
+    String clientId,
+    String name,
+    String actionId,
+  ) {
     final id = room.names.length;
     room.names.add(name);
     room.tokens.add(_token());
@@ -132,23 +217,27 @@ class MatchServer {
     if (room.names.length == room.playerCount) {
       room.state = engine.newGame(
         GameConfig(playerCount: room.playerCount, seed: _rng.nextInt(1 << 31)),
-        players: [for (var i = 0; i < room.playerCount; i++) Player(id: i, name: room.names[i])],
+        players: [
+          for (var i = 0; i < room.playerCount; i++)
+            Player(id: i, name: room.names[i]),
+        ],
       );
     }
     final out = [
-      for (final e in room.clientOf.entries) Outgoing(e.value, _snapshot(room, e.key)),
+      for (final e in room.clientOf.entries)
+        Outgoing(e.value, _snapshot(room, e.key)),
     ];
-    room.processed[actionId] = out;
+    room.processed[_key(clientId, actionId)] = out;
     return out;
   }
 
   StateSnapshot _snapshot(_Room room, int playerId) => StateSnapshot(
-        room.matchId,
-        room.revision,
-        playerId,
-        room.tokens[playerId],
-        List.unmodifiable(room.names),
-        room.playerCount,
-        room.state == null ? null : GameSerializer.stateToJson(room.state!),
-      );
+    room.matchId,
+    room.revision,
+    playerId,
+    room.tokens[playerId],
+    List.unmodifiable(room.names),
+    room.playerCount,
+    room.state == null ? null : GameSerializer.stateToJson(room.state!),
+  );
 }
