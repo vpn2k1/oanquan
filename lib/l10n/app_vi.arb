@@ -247,5 +247,8 @@
   "style_concrete_chalk": "Xi măng · phấn trắng",
   "style_tiles_chalk": "Sân gạch bát · phấn",
   "style_concrete_brick": "Xi măng · gạch non",
-  "style_concrete_charcoal": "Xi măng · than củi"
+  "style_concrete_charcoal": "Xi măng · than củi",
+  "yourTurn": "Tới lượt",
+  "thinkingShort": "Đang nghĩ…",
+  "eliminatedShort": "Bị loại"
 }

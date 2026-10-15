@@ -85,6 +85,143 @@ abstract final class PiecesPainter {
     c.restore();
   }
 
+  /// Bảng màu sỏi tự nhiên: xám, be, trắng ngà, xám xanh, nâu nhạt.
+  static const _pebbleColors = [
+    Color(0xFF9E9A92),
+    Color(0xFFC9C1B2),
+    Color(0xFFE6DFD2),
+    Color(0xFF7E7A74),
+    Color(0xFFB9A88F),
+    Color(0xFFA7AEB0),
+    Color(0xFFD5CBB8),
+  ];
+
+  /// Viên sỏi tự nhiên. `variant` quyết định màu, độ dẹt, góc xoay, đốm —
+  /// cùng variant luôn vẽ giống nhau (không nhấp nháy khi animate).
+  static void pebble(Canvas c, Offset p, double r, {int variant = 0}) {
+    final h = (variant * 2654435761) & 0x7fffffff;
+    final base = _pebbleColors[h % _pebbleColors.length];
+    final stretch = 1.05 + ((h >> 4) % 25) / 100; // 1.05..1.29
+    final rot = ((h >> 9) % 628) / 100;
+    c.save();
+    c.translate(p.dx, p.dy);
+    c.rotate(rot);
+    c.scale(r * stretch, r / stretch * 1.08);
+    // Bóng đổ.
+    c.save();
+    c.rotate(-rot);
+    c.drawOval(const Rect.fromLTRB(-0.95, -0.7, 1.15, 1.25), Paint()..color = const Color(0x55000000));
+    c.restore();
+    // Thân sỏi.
+    final body = Path()
+      ..moveTo(-1, 0.05)
+      ..cubicTo(-1, -0.62, -0.5, -1, 0.08, -0.98)
+      ..cubicTo(0.7, -0.95, 1.02, -0.5, 1, 0.04)
+      ..cubicTo(0.98, 0.62, 0.52, 0.98, -0.04, 0.97)
+      ..cubicTo(-0.62, 0.95, -1, 0.6, -1, 0.05)
+      ..close();
+    c.drawPath(
+      body,
+      Paint()
+        ..shader = Gradient.radial(
+          const Offset(-0.35, -0.45),
+          1.5,
+          [
+            Color.lerp(base, const Color(0xFFFFFFFF), 0.35)!,
+            base,
+            Color.lerp(base, const Color(0xFF2A241E), 0.38)!,
+          ],
+          const [0, 0.55, 1],
+        ),
+    );
+    // Đốm khoáng.
+    final dot = Paint();
+    for (var k = 0; k < 4; k++) {
+      final hh = (h >> (k * 5)) & 0x3ff;
+      final o = Offset(((hh % 100) / 100 - 0.5) * 1.2, (((hh >> 3) % 100) / 100 - 0.5) * 1.1);
+      dot.color = (k.isEven ? const Color(0x33231E18) : const Color(0x40FFFFFF));
+      c.drawCircle(o, 0.06 + (hh % 7) / 100, dot);
+    }
+    // Vân sáng.
+    c.drawArc(
+      const Rect.fromLTRB(-0.72, -0.78, 0.3, 0.1),
+      3.5,
+      1.3,
+      false,
+      Paint()
+        ..color = const Color(0x66FFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.12
+        ..strokeCap = StrokeCap.round,
+    );
+    c.restore();
+  }
+
+  /// Quan: hòn đá nâu đỏ lớn, mặt nhẵn bóng.
+  static void quanStone(Canvas c, Offset p, double r, {double glow = 0}) {
+    if (glow > 0) {
+      c.drawCircle(
+        p,
+        r * 1.5,
+        Paint()
+          ..color = const Color(0xFFFF8F3A).withValues(alpha: 0.45 * glow)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.5),
+      );
+    }
+    c.save();
+    c.translate(p.dx, p.dy);
+    c.scale(r * 1.12, r * 0.92);
+    c.drawOval(const Rect.fromLTRB(-0.95, -0.72, 1.12, 1.22), Paint()..color = const Color(0x66000000));
+    final body = Path()
+      ..moveTo(-1, 0)
+      ..cubicTo(-1, -0.66, -0.48, -1, 0.1, -0.98)
+      ..cubicTo(0.72, -0.94, 1, -0.48, 1, 0.06)
+      ..cubicTo(1, 0.66, 0.5, 1, -0.06, 0.98)
+      ..cubicTo(-0.66, 0.95, -1, 0.56, -1, 0)
+      ..close();
+    c.drawPath(
+      body,
+      Paint()
+        ..shader = Gradient.radial(
+          const Offset(-0.32, -0.42),
+          1.55,
+          const [Color(0xFFB0735A), Color(0xFF7E4A36), Color(0xFF4A2A1E)],
+          const [0, 0.55, 1],
+        ),
+    );
+    final vein = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.04
+      ..color = const Color(0x33FFE3CC);
+    c.drawPath(
+      Path()
+        ..moveTo(-0.7, 0.35)
+        ..quadraticBezierTo(-0.1, 0.05, 0.62, 0.42),
+      vein,
+    );
+    c.drawArc(
+      const Rect.fromLTRB(-0.72, -0.8, 0.25, 0.05),
+      3.5,
+      1.3,
+      false,
+      Paint()
+        ..color = const Color(0x77FFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.1
+        ..strokeCap = StrokeCap.round,
+    );
+    c.restore();
+  }
+
+  /// Số lượng kiểu Recess: chữ kem nhỏ, có viền tối để đọc rõ trên mọi mặt sân.
+  static void count(Canvas c, Offset p, double size, int value) {
+    final s = '$value';
+    for (final o in const [Offset(0, 1.2), Offset(1, 0), Offset(-1, 0), Offset(0, -1)]) {
+      text(c, s, p + o * (size * 0.08), size, const Color(0xCC1B1410), bold: true);
+    }
+    text(c, s, p, size, const Color(0xFFFFF3E2), bold: true);
+  }
+
   static const _golden = 2.39996322972865332;
 
   /// Bố trí sỏi trong ô theo xoắn ốc vàng (deterministic).

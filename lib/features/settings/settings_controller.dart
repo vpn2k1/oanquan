@@ -25,7 +25,7 @@ class AppSettings {
     this.speed = AnimSpeed.normal,
     this.reducedMotion = false,
     this.colorBlind = false,
-    this.themeMode = ThemeMode.light,
+    this.themeMode = ThemeMode.dark,
     this.localeCode = 'vi',
     this.boardStyle = 'random',
   });
@@ -82,7 +82,7 @@ class SettingsController extends Notifier<AppSettings> {
       speed: pick(AnimSpeed.values, 'speed', AnimSpeed.normal),
       reducedMotion: p.getBool('${_prefix}reducedMotion') ?? false,
       colorBlind: p.getBool('${_prefix}colorBlind') ?? false,
-      themeMode: pick(ThemeMode.values, 'themeMode', ThemeMode.light),
+      themeMode: pick(ThemeMode.values, 'themeMode', ThemeMode.dark),
       localeCode: p.getString('${_prefix}locale') ?? 'vi',
       boardStyle: p.getString('${_prefix}boardStyle') ?? 'random',
     );

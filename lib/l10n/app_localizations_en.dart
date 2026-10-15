@@ -452,4 +452,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get style_concrete_charcoal => 'Concrete · charcoal';
+
+  @override
+  String get yourTurn => 'Your turn';
+
+  @override
+  String get thinkingShort => 'Thinking…';
+
+  @override
+  String get eliminatedShort => 'Out';
 }

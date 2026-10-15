@@ -32,47 +32,140 @@ abstract final class AppColors {
   static const ink = Color(0xFF2B1D10);
 }
 
+/// Bảng màu kiểu "Recess": tối ấm (nâu đen, thẻ nâu, viền kem, nhấn cam)
+/// và bản sáng tương ứng (nền kem, thẻ trắng, chữ nâu, nhấn cam).
+abstract final class Rc {
+  static const bg = Color(0xFF1B1410);
+  static const surface = Color(0xFF2D2621);
+  static const surfaceHigh = Color(0xFF3A3029);
+  static const text = Color(0xFFFFF3E2);
+  static const muted = Color(0xFFD0BDAA);
+  static const line = Color(0x33FFF3E2);
+  static const accent = Color(0xFFFF8F3A);
+  static const onAccent = Color(0xFF12100C);
+  static const accentSoft = Color(0x33FF8F3A);
+
+  static const bgLight = Color(0xFFFFF3E2);
+  static const surfaceLight = Color(0xFFFFFFFF);
+  static const surfaceHighLight = Color(0xFFF6E7D2);
+  static const textLight = Color(0xFF2D2621);
+  static const mutedLight = Color(0xFF7A6656);
+  static const lineLight = Color(0x262D2621);
+}
+
+/// Token theo độ sáng hiện tại.
+class RcTokens {
+  const RcTokens(this.dark);
+  factory RcTokens.of(BuildContext context) =>
+      RcTokens(Theme.of(context).brightness == Brightness.dark);
+  final bool dark;
+  Color get bg => dark ? Rc.bg : Rc.bgLight;
+  Color get surface => dark ? Rc.surface : Rc.surfaceLight;
+  Color get surfaceHigh => dark ? Rc.surfaceHigh : Rc.surfaceHighLight;
+  Color get text => dark ? Rc.text : Rc.textLight;
+  Color get muted => dark ? Rc.muted : Rc.mutedLight;
+  Color get line => dark ? Rc.line : Rc.lineLight;
+}
+
 ThemeData buildTheme(Brightness b) {
-  final dark = b == Brightness.dark;
-  final scheme = ColorScheme.fromSeed(
-    seedColor: AppColors.teal,
-    brightness: b,
-  ).copyWith(
-    primary: dark ? const Color(0xFF6FE6D6) : AppColors.teal,
-    secondary: AppColors.gold,
-    surface: dark ? const Color(0xFF12403C) : AppColors.cream,
+  final t = RcTokens(b == Brightness.dark);
+  final scheme = ColorScheme.fromSeed(seedColor: Rc.accent, brightness: b).copyWith(
+    primary: Rc.accent,
+    onPrimary: Rc.onAccent,
+    secondary: Rc.accent,
+    onSecondary: Rc.onAccent,
+    surface: t.surface,
+    onSurface: t.text,
+    onSurfaceVariant: t.muted,
+    outline: t.line,
+    outlineVariant: t.line,
+    surfaceContainerHighest: t.surfaceHigh,
+    secondaryContainer: Rc.accentSoft,
+    onSecondaryContainer: t.text,
   );
-  return ThemeData(
-    useMaterial3: true,
-    colorScheme: scheme,
-    scaffoldBackgroundColor: dark ? AppColors.tealDeep : AppColors.cream,
+  final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
+  final border = BorderSide(color: t.line, width: 2);
+  const label = TextStyle(fontSize: 16, fontWeight: FontWeight.w800);
+  final base = ThemeData(useMaterial3: true, colorScheme: scheme, brightness: b);
+  return base.copyWith(
+    scaffoldBackgroundColor: t.bg,
+    textTheme: base.textTheme
+        .apply(bodyColor: t.text, displayColor: t.text)
+        .copyWith(
+          titleMedium: base.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: t.text),
+          titleSmall: base.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: t.muted),
+        ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
-      foregroundColor: dark ? AppColors.cream : AppColors.ink,
+      foregroundColor: t.text,
       centerTitle: true,
+      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: t.text),
     ),
     cardTheme: CardThemeData(
-      color: dark ? const Color(0xFF1A5A54) : Colors.white.withValues(alpha: 0.85),
+      color: t.surface,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: border),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size(48, 52),
-        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Rc.accent,
+        foregroundColor: Rc.onAccent,
+        textStyle: label.copyWith(fontSize: 17),
+        shape: shape,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
-      // Nền đặc để nút đọc rõ trên mọi mặt sân (đất, xi măng, gạch đỏ).
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(48, 48),
-        backgroundColor: dark ? const Color(0xE612403C) : const Color(0xE6FFFBF2),
-        side: BorderSide(color: dark ? const Color(0xFF6FE6D6) : AppColors.teal, width: 1.4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        backgroundColor: t.surface,
+        foregroundColor: t.text,
+        side: border,
+        textStyle: label,
+        shape: shape,
       ),
     ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: Rc.accent, textStyle: label),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        backgroundColor: t.surface,
+        foregroundColor: t.text,
+        selectedBackgroundColor: Rc.accentSoft,
+        selectedForegroundColor: t.text,
+        side: border,
+        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.selected) ? Rc.onAccent : t.muted,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.selected) ? Rc.accent : t.surfaceHigh,
+      ),
+      trackOutlineColor: WidgetStatePropertyAll(t.line),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: t.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: border),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(backgroundColor: t.surface),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: t.surfaceHigh,
+      contentTextStyle: TextStyle(color: t.text, fontWeight: FontWeight.w600),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: border),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: t.line, width: 2)),
+      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Rc.accent, width: 2)),
+    ),
+    dividerTheme: DividerThemeData(color: t.line),
   );
 }
 

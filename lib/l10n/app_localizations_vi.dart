@@ -452,4 +452,13 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get style_concrete_charcoal => 'Xi măng · than củi';
+
+  @override
+  String get yourTurn => 'Tới lượt';
+
+  @override
+  String get thinkingShort => 'Đang nghĩ…';
+
+  @override
+  String get eliminatedShort => 'Bị loại';
 }

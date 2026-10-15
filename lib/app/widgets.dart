@@ -1,47 +1,49 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/game/flame/pieces_painter.dart';
-import '../features/settings/settings_controller.dart';
 import 'folk_art.dart';
 import 'folk_icon.dart';
 import 'theme.dart';
 
 export 'folk_icon.dart';
 
-/// Nền chung: mặt sân dân dã (đất / xi măng / gạch bát) theo cài đặt,
-/// phủ một lớp sáng mỏng để chữ trên menu dễ đọc.
-class AppBackground extends ConsumerWidget {
-  const AppBackground({super.key, required this.child, this.veil = true});
+/// Nền chung kiểu Recess: màu nền ấm với lưới chấm mờ.
+/// (Mặt sân dân dã được vẽ trong khay bàn chơi.)
+class AppBackground extends StatelessWidget {
+  const AppBackground({super.key, required this.child});
   final Widget child;
 
-  /// Lớp phủ làm dịu nền.
-  final bool veil;
-
-  /// Seed cho chế độ "ngẫu nhiên": cố định trong một lần mở app.
-  static final launchSeed = Random().nextInt(1 << 30);
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setting = ref.watch(settingsProvider.select((s) => s.boardStyle));
-    final style = FolkStyle.resolve(setting, launchSeed);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        RepaintBoundary(
-          child: CustomPaint(painter: GroundPainter(style.ground, launchSeed)),
-        ),
-        if (veil)
-          ColoredBox(
-            color: dark ? const Color(0x99102020) : const Color(0x59FFF8EA),
-          ),
-        child,
-      ],
+  Widget build(BuildContext context) {
+    final t = RcTokens.of(context);
+    return ColoredBox(
+      color: t.bg,
+      child: CustomPaint(painter: DotGridPainter(t.dark), child: child),
     );
   }
+}
+
+class DotGridPainter extends CustomPainter {
+  DotGridPainter(this.dark);
+  final bool dark;
+
+  static void paintGrid(Canvas canvas, Size size, bool dark) {
+    final p = Paint()..color = (dark ? Rc.text : Rc.textLight).withValues(alpha: dark ? 0.07 : 0.08);
+    const step = 14.0;
+    for (var y = step / 2; y < size.height; y += step) {
+      for (var x = step / 2; x < size.width; x += step) {
+        canvas.drawCircle(Offset(x, y), 1.1, p);
+      }
+    }
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) => paintGrid(canvas, size, dark);
+
+  @override
+  bool shouldRepaint(DotGridPainter old) => old.dark != dark;
 }
 
 /// Vẽ mặt sân từ ảnh đã raster hóa (cache).
@@ -128,11 +130,11 @@ class _ShapePainter extends CustomPainter {
             rect.height * 0.14,
             Paint()..color = AppColors.well,
           );
-          PiecesPainter.stone(
+          PiecesPainter.pebble(
             canvas,
             Offset(x, y),
             rect.height * 0.085,
-            playerColors[p],
+            variant: p * 5 + j,
           );
         }
       }
@@ -152,17 +154,17 @@ class _ShapePainter extends CustomPainter {
             size.width * 0.06,
             Paint()..color = AppColors.well,
           );
-          PiecesPainter.stone(
+          PiecesPainter.pebble(
             canvas,
             center,
             size.width * 0.038,
-            playerColors[p],
+            variant: p * 5 + j,
           );
         }
       }
     }
     for (final v in verts) {
-      PiecesPainter.quanFigure(canvas, v, size.width * 0.09);
+      PiecesPainter.quanStone(canvas, v, size.width * 0.07);
     }
   }
 

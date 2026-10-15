@@ -29,24 +29,18 @@ class _StonePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final r = size.width * 0.3;
+    final r = size.width * 0.27;
     final c = size.center(Offset.zero);
-    PiecesPainter.stone(canvas, c + Offset(-r * 0.6, r * 0.35), r, color);
-    PiecesPainter.stone(
-      canvas,
-      c + Offset(r * 0.65, r * 0.4),
-      r,
-      color,
-      tint: 0.08,
-    );
-    PiecesPainter.stone(canvas, c + Offset(0, -r * 0.55), r, color, tint: 0.15);
+    PiecesPainter.pebble(canvas, c + Offset(-r * 0.6, r * 0.35), r, variant: 1);
+    PiecesPainter.pebble(canvas, c + Offset(r * 0.65, r * 0.4), r, variant: 2);
+    PiecesPainter.pebble(canvas, c + Offset(0, -r * 0.55), r, variant: 3);
   }
 
   @override
-  bool shouldRepaint(_StonePainter old) => old.color != color;
+  bool shouldRepaint(_StonePainter old) => false;
 }
 
-/// Biểu tượng quan chibi trên đế sen.
+/// Biểu tượng quan: hòn đá nâu lớn.
 class GemIcon extends StatelessWidget {
   const GemIcon({super.key, this.size = 20});
   final double size;
@@ -60,10 +54,10 @@ class GemIcon extends StatelessWidget {
 
 class _GemPainter extends CustomPainter {
   @override
-  void paint(Canvas canvas, Size size) => PiecesPainter.quanFigure(
+  void paint(Canvas canvas, Size size) => PiecesPainter.quanStone(
     canvas,
     size.center(Offset.zero),
-    size.width * 0.4,
+    size.width * 0.36,
   );
 
   @override
@@ -103,7 +97,7 @@ class IconCount extends StatelessWidget {
   );
 }
 
-/// Thẻ người chơi nổi trên bàn: avatar, tên, điểm lớn, sỏi/ngọc đã ăn.
+/// Thẻ người chơi kiểu Recess: nền nâu, viền kem mờ; tới lượt thì viền cam.
 class PlayerChip extends StatelessWidget {
   const PlayerChip({
     super.key,
@@ -123,117 +117,101 @@ class PlayerChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = RcTokens.of(context);
     final p = state.players[playerId];
     final isTurn = !state.isOver && state.turnPlayer == playerId;
     final color = playerColors[playerId];
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final String? status = !p.active
+        ? l.eliminatedShort
+        : thinking
+            ? l.thinkingShort
+            : isTurn
+                ? l.yourTurn
+                : null;
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 250),
       width: width,
-      padding: const EdgeInsets.fromLTRB(8, 6, 10, 6),
+      padding: const EdgeInsets.fromLTRB(8, 7, 12, 7),
       decoration: BoxDecoration(
-        color: (dark ? const Color(0xFF12403C) : Colors.white).withValues(
-          alpha: isTurn ? 0.97 : 0.82,
-        ),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isTurn ? color : color.withValues(alpha: 0.25),
-          width: isTurn ? 3 : 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isTurn
-                ? color.withValues(alpha: 0.45)
-                : const Color(0x22000000),
-            blurRadius: isTurn ? 16 : 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: isTurn ? Color.alphaBlend(Rc.accentSoft, t.surface) : t.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isTurn ? Rc.accent : t.line, width: 2),
+        boxShadow: isTurn
+            ? const [BoxShadow(color: Color(0x40FF8F3A), blurRadius: 14)]
+            : const [],
       ),
       child: Opacity(
         opacity: p.active ? 1 : 0.55,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
           children: [
-            Row(
-              children: [
-                PlayerAvatar(
-                  playerId: playerId,
-                  size: 28,
-                  ai: p.isAi,
-                  dimmed: !p.active,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
+            // Ô vuông avatar có viền màu người chơi (đánh dấu cạnh trên bàn).
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(11),
+                border: Border.all(color: color, width: 2),
+              ),
+              child: PlayerAvatar(playerId: playerId, size: 30, ai: p.isAi, dimmed: !p.active),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
                     p.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      fontSize: 13,
+                      fontSize: 14,
+                      color: t.text,
                       decoration: p.active ? null : TextDecoration.lineThrough,
                     ),
                   ),
-                ),
-                if (thinking)
-                  SizedBox.square(
-                    dimension: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: color,
-                    ),
-                  ),
-                if (!p.active)
-                  FolkIcon(
-                    Icons.block_rounded,
-                    size: 16,
-                    color: Colors.red.shade400,
-                  ),
-              ],
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ValueListenableBuilder<List<int>>(
-                  valueListenable: scores,
-                  builder: (context, v, _) {
-                    final score = playerId < v.length ? v[playerId] : p.score;
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      transitionBuilder: (c, a) =>
-                          ScaleTransition(scale: a, child: c),
-                      child: Text(
-                        '$score',
-                        key: ValueKey(score),
-                        style: TextStyle(
-                          fontSize: 28,
-                          height: 1.1,
-                          fontWeight: FontWeight.w900,
-                          color: color,
-                        ),
+                  if (status != null)
+                    Text(
+                      status,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: isTurn ? Rc.accent : t.muted,
                       ),
-                    );
-                  },
-                ),
-                const Spacer(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    IconCount(
-                      icon: StoneIcon(size: 16, color: color),
-                      value: p.danCaptured,
-                      semantics: l.danShort,
+                    )
+                  else
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        IconCount(
+                          icon: const StoneIcon(size: 14),
+                          value: p.danCaptured + p.danCollected,
+                          semantics: l.danShort,
+                        ),
+                        IconCount(
+                          icon: const GemIcon(size: 15),
+                          value: p.quanCaptured,
+                          semantics: l.quanShort,
+                        ),
+                      ],
                     ),
-                    IconCount(
-                      icon: const GemIcon(size: 18),
-                      value: p.quanCaptured,
-                      semantics: l.quanShort,
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
+            ),
+            ValueListenableBuilder<List<int>>(
+              valueListenable: scores,
+              builder: (context, v, _) {
+                final score = playerId < v.length ? v[playerId] : p.score;
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (c, a) => ScaleTransition(scale: a, child: c),
+                  child: Text(
+                    '$score',
+                    key: ValueKey(score),
+                    style: TextStyle(fontSize: 24, height: 1.1, fontWeight: FontWeight.w900, color: t.text),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -242,7 +220,7 @@ class PlayerChip extends StatelessWidget {
   }
 }
 
-/// Nút tròn nổi trên bàn.
+/// Nút vuông bo góc kiểu Recess.
 class HudButton extends StatelessWidget {
   const HudButton({
     super.key,
@@ -250,34 +228,48 @@ class HudButton extends StatelessWidget {
     required this.tooltip,
     this.onPressed,
     this.size = 44,
+    this.label,
   });
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
   final double size;
 
+  /// Có nhãn → nút dạng viên thuốc (icon + chữ).
+  final String? label;
+
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final t = RcTokens.of(context);
     final enabled = onPressed != null;
+    final fg = enabled ? t.text : t.muted.withValues(alpha: 0.45);
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: (dark ? const Color(0xFF12403C) : Colors.white).withValues(
-          alpha: enabled ? 0.92 : 0.5,
+        color: t.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: t.line, width: 2),
         ),
-        shape: const CircleBorder(),
-        elevation: enabled ? 3 : 0,
-        shadowColor: const Color(0x55000000),
         child: InkWell(
-          customBorder: const CircleBorder(),
+          borderRadius: BorderRadius.circular(16),
           onTap: onPressed,
-          child: SizedBox.square(
-            dimension: size,
-            child: FolkIcon(
-              icon,
-              size: size * 0.5,
-              color: enabled ? AppColors.teal : Theme.of(context).disabledColor,
+          child: SizedBox(
+            height: size,
+            width: label == null ? size : null,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: label == null ? 0 : 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FolkIcon(icon, size: size * 0.46, color: fg),
+                  if (label != null) ...[
+                    const SizedBox(width: 8),
+                    Text(label!, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: fg)),
+                  ],
+                ],
+              ),
             ),
           ),
         ),

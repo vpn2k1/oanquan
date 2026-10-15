@@ -326,22 +326,21 @@ class _RowPainter extends CustomPainter {
           ..strokeWidth = markColor == null ? 1.5 : 3
           ..color = markColor ?? (c.quan ? AppColors.gold : playerColors[0]),
       );
-      final color = c.quan ? const Color(0xFFEFE3C8) : playerColors[0];
       if (c.quan && c.token) {
         for (var k = 0; k < c.dan; k++) {
           final a = -pi / 2 + k * 2 * pi / max(c.dan, 1) + 0.3;
-          PiecesPainter.stone(
+          PiecesPainter.pebble(
             canvas,
             center + Offset(cos(a) * u * 0.3, sin(a) * u * 0.45),
             u * 0.07,
-            color,
+            variant: k,
           );
         }
-        PiecesPainter.quanFigure(canvas, center, u * 0.24);
+        PiecesPainter.quanStone(canvas, center, u * 0.2);
       } else {
         final pos = PiecesPainter.layout(c.dan, u * 0.26);
-        for (final p in pos) {
-          PiecesPainter.stone(canvas, center + p, u * 0.085, color);
+        for (var k = 0; k < pos.length; k++) {
+          PiecesPainter.pebble(canvas, center + pos[k], u * 0.085, variant: k);
         }
       }
       if (c.dan > 0) {

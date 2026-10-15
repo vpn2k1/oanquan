@@ -153,5 +153,8 @@
   "style_concrete_chalk": "Concrete · white chalk",
   "style_tiles_chalk": "Brick tiles · chalk",
   "style_concrete_brick": "Concrete · brick shard",
-  "style_concrete_charcoal": "Concrete · charcoal"
+  "style_concrete_charcoal": "Concrete · charcoal",
+  "yourTurn": "Your turn",
+  "thinkingShort": "Thinking…",
+  "eliminatedShort": "Out"
 }

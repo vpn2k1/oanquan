@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show KeyEventResult;
 
 import '../../../app/theme.dart';
+import '../../../app/widgets.dart' show DotGridPainter;
 import '../../../core/engine/board_topology.dart';
 import '../../../core/engine/rules_engine.dart';
 import '../../../core/game_models/game_event.dart';
@@ -158,6 +159,15 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     final redraw = v.colorBlind != visuals.colorBlind || v.styleSetting != visuals.styleSetting;
     visuals = v;
     if (redraw) _boardImage = null;
+  }
+
+  /// Tông tối/sáng của app (nền ngoài khay).
+  bool dark = true;
+
+  void setDark(bool v) {
+    if (v == dark) return;
+    dark = v;
+    _boardImage = null;
   }
 
   /// Mặt sân + nét vẽ của ván này (ngẫu nhiên theo seed ván nếu chọn "ngẫu nhiên").
@@ -707,11 +717,11 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       final p = handPos - Offset(0, u * 0.45);
       final r = u * 0.1;
       for (var k = 0; k < min(handCount, 5); k++) {
-        PiecesPainter.stone(
+        PiecesPainter.pebble(
           canvas,
           p + Offset.fromDirection(k * 2.4, r * 0.9 * sqrt(k.toDouble())),
           r,
-          handColor,
+          variant: 900 + k,
         );
       }
       PiecesPainter.badge(
@@ -719,7 +729,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         p + Offset(u * 0.26, -u * 0.12),
         max(8, u * 0.15),
         handCount,
-        color: const Color(0xEE0E4D4A),
+        color: const Color(0xF0FF8F3A),
       );
     }
   }
@@ -728,7 +738,6 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     final i = c.id;
     final count = dan[i];
     final bounce = 1 + 0.22 * sin(pulse[i] * pi);
-    final stoneColor = _cellStoneColor(i);
     if (c.isQuan) {
       final b = c.outline.getBounds();
       final rx = b.width / 2, ry = b.height / 2;
@@ -740,24 +749,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         final ringX = quan[i] ? rx * 0.74 : rx * 0.45 * (n > 6 ? 1 : 0.6);
         final ringY = quan[i] ? ry * 0.74 : ry * 0.45 * (n > 6 ? 1 : 0.6);
         final p = c.center + Offset(cos(a) * ringX, sin(a) * ringY);
-        PiecesPainter.stone(
-          canvas,
-          p,
-          sr * bounce,
-          stoneColor,
-          tint: (k % 3) * 0.05,
-        );
+        PiecesPainter.pebble(canvas, p, sr * bounce, variant: i * 37 + k);
       }
       if (quan[i]) {
-        PiecesPainter.quanFigure(
-          canvas,
-          c.center,
-          gemR * bounce,
-          glow: flash[i],
-        );
+        PiecesPainter.quanStone(canvas, c.center, gemR * 0.85 * bounce, glow: flash[i]);
       }
       if (count > 0) {
-        PiecesPainter.badge(canvas, c.labelAnchor, max(8, u * 0.17), count);
+        PiecesPainter.count(canvas, c.labelAnchor, max(10, u * 0.24), count);
       }
       return;
     }
@@ -765,25 +763,21 @@ class OQuanGame extends FlameGame with KeyboardEvents {
       final positions = PiecesPainter.layout(count, c.size * 0.3);
       final r = PiecesPainter.stoneRadius(c.size, count) * bounce;
       for (var k = 0; k < positions.length; k++) {
-        PiecesPainter.stone(
-          canvas,
-          c.center + positions[k],
-          r,
-          stoneColor,
-          tint: ((k * 7) % 4) * 0.06,
-        );
+        PiecesPainter.pebble(canvas, c.center + positions[k], r, variant: i * 37 + k);
       }
       final owner = topo.ownerOf(i)!;
-      PiecesPainter.badge(
-        canvas,
-        c.labelAnchor,
-        max(8, u * 0.15),
-        count,
-        symbol: visuals.colorBlind ? symbolOf(owner) : null,
-        color: visuals.colorBlind
-            ? Color.lerp(playerColors[owner], const Color(0xFF000000), 0.35)!
-            : const Color(0xE6603A16),
-      );
+      if (visuals.colorBlind) {
+        PiecesPainter.badge(
+          canvas,
+          c.labelAnchor,
+          max(8, u * 0.15),
+          count,
+          symbol: symbolOf(owner),
+          color: Color.lerp(playerColors[owner], const Color(0xFF000000), 0.35)!,
+        );
+      } else {
+        PiecesPainter.count(canvas, c.labelAnchor, max(10, u * 0.22), count);
+      }
     }
   }
 
@@ -796,12 +790,47 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     final rec = PictureRecorder();
     final canvas = Canvas(rec)..scale(dpr);
     final st = style;
+    // Nền app (lưới chấm) bên ngoài khay.
+    canvas.drawRect(Offset.zero & sz, Paint()..color = dark ? Rc.bg : Rc.bgLight);
+    DotGridPainter.paintGrid(canvas, sz, dark);
+    // Khay bàn: mặt sân dân dã trong một khung bo góc.
+    final u = g.unit;
+    final b = g.boardOutline.getBounds().inflate(u * 0.5);
+    final tray = RRect.fromRectAndRadius(
+      Rect.fromLTRB(max(4, b.left), max(4, b.top), min(sz.width - 4, b.right), min(sz.height - 4, b.bottom)),
+      Radius.circular(u * 0.35),
+    );
+    canvas.drawRRect(
+      tray.shift(Offset(0, u * 0.1)),
+      Paint()
+        ..color = const Color(0x8C000000)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.25),
+    );
+    canvas.save();
+    canvas.clipRRect(tray);
     final ground = GroundCache.image(sz, dpr, st.ground, _state.config.seed);
     canvas.drawImageRect(
       ground,
       Rect.fromLTWH(0, 0, ground.width.toDouble(), ground.height.toDouble()),
       Offset.zero & sz,
       Paint(),
+    );
+    // Viền trong tối nhẹ cho khay có chiều sâu.
+    canvas.drawRRect(
+      tray.deflate(u * 0.06),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = u * 0.14
+        ..color = const Color(0x40000000)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, u * 0.08),
+    );
+    canvas.restore();
+    canvas.drawRRect(
+      tray,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = dark ? Rc.line : Rc.lineLight,
     );
     _drawSketchBoard(canvas, g, st);
     final pic = rec.endRecording();
@@ -813,7 +842,8 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   void _drawSketchBoard(Canvas canvas, BoardGeometry g, FolkStyle st) {
     final u = g.unit;
     final seed = _state.config.seed;
-    final lineW = max(2.0, u * (st.pen == PenKind.stick ? 0.075 : 0.065));
+    // Nét mảnh, gọn như Recess; que vạch đất cần dày hơn để thấy rãnh.
+    final lineW = max(1.6, u * (st.pen == PenKind.stick ? 0.06 : 0.045));
 
     // Ô trên đất được khoét nông; trên xi măng/gạch chỉ là nét kẻ.
     if (st.ground == GroundKind.dirt) {
@@ -840,7 +870,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
         ..moveTo(a.dx, a.dy)
         ..lineTo(b.dx, b.dy);
       FolkPen.stroke(canvas, path, PenKind.chalk,
-          width: u * 0.1, color: playerColors[p], seed: seed * 31 + 500 + p);
+          width: u * 0.07, color: playerColors[p], seed: seed * 31 + 500 + p);
       if (visuals.colorBlind) {
         paintPlayerSymbol(
           canvas,

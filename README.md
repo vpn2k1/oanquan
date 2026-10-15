@@ -48,6 +48,7 @@ test/  engine/ ai/ persistence/ game/ multiplayer/ widgets/
 
 - **State:** `flutter_riverpod` 3 (Notifier). **Routing:** `go_router`.
 - **Màn hình ngang mặc định:** khóa landscape trên Android (`sensorLandscape`), iOS (`UISupportedInterfaceOrientations`) và trong `main.dart`. Home, Setup, Kết quả, Hướng dẫn có bố cục 2 cột khi ngang.
+- **Giao diện tham khảo Recess (rachoi.app):** tông tối ấm mặc định (nền `#1B1410` lưới chấm, thẻ `#2D2621` viền kem 20%, chữ `#FFF3E2`, nhấn cam `#FF8F3A`), có bản sáng tương ứng; token trong `Rc`/`RcTokens` (`lib/app/theme.dart`). Bàn đặt trong khay bo góc; quân là sỏi tự nhiên, quan là đá nâu lớn; số đếm chữ kem nhỏ ở góc ô. Màn chơi: ngang → bảng phải (nút, thẻ người chơi, Gợi ý/Đi lại); dọc → đối thủ trên, mình dưới.
 - **Mặt sân dân dã, bàn kẻ tay** (`lib/app/folk_art.dart`, vẽ thủ tục bằng Canvas, không dùng ảnh): 3 mặt sân (đất, xi măng, sân gạch bát) × nét vẽ (que vạch đất, phấn, gạch non, than củi) → 5 kiểu. Mặc định **ngẫu nhiên mỗi ván** theo seed ván; chọn cố định trong Cài đặt → "Mặt sân & nét vẽ". Nét run tay bằng nhiễu mượt, đứt phấn, bụi/vụn đất; mặt sân + bàn được raster hóa một lần thành ảnh nên không tốn chi phí mỗi frame.
 - **Bàn chơi toàn màn hình:** HUD nổi ở các góc. Thẻ người chơi nằm ở góc gần cạnh của người đó. Dân và quan đã ăn hiển thị bằng hình viên sỏi và viên ngọc kèm số, không dùng chữ. Giao diện mặc định là theme sáng, tông tươi.
 - Trạng thái logic và trạng thái hiển thị được tách riêng. Engine tính ra trạng thái cuối cùng cùng

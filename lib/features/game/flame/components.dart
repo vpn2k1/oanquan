@@ -209,9 +209,9 @@ class FlyingPiece extends PositionComponent with HasGameReference<OQuanGame> {
       canvas.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, alpha));
     }
     if (kind == FlyKind.stone) {
-      PiecesPainter.stone(canvas, p, radius * scale, color);
+      PiecesPainter.pebble(canvas, p, radius * scale, variant: identityHashCode(this));
     } else {
-      PiecesPainter.quanFigure(canvas, p, radius * scale, glow: sin(t * pi));
+      PiecesPainter.quanStone(canvas, p, radius * scale * 0.8, glow: sin(t * pi));
     }
     if (alpha < 1) canvas.restore();
   }

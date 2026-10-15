@@ -100,10 +100,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final st = ref.read(gameSessionProvider)?.current;
     String name(int id) => st?.players[id].name ?? '';
     final msg = switch (e) {
-      RefillEvent(:final playerId, :final borrowed) => borrowed.isEmpty
-          ? l.refillMsg(name(playerId))
-          : l.borrowMsg(name(playerId), borrowed.values.fold(0, (a, b) => a + b)),
-      RepayEvent(:final fromId, :final amount) => l.repayMsg(name(fromId), amount),
+      RefillEvent(:final playerId, :final borrowed) =>
+        borrowed.isEmpty
+            ? l.refillMsg(name(playerId))
+            : l.borrowMsg(
+                name(playerId),
+                borrowed.values.fold(0, (a, b) => a + b),
+              ),
+      RepayEvent(:final fromId, :final amount) => l.repayMsg(
+        name(fromId),
+        amount,
+      ),
       EliminateEvent(:final playerId) => l.eliminateMsg(name(playerId)),
       RuleLoopGuardEvent() => l.loopGuardMsg,
       _ => null,
@@ -209,37 +216,35 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final notifier = ref.read(gameSessionProvider.notifier);
     final thinkingId = s.aiThinking ? s.current.turnPlayer : null;
 
-    final actions = <Widget>[
-      HudButton(
-        key: const Key('undo'),
-        icon: Icons.undo_rounded,
-        tooltip: l.undo,
-        onPressed: s.canUndo ? notifier.undo : null,
-      ),
-      HudButton(
-        key: const Key('hint'),
-        icon: Icons.lightbulb_rounded,
-        tooltip: l.hint,
-        onPressed: s.humanTurn && !s.busy ? notifier.requestHint : null,
-      ),
-      HudButton(
-        icon: settings.sound
-            ? Icons.volume_up_rounded
-            : Icons.volume_off_rounded,
-        tooltip: settings.sound ? l.soundOff : l.soundOn,
-        onPressed: ref.read(settingsProvider.notifier).toggleSound,
-      ),
-      HudButton(
-        icon: Icons.menu_book_rounded,
-        tooltip: l.rules,
-        onPressed: _showRules,
-      ),
-    ];
+    g.setDark(Theme.of(context).brightness == Brightness.dark);
     final pause = HudButton(
       key: const Key('pause'),
       icon: Icons.pause_rounded,
       tooltip: l.pause,
       onPressed: _pauseMenu,
+    );
+    final sound = HudButton(
+      icon: settings.sound ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+      tooltip: settings.sound ? l.soundOff : l.soundOn,
+      onPressed: ref.read(settingsProvider.notifier).toggleSound,
+    );
+    final rules = HudButton(
+      icon: Icons.menu_book_rounded,
+      tooltip: l.rules,
+      onPressed: _showRules,
+    );
+    final undo = HudButton(
+      key: const Key('undo'),
+      icon: Icons.undo_rounded,
+      tooltip: l.undo,
+      onPressed: s.canUndo ? notifier.undo : null,
+    );
+    final hint = HudButton(
+      key: const Key('hint'),
+      icon: Icons.lightbulb_outline_rounded,
+      tooltip: l.hint,
+      label: l.hint,
+      onPressed: s.humanTurn && !s.busy ? notifier.requestHint : null,
     );
 
     return PopScope(
@@ -268,31 +273,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         body: AppBackground(
           child: LayoutBuilder(
             builder: (context, c) {
-              // Bàn chiếm toàn màn hình; HUD nổi ở các góc, bàn chừa lề cho HUD.
+              // Bố cục kiểu Recess: khay bàn chiếm phần lớn màn hình, bảng
+              // điều khiển + thẻ người chơi ở cạnh phải (ngang) hoặc trên/dưới (dọc).
               final pad = MediaQuery.paddingOf(context);
               final landscape = c.maxWidth > c.maxHeight;
               final n = shown.players.length;
-              // Bàn chữ nhật (2 người) thấp: thẻ người chơi đặt ở góc trên/dưới,
-              // chỉ chừa dải hẹp hai bên cho nút → bàn rộng gần hết màn hình.
-              final twoWide = landscape && n == 2;
-              final band = !landscape
-                  ? 0.0
-                  : (twoWide ? 60.0 : (c.maxWidth * 0.18).clamp(132.0, 200.0));
-              g.setBoardInsets(
-                landscape
-                    ? EdgeInsets.fromLTRB(
-                        pad.left + band,
-                        pad.top + 2,
-                        pad.right + band,
-                        pad.bottom + 2,
-                      )
-                    : EdgeInsets.fromLTRB(
-                        pad.left + 2,
-                        pad.top + 140,
-                        pad.right + 2,
-                        pad.bottom + 96,
-                      ),
-              );
+              // Đối thủ trước, người ngồi cạnh dưới (P0) sau cùng — giống Recess.
+              final order = [for (var i = 1; i < n; i++) i, 0];
 
               Widget chip(int id, double w) => PlayerChip(
                 key: Key('player$id'),
@@ -304,134 +291,131 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               );
 
               final overlays = <Widget>[];
-              if (twoWide) {
-                const w = 128.0;
-                overlays.addAll([
-                  Positioned(
-                    left: pad.left + 8,
-                    top: pad.top + 8,
-                    child: pause,
+              if (landscape) {
+                final panelW = (c.maxWidth * 0.3).clamp(210.0, 300.0);
+                g.setBoardInsets(
+                  EdgeInsets.fromLTRB(
+                    pad.left + 8,
+                    pad.top + 8,
+                    pad.right + panelW + 20,
+                    pad.bottom + 8,
                   ),
+                );
+                overlays.add(
                   Positioned(
-                    left: pad.left + 60,
-                    top: pad.top + 6,
-                    child: chip(1, w),
-                  ),
-                  Positioned(
-                    left: pad.left + 8,
-                    bottom: pad.bottom + 8,
-                    child: chip(0, w),
-                  ),
-                  Positioned(
-                    right: pad.right + 8,
-                    top: pad.top + 8,
-                    child: SizedBox(
-                      width: 96,
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.end,
-                        children: actions,
-                      ),
+                    right: pad.right + 12,
+                    top: pad.top + 10,
+                    bottom: pad.bottom + 10,
+                    width: panelW,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            pause,
+                            const Spacer(),
+                            sound,
+                            const SizedBox(width: 8),
+                            rules,
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Expanded(
+                          child: ListView(
+                            padding: EdgeInsets.zero,
+                            children: [
+                              for (final id in order)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: chip(id, panelW),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: hint),
+                            const SizedBox(width: 8),
+                            undo,
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ]);
-              } else if (landscape) {
-                final w = band - 16;
-                // Mỗi người ở góc gần cạnh của mình: P1 trên-trái, P0 dưới-trái,
-                // P2 trên-phải, P3 dưới-phải.
-                overlays.addAll([
-                  Positioned(
-                    left: pad.left + 8,
-                    top: pad.top + 8,
-                    child: pause,
-                  ),
-                  Positioned(
-                    right: pad.right + 8,
-                    top: pad.top + 8,
-                    child: SizedBox(
-                      width: 96,
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.end,
-                        children: actions,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: pad.left + 8,
-                    top: pad.top + 62,
-                    child: chip(1, w),
-                  ),
-                  Positioned(
-                    left: pad.left + 8,
-                    bottom: pad.bottom + 8,
-                    child: chip(0, w),
-                  ),
-                  if (n > 2)
-                    Positioned(
-                      right: pad.right + 8,
-                      top: pad.top + 112,
-                      child: chip(2, w),
-                    ),
-                  if (n > 3)
-                    Positioned(
-                      right: pad.right + 8,
-                      bottom: pad.bottom + 8,
-                      child: chip(3, w),
-                    ),
-                ]);
+                );
               } else {
-                final w = (c.maxWidth - pad.horizontal - 24) / 2;
+                final w = c.maxWidth - pad.horizontal - 24;
+                final perRow = n - 1 >= 2 ? 2 : 1;
+                final oppRows = ((n - 1) / perRow).ceil();
+                final oppW = (w - (perRow - 1) * 8) / perRow;
+                final top = pad.top + 10 + 44 + 10 + oppRows * 62 + 6;
+                final bottom = pad.bottom + 10 + 60 + 10 + 44 + 10;
+                g.setBoardInsets(
+                  EdgeInsets.fromLTRB(pad.left + 4, top, pad.right + 4, bottom),
+                );
                 overlays.addAll([
                   Positioned(
-                    left: pad.left + 8,
-                    right: pad.right + 8,
-                    top: pad.top + 8,
+                    left: pad.left + 12,
+                    right: pad.right + 12,
+                    top: pad.top + 10,
                     child: Row(
                       children: [
                         pause,
                         const Spacer(),
-                        for (final a in actions)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: a,
-                          ),
+                        sound,
+                        const SizedBox(width: 8),
+                        rules,
                       ],
                     ),
                   ),
                   Positioned(
-                    left: pad.left + 8,
-                    right: pad.right + 8,
-                    top: pad.top + 60,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [chip(1, w), if (n > 2) chip(2, w)],
+                    left: pad.left + 12,
+                    right: pad.right + 12,
+                    top: pad.top + 64,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [for (var i = 1; i < n; i++) chip(i, oppW)],
                     ),
                   ),
                   Positioned(
-                    left: pad.left + 8,
-                    right: pad.right + 8,
-                    bottom: pad.bottom + 8,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [chip(0, w), if (n > 3) chip(3, w)],
+                    left: pad.left + 12,
+                    right: pad.right + 12,
+                    bottom: pad.bottom + 10,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(child: hint),
+                            const SizedBox(width: 8),
+                            undo,
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        chip(0, w),
+                      ],
                     ),
                   ),
                 ]);
               }
               if (s.pending != null) {
+                final ins = g.boardInsets;
                 overlays.add(
                   Positioned(
-                    right: pad.right + 8,
-                    top: landscape ? c.maxHeight / 2 - 22 : null,
-                    bottom: landscape ? null : pad.bottom + 100,
-                    child: HudButton(
-                      key: const Key('skipAnim'),
-                      icon: Icons.fast_forward_rounded,
-                      tooltip: l.skip,
-                      onPressed: g.skipAnimation,
+                    left: ins.left,
+                    right: ins.right,
+                    bottom: ins.bottom + 6,
+                    child: Center(
+                      child: HudButton(
+                        key: const Key('skipAnim'),
+                        icon: Icons.fast_forward_rounded,
+                        tooltip: l.skip,
+                        label: l.skip,
+                        onPressed: g.skipAnimation,
+                      ),
                     ),
                   ),
                 );

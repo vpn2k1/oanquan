@@ -901,6 +901,24 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Xi măng · than củi'**
   String get style_concrete_charcoal;
+
+  /// No description provided for @yourTurn.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tới lượt'**
+  String get yourTurn;
+
+  /// No description provided for @thinkingShort.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang nghĩ…'**
+  String get thinkingShort;
+
+  /// No description provided for @eliminatedShort.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bị loại'**
+  String get eliminatedShort;
 }
 
 class _AppLocalizationsDelegate
