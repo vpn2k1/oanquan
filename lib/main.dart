@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,13 +13,10 @@ import 'features/game/flame/pieces_painter.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PiecesPainter.loadPieces();
-  // Xoay theo điện thoại: dọc hoặc ngang (bỏ dọc ngược). Mỗi màn có bố cục
-  // riêng cho từng chiều (ScreenLayout); web theo cửa sổ trình duyệt.
-  await SystemChrome.setPreferredOrientations(const [
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
+  // Luôn nằm ngang, lật trái/phải theo cảm biến: khóa bằng cấu hình native
+  // (AndroidManifest `sensorLandscape`, Info.plist chỉ hai chiều ngang).
+  // Không gọi SystemChrome.setPreferredOrientations: trên Android nó đổi thành
+  // USER_LANDSCAPE, không lật khi máy tắt tự động xoay.
   // Chưa có google-services.json / GoogleService-Info.plist thì game vẫn chạy,
   // chỉ bỏ qua kiểm tra cập nhật.
   try {

@@ -7,7 +7,8 @@ import 'package:o_quan_viet/features/game/game_session.dart';
 
 import 'app_flow_test.dart' show pumpApp;
 
-/// Xoay điện thoại giữa chừng: màn đang mở dựng lại theo chiều mới, không tràn.
+/// Đổi kích thước/chiều giữa chừng (cửa sổ web, tablet, máy gập): màn đang mở
+/// dựng lại theo kích thước mới, không tràn. Điện thoại luôn nằm ngang.
 void main() {
   const landscape = Size(800, 360);
   const portrait = Size(360, 800);
