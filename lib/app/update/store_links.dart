@@ -7,8 +7,11 @@ abstract final class StoreLinks {
   /// applicationId trong android/app/build.gradle.kts.
   static const androidPackage = 'vp.nam.oanquan';
 
-  /// ID số của app trên App Store Connect (vd. '6740000000').
-  /// Để trống khi chưa phát hành iOS: khi đó không kiểm tra cập nhật trên iOS.
+  /// Bundle id iOS, dùng để hỏi phiên bản mới qua iTunes Lookup.
+  static const iosBundleId = 'vp.nam.oanquan';
+
+  /// ID số của app trên App Store Connect (vd. '6740000000'). Không bắt buộc:
+  /// link App Store được lấy từ iTunes Lookup khi có bản mới.
   static const iosAppId = '';
 
   static const playUrl =
@@ -22,8 +25,9 @@ abstract final class StoreLinks {
     return null;
   }
 
-  static Future<bool> open() async {
-    final url = current;
+  /// Mở [url] (vd. link lấy từ store), không có thì link của nền tảng.
+  static Future<bool> open([String? url]) async {
+    url ??= current;
     if (url == null) return false;
     return launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }

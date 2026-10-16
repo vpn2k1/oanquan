@@ -14,8 +14,10 @@ import 'features/game/flame/pieces_painter.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PiecesPainter.loadPieces();
-  // Game mặc định chơi màn hình ngang (Android/iOS; web theo cửa sổ trình duyệt).
+  // Xoay theo điện thoại: dọc hoặc ngang (bỏ dọc ngược). Mỗi màn có bố cục
+  // riêng cho từng chiều (ScreenLayout); web theo cửa sổ trình duyệt.
   await SystemChrome.setPreferredOrientations(const [
+    DeviceOrientation.portraitUp,
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);

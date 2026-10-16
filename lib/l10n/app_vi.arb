@@ -24,7 +24,7 @@
   "modeOnline": "Online",
   "playersSetup": "Người chơi",
   "human": "Người",
-  "ai": "Máy",
+  "ai": "AI",
   "startGame": "Bắt đầu",
   "defaultPlayerName": "Người {n}",
   "@defaultPlayerName": {
@@ -124,12 +124,12 @@
   "tutStep6Title": "Hết dân và kết thúc",
   "tutStep6": "Đầu lượt nếu 5 ô của bạn đều trống: lấy 5 dân đã ăn rải lại mỗi ô 1 dân; không đủ thì vay đối thủ, trả khi tính điểm. Ván kết thúc khi cả hai ô quan hết sạch dân và quan; dân còn trên các ô bên nào thuộc về người bên đó. 1 quan = 10 dân, nhiều dân nhất thắng.",
   "tutKeyboard": "Bàn phím: ←/→ chọn ô, Z = ngược chiều kim đồng hồ, X = theo chiều kim đồng hồ, Esc = hủy.",
-  "tutTryIt": "Chơi thử với Máy dễ",
+  "tutTryIt": "Chơi thử với AI dễ",
   "next": "Tiếp",
   "previous": "Trước",
   "statsTitle": "Thống kê",
   "statsPlayed": "Ván đã chơi",
-  "statsWinsVsAi": "Thắng Máy",
+  "statsWinsVsAi": "Thắng AI",
   "statsBestScore": "Điểm cao nhất",
   "statsQuanTotal": "Tổng quan đã ăn",
   "onlineTitle": "Phòng online",
@@ -208,6 +208,12 @@
   "updateTitle": "Có bản cập nhật mới",
   "updateSoftMsg": "Ô Quan Việt có phiên bản mới với nhiều cải tiến. Cập nhật ngay nhé?",
   "updateRequiredMsg": "Phiên bản này đã cũ, vui lòng cập nhật để tiếp tục chơi.",
+  "updateVersionMsg": "Phiên bản {version} đã có trên cửa hàng với nhiều cải tiến. Cập nhật ngay nhé?",
+  "@updateVersionMsg": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "updateNow": "Cập nhật",
   "updateLater": "Để sau",
   "aiEasy": "Dễ",
@@ -219,9 +225,9 @@
   "achFirstGame": "Ván đầu tiên",
   "achFirstGameDesc": "Hoàn thành một ván bất kỳ",
   "achBeatAi": "Khắc chế cỗ máy",
-  "achBeatAiDesc": "Thắng một ván có Máy",
+  "achBeatAiDesc": "Thắng một ván có AI",
   "achBeatHard": "Cao thủ",
-  "achBeatHardDesc": "Thắng Máy mức Khó",
+  "achBeatHardDesc": "Thắng AI mức Khó",
   "achQuanHunter": "Thợ săn quan",
   "achQuanHunterDesc": "Ăn 2 quan trong một ván",
   "achHighScore": "Đại phú",

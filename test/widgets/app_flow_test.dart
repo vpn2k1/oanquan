@@ -109,7 +109,8 @@ void main() {
   testWidgets('tutorial, cài đặt và thành tích mở được', (tester) async {
     final c = await pumpApp(tester, const Size(812, 375));
     final router = c.read(routerProvider);
-    await tester.tap(find.text('Hướng dẫn'));
+    // Trang chủ: hàng biểu tượng không có nhãn chữ → bấm theo key.
+    await tester.tap(find.byKey(const Key('tutorial')));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('Bàn và quân'), findsOneWidget);
     await tester.tap(find.text('Tiếp'));
@@ -118,7 +119,7 @@ void main() {
     expect(find.text('Chọn ô và hướng'), findsOneWidget);
     router.pop();
     await tester.pump(const Duration(milliseconds: 500));
-    await tester.tap(find.text('Cài đặt'));
+    await tester.tap(find.byKey(const Key('settings')));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(const Key('reducedMotion')), findsOneWidget);
     // Điện thoại ngang: Cài đặt vừa một màn hình, không cần cuộn.
@@ -129,7 +130,7 @@ void main() {
     expect(find.text('Settings'), findsOneWidget);
     router.pop();
     await tester.pump(const Duration(milliseconds: 500));
-    await tester.tap(find.text('Achievements'));
+    await tester.tap(find.byKey(const Key('achievements')));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('First game'), findsOneWidget);
   });

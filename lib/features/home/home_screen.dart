@@ -150,8 +150,6 @@ class _IconTile extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 6.r),
-          GestureDetector(onTap: onTap),
         ],
       ),
     );

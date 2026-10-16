@@ -848,6 +848,12 @@ abstract class AppLocalizations {
   /// **'Phiên bản này đã cũ, vui lòng cập nhật để tiếp tục chơi.'**
   String get updateRequiredMsg;
 
+  /// No description provided for @updateVersionMsg.
+  ///
+  /// In vi, this message translates to:
+  /// **'Phiên bản {version} đã có trên cửa hàng với nhiều cải tiến. Cập nhật ngay nhé?'**
+  String updateVersionMsg(Object version);
+
   /// No description provided for @updateNow.
   ///
   /// In vi, this message translates to:

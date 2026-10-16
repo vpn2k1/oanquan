@@ -141,6 +141,8 @@ abstract final class Strings {
   static String get updateTitle => _l.updateTitle;
   static String get updateSoftMsg => _l.updateSoftMsg;
   static String get updateRequiredMsg => _l.updateRequiredMsg;
+  static String updateVersionMsg(Object version) =>
+      _l.updateVersionMsg(version);
   static String get updateNow => _l.updateNow;
   static String get updateLater => _l.updateLater;
   static String get aiEasy => _l.aiEasy;

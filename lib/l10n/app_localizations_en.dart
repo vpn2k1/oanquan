@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'O An Quan';
+  String get appTitle => 'O Quan Viet';
 
   @override
   String get appSubtitle => 'A Folk Strategy Duel';
@@ -68,7 +68,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get human => 'Human';
 
   @override
-  String get ai => 'bot';
+  String get ai => 'AI';
 
   @override
   String get startGame => 'Start';
@@ -273,7 +273,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Keyboard: ←/→ select pit, Z = counter-clockwise, X = clockwise, Esc = cancel.';
 
   @override
-  String get tutTryIt => 'Try against easy bot';
+  String get tutTryIt => 'Try against easy AI';
 
   @override
   String get next => 'Next';
@@ -288,7 +288,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsPlayed => 'Games played';
 
   @override
-  String get statsWinsVsAi => 'Wins vs bot';
+  String get statsWinsVsAi => 'Wins vs AI';
 
   @override
   String get statsBestScore => 'Best score';
@@ -430,6 +430,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'This version is no longer supported. Please update to keep playing.';
 
   @override
+  String updateVersionMsg(Object version) {
+    return 'Version $version is now available in the store. Update now?';
+  }
+
+  @override
   String get updateNow => 'Update';
 
   @override
@@ -463,13 +468,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achBeatAi => 'Machine tamer';
 
   @override
-  String get achBeatAiDesc => 'Win a game with an bot';
+  String get achBeatAiDesc => 'Win a game with an AI';
 
   @override
   String get achBeatHard => 'Grandmaster';
 
   @override
-  String get achBeatHardDesc => 'Beat a Hard bot';
+  String get achBeatHardDesc => 'Beat a Hard AI';
 
   @override
   String get achQuanHunter => 'Mandarin hunter';

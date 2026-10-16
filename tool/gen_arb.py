@@ -143,6 +143,7 @@ S = {
     'updateTitle': ('Có bản cập nhật mới', 'Update available'),
     'updateSoftMsg': ('Ô Quan Việt có phiên bản mới với nhiều cải tiến. Cập nhật ngay nhé?', 'A new version of O Quan Viet is available. Update now?'),
     'updateRequiredMsg': ('Phiên bản này đã cũ, vui lòng cập nhật để tiếp tục chơi.', 'This version is no longer supported. Please update to keep playing.'),
+    'updateVersionMsg': ('Phiên bản {version} đã có trên cửa hàng với nhiều cải tiến. Cập nhật ngay nhé?', 'Version {version} is now available in the store. Update now?'),
     'updateNow': ('Cập nhật', 'Update'),
     'updateLater': ('Để sau', 'Later'),
 }
