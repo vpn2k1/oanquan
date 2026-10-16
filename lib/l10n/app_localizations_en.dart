@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'O Quan Viet';
+  String get appTitle => 'O An Quan';
 
   @override
   String get appSubtitle => 'A Folk Strategy Duel';
@@ -68,7 +68,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get human => 'Human';
 
   @override
-  String get ai => 'AI';
+  String get ai => 'bot';
 
   @override
   String get startGame => 'Start';
@@ -273,7 +273,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Keyboard: ←/→ select pit, Z = counter-clockwise, X = clockwise, Esc = cancel.';
 
   @override
-  String get tutTryIt => 'Try against easy AI';
+  String get tutTryIt => 'Try against easy bot';
 
   @override
   String get next => 'Next';
@@ -288,7 +288,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsPlayed => 'Games played';
 
   @override
-  String get statsWinsVsAi => 'Wins vs AI';
+  String get statsWinsVsAi => 'Wins vs bot';
 
   @override
   String get statsBestScore => 'Best score';
@@ -463,13 +463,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achBeatAi => 'Machine tamer';
 
   @override
-  String get achBeatAiDesc => 'Win a game with an AI';
+  String get achBeatAiDesc => 'Win a game with an bot';
 
   @override
   String get achBeatHard => 'Grandmaster';
 
   @override
-  String get achBeatHardDesc => 'Beat a Hard AI';
+  String get achBeatHardDesc => 'Beat a Hard bot';
 
   @override
   String get achQuanHunter => 'Mandarin hunter';

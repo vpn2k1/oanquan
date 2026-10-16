@@ -9,7 +9,7 @@ class AppLocalizationsVi extends AppLocalizations {
   AppLocalizationsVi([String locale = 'vi']) : super(locale);
 
   @override
-  String get appTitle => 'Ô Quan Việt';
+  String get appTitle => 'Ô Ăn Quan';
 
   @override
   String get appSubtitle => 'Đấu Trí Dân Gian';
@@ -68,7 +68,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get human => 'Người';
 
   @override
-  String get ai => 'AI';
+  String get ai => 'máy';
 
   @override
   String get startGame => 'Bắt đầu';
@@ -274,7 +274,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Bàn phím: ←/→ chọn ô, Z = ngược chiều kim đồng hồ, X = theo chiều kim đồng hồ, Esc = hủy.';
 
   @override
-  String get tutTryIt => 'Chơi thử với AI dễ';
+  String get tutTryIt => 'Chơi thử với máy dễ';
 
   @override
   String get next => 'Tiếp';
@@ -289,7 +289,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get statsPlayed => 'Ván đã chơi';
 
   @override
-  String get statsWinsVsAi => 'Thắng AI';
+  String get statsWinsVsAi => 'Thắng máy';
 
   @override
   String get statsBestScore => 'Điểm cao nhất';
@@ -463,13 +463,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get achBeatAi => 'Khắc chế cỗ máy';
 
   @override
-  String get achBeatAiDesc => 'Thắng một ván có AI';
+  String get achBeatAiDesc => 'Thắng một ván có máy';
 
   @override
   String get achBeatHard => 'Cao thủ';
 
   @override
-  String get achBeatHardDesc => 'Thắng AI mức Khó';
+  String get achBeatHardDesc => 'Thắng máy mức Khó';
 
   @override
   String get achQuanHunter => 'Thợ săn quan';

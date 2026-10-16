@@ -74,31 +74,15 @@ class HomeScreen extends ConsumerWidget {
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final (key, icon, label, route) in [
-            (
-              'tutorial',
-              Icons.menu_book_rounded,
-              Strings.tutorial,
-              Routes.tutorial,
-            ),
-            (
-              'achievements',
-              Icons.emoji_events_rounded,
-              Strings.achievements,
-              Routes.achievements,
-            ),
-            (
-              'settings',
-              Icons.settings_rounded,
-              Strings.settings,
-              Routes.settings,
-            ),
+          for (final (key, icon, route) in [
+            ('tutorial', Icons.menu_book_rounded, Routes.tutorial),
+            ('achievements', Icons.emoji_events_rounded, Routes.achievements),
+            ('settings', Icons.settings_rounded, Routes.settings),
           ])
             Expanded(
               child: _IconTile(
                 key: Key(key),
                 icon: icon,
-                label: label,
                 onTap: () => context.push(route),
               ),
             ),
@@ -133,15 +117,9 @@ class HomeScreen extends ConsumerWidget {
 
 /// Nút biểu tượng vuông viền phấn, nhãn nhỏ bên dưới (hàng phụ ở trang chủ).
 class _IconTile extends StatelessWidget {
-  const _IconTile({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _IconTile({super.key, required this.icon, required this.onTap});
 
   final IconData icon;
-  final String label;
   final VoidCallback onTap;
 
   @override
@@ -149,7 +127,6 @@ class _IconTile extends StatelessWidget {
     final t = RcTokens.of(context);
     return Semantics(
       button: true,
-      label: label,
       excludeSemantics: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -174,17 +151,7 @@ class _IconTile extends StatelessWidget {
             ),
           ),
           SizedBox(height: 6.r),
-          GestureDetector(
-            onTap: onTap,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-                color: t.text,
-              ),
-            ),
-          ),
+          GestureDetector(onTap: onTap),
         ],
       ),
     );
