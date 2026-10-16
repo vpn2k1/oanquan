@@ -241,19 +241,13 @@ class OQuanGame extends FlameGame with KeyboardEvents {
   // ---------------------------------------------------------------------------
 
   void onBackgroundTap() {
-    if (animating) {
-      timeScale = 4;
-      return;
-    }
+    // Đang rải quân: chạm (kể cả lúc vuốt / zoom) không làm gì, giữ nguyên tốc độ.
+    if (animating) return;
     deselect();
   }
 
   void onCellTap(int id) {
-    if (animating) {
-      timeScale = 4;
-      return;
-    }
-    if (!_inputEnabled) return;
+    if (animating || !_inputEnabled) return;
     if (legal.contains(id)) {
       if (selected == id) {
         deselect();

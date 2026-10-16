@@ -100,7 +100,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get animating => 'Sowing… (tap to fast-forward)';
+  String get animating => 'Sowing…';
 
   @override
   String get undo => 'Undo';
@@ -353,11 +353,25 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get currentRules => 'Current rules (multi_v1)';
+  String get currentRules => 'Rules';
 
   @override
-  String get rulesSummary =>
-      '• Pick your own pit and a direction, drop 1 seed per pit.\n• Next pit has seeds → pick up and continue; mandarin pit → turn ends.\n• Empty pit then a pit with pieces → capture, chains allowed; 2 empty pits → turn ends.\n• A young mandarin (< 5 seeds in its pit) cannot be captured.\n• Out of seeds: put 5 captured seeds back; borrow if short, repay at scoring.\n• Mandarin pits emptied → game over; seeds left go to each pit\'s owner. 1 mandarin = 10 seeds.';
+  String get markSrc => 'Chosen pit';
+
+  @override
+  String get markGap => 'Empty pit';
+
+  @override
+  String get markEat => 'Captured';
+
+  @override
+  String get markPick => 'Refilled with 1 seed';
+
+  @override
+  String get markStop => 'Turn ends';
+
+  @override
+  String get markDirection => 'Two sowing directions';
 
   @override
   String get addSimulatedClient => '+ Add simulated client';

@@ -25,6 +25,7 @@ dependencies:
   url_launcher: ^6.3.3
 
 dev_dependencies:
+  flutter_native_splash: ^2.4.8
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
@@ -34,6 +35,26 @@ flutter:
   generate: true
   assets:
     - assets/app_icon.png
-    - assets/splash.png
+    - assets/mode_2_players.png
+    - assets/mode_3_players.png
+    - assets/mode_4_players.png
     - assets/pebbles.png
     - assets/quan_stone.png
+    - shorebird.yaml
+
+flutter_native_splash:
+  color: "#B55D2D"
+  color_dark: "#B55D2D"
+  image: assets/splash.png
+  image_dark: assets/splash.png
+  android_gravity: fill
+  ios_content_mode: scaleAspectFill
+  fullscreen: true
+  android_screen_orientation: sensorLandscape
+  android_12:
+    color: "#B55D2D"
+    color_dark: "#B55D2D"
+    image: assets/splash_android12.png
+    image_dark: assets/splash_android12.png
+    icon_background_color: "#B55D2D"
+    icon_background_color_dark: "#B55D2D"

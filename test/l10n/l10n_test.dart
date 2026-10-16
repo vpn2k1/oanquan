@@ -32,7 +32,6 @@ Future<ProviderContainer> pumpLocalized(
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const OQuanApp()),
   );
-  await tester.pump(const Duration(milliseconds: 1600)); // splash
   await tester.pump(const Duration(milliseconds: 400));
   return container;
 }
@@ -64,13 +63,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Cài đặt'), findsOneWidget);
 
-    await tester.scrollUntilVisible(
-      find.text('English'),
-      100,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.ensureVisible(find.text('English'));
-    await tester.pumpAndSettle();
+    // Điện thoại ngang: Cài đặt vừa một màn hình, không cần cuộn.
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
 

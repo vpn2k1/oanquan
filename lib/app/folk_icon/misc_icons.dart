@@ -100,6 +100,19 @@ bool paintMiscIcon(IconPen p, IconData icon) {
     p.dot(7, 15, 1.3, p.gold);
     return true;
   }
+  if (icon == Icons.close_rounded) {
+    p.line(6, 6, 18, 18);
+    p.line(18, 6, 6, 18);
+    return true;
+  }
+  if (icon == Icons.swap_horiz_rounded) {
+    // Hai mũi tên ngược chiều: hai hướng rải.
+    p.poly(const [Offset(3, 9), Offset(20, 9)]);
+    p.poly(const [Offset(16, 5), Offset(20, 9), Offset(16, 13)]);
+    p.poly(const [Offset(21, 16), Offset(4, 16)]);
+    p.poly(const [Offset(8, 12), Offset(4, 16), Offset(8, 20)]);
+    return true;
+  }
   if (icon == Icons.cloud_off_rounded) {
     final cloud = Path()
       ..moveTo(5, 18)

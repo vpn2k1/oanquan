@@ -25,13 +25,12 @@ Future<ProviderContainer> pumpApp(WidgetTester tester, Size size) async {
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const OQuanApp()),
   );
-  await tester.pump(const Duration(milliseconds: 1600)); // splash
   await tester.pump(const Duration(milliseconds: 400));
   return container;
 }
 
 void main() {
-  testWidgets('splash hiển thị logo và thương hiệu VPN Games', (tester) async {
+  testWidgets('mở ứng dụng vào trang chủ sau native splash', (tester) async {
     SharedPreferences.setMockInitialValues({
       'settings.sound': false,
       'settings.haptics': false,
@@ -45,16 +44,6 @@ void main() {
       UncontrolledProviderScope(container: container, child: const OQuanApp()),
     );
 
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Image &&
-            widget.image is AssetImage &&
-            (widget.image as AssetImage).assetName == 'assets/splash.png',
-      ),
-      findsOneWidget,
-    );
-    await tester.pump(const Duration(milliseconds: 1600));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byKey(const Key('playNow')), findsOneWidget);
   });
@@ -132,12 +121,7 @@ void main() {
     await tester.tap(find.text('Cài đặt'));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(const Key('reducedMotion')), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('English'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pump();
+    // Điện thoại ngang: Cài đặt vừa một màn hình, không cần cuộn.
     await tester.tap(find.text('English'));
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));

@@ -100,7 +100,7 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get animating => 'Đang rải quân… (chạm để tua nhanh)';
+  String get animating => 'Đang rải quân…';
 
   @override
   String get undo => 'Đi lại';
@@ -353,11 +353,25 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get currentRules => 'Luật hiện hành (multi_v1)';
+  String get currentRules => 'Luật chơi';
 
   @override
-  String get rulesSummary =>
-      '• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.';
+  String get markSrc => 'Ô được chọn';
+
+  @override
+  String get markGap => 'Ô trống';
+
+  @override
+  String get markEat => 'Bị ăn';
+
+  @override
+  String get markPick => 'Rải lại 1 dân';
+
+  @override
+  String get markStop => 'Dừng lượt';
+
+  @override
+  String get markDirection => 'Hai hướng rải';
 
   @override
   String get addSimulatedClient => '+ Thêm client giả lập';

@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/layout/fit_to_screen.dart';
+import '../../app/layout/screen_layout.dart';
 import '../../app/router.dart';
 import '../../app/widgets.dart';
 import '../../core/game_models/game_config.dart';
@@ -52,6 +54,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
   Widget build(BuildContext context) {
     final steps = tutorialSteps();
     final theme = Theme.of(context);
+    final layout = ScreenLayout.of(context);
     VoidCallback? prevPressed;
     if (_index != 0) {
       prevPressed = () => _page.previousPage(
@@ -60,7 +63,10 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(Strings.tutorialTitle)),
+      appBar: AppBar(
+        title: Text(Strings.tutorialTitle),
+        toolbarHeight: toolbarHeightFor(layout),
+      ),
       body: AppBackground(
         child: SafeArea(
           child: Center(
@@ -111,21 +117,17 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                             ),
                           ],
                         ];
-                        // Ngang hay dọc đều xếp một cột: tiêu đề, hình, lời giải.
-                        return ListView(
-                          padding: EdgeInsets.all(20.r),
-                          children: [
-                            ...texts.take(2),
-                            SizedBox(height: 16.r),
-                            illustration,
-                            ...texts.skip(2),
-                          ],
+                        return _TutorialPage(
+                          layout: layout,
+                          header: texts.take(2).toList(),
+                          illustration: illustration,
+                          body: texts.skip(2).toList(),
                         );
                       },
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.all(16.r),
+                    padding: _navPadding(layout),
                     child: Row(
                       children: [
                         TextButton(
@@ -173,4 +175,54 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
 Color _dotColor(ThemeData theme, bool current) {
   if (current) return theme.colorScheme.primary;
   return theme.disabledColor;
+}
+
+EdgeInsets _navPadding(ScreenLayout layout) {
+  if (layout == ScreenLayout.compactLandscape) {
+    return EdgeInsets.fromLTRB(16.r, 0, 16.r, 8.r);
+  }
+  return EdgeInsets.all(16.r);
+}
+
+/// Một trang hướng dẫn. Điện thoại ngang: chữ bên trái, hình bên phải; dọc:
+/// một cột — cả hai vừa khung, không cuộn. Màn rộng: một cột, cuộn khi cần.
+class _TutorialPage extends StatelessWidget {
+  const _TutorialPage({
+    required this.layout,
+    required this.header,
+    required this.illustration,
+    required this.body,
+  });
+  final ScreenLayout layout;
+  final List<Widget> header;
+  final Widget illustration;
+  final List<Widget> body;
+
+  @override
+  Widget build(BuildContext context) {
+    final column = [...header, SizedBox(height: 16.r), illustration, ...body];
+    if (layout == ScreenLayout.wide) {
+      return ListView(padding: EdgeInsets.all(20.r), children: column);
+    }
+    Widget content = _column(column);
+    if (layout == ScreenLayout.compactLandscape) {
+      content = Row(
+        children: [
+          Expanded(flex: 5, child: _column([...header, ...body])),
+          SizedBox(width: 20.r),
+          Expanded(flex: 4, child: illustration),
+        ],
+      );
+    }
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 12.r),
+      child: FitToScreen(child: content),
+    );
+  }
+
+  Widget _column(List<Widget> children) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: children,
+  );
 }

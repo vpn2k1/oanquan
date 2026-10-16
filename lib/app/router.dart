@@ -10,11 +10,9 @@ import 'features.dart';
 import 'update/update_gate.dart';
 import '../features/result/result_screen.dart';
 import '../features/settings/settings_screen.dart';
-import '../features/splash/splash_screen.dart';
 import '../features/tutorial/tutorial_screen.dart';
 
 abstract final class Routes {
-  static const splash = '/';
   static const home = '/home';
   static const setup = '/setup';
   static const game = '/game';
@@ -27,9 +25,9 @@ abstract final class Routes {
 
 final routerProvider = Provider<GoRouter>(
   (ref) => GoRouter(
-    initialLocation: Routes.splash,
+    initialLocation: Routes.home,
     routes: [
-      GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
+      GoRoute(path: '/', redirect: (_, _) => Routes.home),
       GoRoute(
         path: Routes.home,
         builder: (_, _) => const UpdateGate(child: HomeScreen()),

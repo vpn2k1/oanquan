@@ -263,7 +263,7 @@ abstract class AppLocalizations {
   /// No description provided for @animating.
   ///
   /// In vi, this message translates to:
-  /// **'Đang rải quân… (chạm để tua nhanh)'**
+  /// **'Đang rải quân…'**
   String get animating;
 
   /// No description provided for @undo.
@@ -713,14 +713,44 @@ abstract class AppLocalizations {
   /// No description provided for @currentRules.
   ///
   /// In vi, this message translates to:
-  /// **'Luật hiện hành (multi_v1)'**
+  /// **'Luật chơi'**
   String get currentRules;
 
-  /// No description provided for @rulesSummary.
+  /// No description provided for @markSrc.
   ///
   /// In vi, this message translates to:
-  /// **'• Chọn ô dân của mình, chọn hướng, rải 1 dân/ô.\n• Ô kế tiếp có dân → bốc rải tiếp; gặp ô quan → mất lượt.\n• Một ô trống rồi ô có quân → ăn, có thể ăn chuỗi; 2 ô trống liền → mất lượt.\n• Quan non (ô quan < 5 dân) không được ăn.\n• Hết dân: lấy 5 dân đã ăn rải lại; thiếu thì vay, trả khi tính điểm.\n• Hết quan và dân ở các ô quan → kết thúc; dân bên nào về bên đó. 1 quan = 10 dân.'**
-  String get rulesSummary;
+  /// **'Ô được chọn'**
+  String get markSrc;
+
+  /// No description provided for @markGap.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ô trống'**
+  String get markGap;
+
+  /// No description provided for @markEat.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bị ăn'**
+  String get markEat;
+
+  /// No description provided for @markPick.
+  ///
+  /// In vi, this message translates to:
+  /// **'Rải lại 1 dân'**
+  String get markPick;
+
+  /// No description provided for @markStop.
+  ///
+  /// In vi, this message translates to:
+  /// **'Dừng lượt'**
+  String get markStop;
+
+  /// No description provided for @markDirection.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hai hướng rải'**
+  String get markDirection;
 
   /// No description provided for @addSimulatedClient.
   ///

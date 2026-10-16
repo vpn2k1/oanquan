@@ -118,7 +118,12 @@ abstract final class Strings {
   static String get ok => _l.ok;
   static String moveNumber(Object n) => _l.moveNumber(n);
   static String get currentRules => _l.currentRules;
-  static String get rulesSummary => _l.rulesSummary;
+  static String get markSrc => _l.markSrc;
+  static String get markGap => _l.markGap;
+  static String get markEat => _l.markEat;
+  static String get markPick => _l.markPick;
+  static String get markStop => _l.markStop;
+  static String get markDirection => _l.markDirection;
   static String get addSimulatedClient => _l.addSimulatedClient;
   static String borrowMsg(Object name, Object count) =>
       _l.borrowMsg(name, count);

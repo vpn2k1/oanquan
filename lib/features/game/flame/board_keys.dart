@@ -9,10 +9,7 @@ extension BoardKeys on OQuanGame {
   KeyEventResult handleKeyEvent(KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
     final k = event.logicalKey;
-    if (animating) {
-      timeScale = 4;
-      return KeyEventResult.handled;
-    }
+    if (animating) return KeyEventResult.handled;
     if (!inputEnabled || legal.isEmpty) return KeyEventResult.ignored;
     final order = [
       for (final i in topo.playerCells(state.turnPlayer))

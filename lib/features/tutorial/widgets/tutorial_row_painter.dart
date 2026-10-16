@@ -25,7 +25,8 @@ class TutorialRowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final n = cells.length;
-    final u = min(size.width / (n + 0.6), size.height / 1.9);
+    // Chiều cao cần ~2.3u: bàn 1.4u, mũi tên bên dưới và ghi chú bên trên.
+    final u = min(size.width / (n + 0.6), size.height / 2.3);
     final y = size.height / 2;
     final x0 = (size.width - u * n) / 2;
     final board = RRect.fromRectAndRadius(
@@ -55,20 +56,13 @@ class TutorialRowPainter extends CustomPainter {
           ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(u * 0.2)));
       }
       canvas.drawPath(shape, Paint()..color = AppColors.well);
-      final markColor = switch (c.mark) {
-        'src' => Colors.white,
-        'gap' => const Color(0xFF3FE0C5),
-        'eat' => AppColors.gold,
-        'pick' => const Color(0xFF7FD1C4),
-        'stop' => const Color(0xFFE5604D),
-        _ => null,
-      };
+      final mark = markColor(c.mark);
       canvas.drawPath(
         shape,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = _markWidth(markColor)
-          ..color = markColor ?? _defaultMark(c.quan),
+          ..strokeWidth = _markWidth(mark)
+          ..color = mark ?? _defaultMark(c.quan),
       );
       if (c.quan && c.token) {
         for (var k = 0; k < c.dan; k++) {

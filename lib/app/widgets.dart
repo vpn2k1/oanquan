@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../features/game/flame/pieces_painter.dart';
 import 'folk_art.dart';
 import 'folk_icon.dart';
 import 'theme.dart';
@@ -66,12 +65,6 @@ Color _dotColor(bool dark) {
 double _dotAlpha(bool dark) {
   if (dark) return 0.07;
   return 0.08;
-}
-
-/// Dấu hàng: người 0 ở dưới (+1), người còn lại ở trên (-1).
-int _rowSign(int p) {
-  if (p == 0) return 1;
-  return -1;
 }
 
 double _opacity(bool dimmed) {
@@ -158,83 +151,11 @@ class BoardShapeIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: size,
-    child: CustomPaint(painter: _ShapePainter(players)),
+    child: Image.asset(
+      'assets/mode_${players}_players.png',
+      fit: BoxFit.contain,
+    ),
   );
-}
-
-class _ShapePainter extends CustomPainter {
-  _ShapePainter(this.n);
-  final int n;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    final r = size.width * 0.42;
-    final wood = Paint()..color = AppColors.woodLight;
-    final List<Offset> verts;
-    if (n == 2) {
-      final rect = Rect.fromCenter(
-        center: c,
-        width: size.width * 0.95,
-        height: size.height * 0.42,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(rect.height / 2)),
-        wood,
-      );
-      verts = [
-        rect.centerRight - Offset(rect.height * 0.35, 0),
-        rect.centerLeft + Offset(rect.height * 0.35, 0),
-      ];
-      for (var p = 0; p < 2; p++) {
-        for (var j = 0; j < 5; j++) {
-          final x = rect.left + rect.width * (0.24 + j * 0.13);
-          final y = c.dy + _rowSign(p) * rect.height * 0.22;
-          canvas.drawCircle(
-            Offset(x, y),
-            rect.height * 0.14,
-            Paint()..color = AppColors.well,
-          );
-          PiecesPainter.pebble(
-            canvas,
-            Offset(x, y),
-            rect.height * 0.085,
-            variant: p * 5 + j,
-          );
-        }
-      }
-    } else {
-      verts = [
-        for (var p = 0; p < n; p++)
-          c + Offset.fromDirection(pi / 2 - pi / n + p * 2 * pi / n, r),
-      ];
-      canvas.drawPath(Path()..addPolygon(verts, true), wood);
-      for (var p = 0; p < n; p++) {
-        final a = verts[p], b = verts[(p + 1) % n];
-        for (var j = 0; j < 5; j++) {
-          final t = (j + 1) / 6;
-          final center = Offset.lerp(a, b, t)!;
-          canvas.drawCircle(
-            center,
-            size.width * 0.06,
-            Paint()..color = AppColors.well,
-          );
-          PiecesPainter.pebble(
-            canvas,
-            center,
-            size.width * 0.038,
-            variant: p * 5 + j,
-          );
-        }
-      }
-    }
-    for (final v in verts) {
-      PiecesPainter.quanStone(canvas, v, size.width * 0.07);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_ShapePainter old) => old.n != n;
 }
 
 /// Chip biểu tượng người chơi (màu + hình dạng).

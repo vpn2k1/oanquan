@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/layout/adaptive_panels.dart';
+import '../../app/layout/screen_layout.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../app/widgets.dart';
@@ -25,6 +27,8 @@ class ResultScreen extends ConsumerWidget {
       return const Scaffold();
     }
     final theme = Theme.of(context);
+    final layout = ScreenLayout.of(context);
+    final landscape = layout == ScreenLayout.compactLandscape;
     final standings = Scoring.standings(s.players);
     var title = Strings.winner(s.players[s.winnerIds.first].name);
     if (s.winnerIds.length > 1) title = Strings.draw;
@@ -35,7 +39,7 @@ class ResultScreen extends ConsumerWidget {
       null => '',
     };
     final header = <Widget>[
-      Center(child: LogoMark(size: 96.r)),
+      Center(child: LogoMark(size: _logoSize(landscape))),
       SizedBox(height: 12.r),
       Text(
         Strings.gameOver,
@@ -61,6 +65,8 @@ class ResultScreen extends ConsumerWidget {
       for (final st in standings)
         Card(
           child: ListTile(
+            dense: layout.isCompact,
+            visualDensity: _density(layout),
             leading: PlayerAvatar(
               playerId: st.player.id,
               ai: st.player.isAi,
@@ -129,28 +135,35 @@ class ResultScreen extends ConsumerWidget {
         },
       ),
     ];
+    // Điện thoại ngang: trái là tiêu đề + các nút, phải là bảng xếp hạng,
+    // vừa một màn hình. Dọc / màn rộng: tiêu đề, bảng xếp hạng, các nút.
+    var primary = [...header, SizedBox(height: 16.r), ...buttons];
+    var secondary = standingsList;
+    if (!landscape) {
+      primary = header;
+      secondary = [...standingsList, SizedBox(height: 16.r), ...buttons];
+    }
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
-          // Ngang hay dọc đều xếp một cột: tiêu đề, bảng xếp hạng, các nút.
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 480.r),
-              child: ListView(
-                padding: EdgeInsets.all(20.r),
-                shrinkWrap: true,
-                children: [
-                  ...header,
-                  SizedBox(height: 16.r),
-                  ...standingsList,
-                  SizedBox(height: 16.r),
-                  ...buttons,
-                ],
-              ),
-            ),
+          child: AdaptivePanels(
+            columnMaxWidth: 480.r,
+            padding: EdgeInsets.all(20.r),
+            primary: primary,
+            secondary: secondary,
           ),
         ),
       ),
     );
   }
+}
+
+double _logoSize(bool landscape) {
+  if (landscape) return 64.r;
+  return 96.r;
+}
+
+VisualDensity? _density(ScreenLayout layout) {
+  if (layout.isCompact) return VisualDensity.compact;
+  return null;
 }

@@ -13,6 +13,7 @@ import '../flame/board_game.dart';
 import '../game_session.dart';
 import 'game_notice.dart';
 import 'hud.dart';
+import 'widgets/board_zoom.dart';
 import 'widgets/game_dialogs.dart';
 import 'widgets/game_hud_buttons.dart';
 import 'widgets/game_rails.dart';
@@ -305,7 +306,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               }
               return Stack(
                 children: [
-                  Positioned.fill(child: GameWidget(game: g, autofocus: true)),
+                  // Hai ngón để phóng to bàn; các nút/thẻ người chơi giữ nguyên.
+                  Positioned.fill(
+                    child: BoardZoom(
+                      child: GameWidget(game: g, autofocus: true),
+                    ),
+                  ),
                   ...overlays,
                 ],
               );

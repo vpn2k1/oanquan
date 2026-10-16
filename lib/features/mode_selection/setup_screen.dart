@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
 import '../../app/folk_art.dart';
+import '../../app/layout/adaptive_panels.dart';
+import '../../app/layout/screen_layout.dart';
 import '../../app/widgets.dart';
 import '../../core/game_models/game_config.dart';
 import '../../core/game_models/player.dart';
@@ -98,6 +100,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final layout = ScreenLayout.of(context);
     final shapes = [
       Strings.boardRectangle,
       Strings.boardTriangle,
@@ -167,7 +170,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       ] else ...[
         Text(Strings.playerNames, style: theme.textTheme.titleMedium),
         SizedBox(height: 8.r),
-        for (var i = 0; i < _players; i++) _nameTile(i),
+        ..._nameTiles(layout),
       ],
     ];
     final start = FilledButton.icon(
@@ -177,29 +180,50 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       onPressed: _start,
     );
     return Scaffold(
-      appBar: AppBar(title: Text(Strings.playNow)),
+      appBar: AppBar(
+        title: Text(Strings.playNow),
+        toolbarHeight: toolbarHeightFor(layout),
+      ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
         child: SafeArea(
-          // Ngang hay dọc đều xếp một cột: bàn + chế độ, người chơi, nút bắt đầu.
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 560.r),
-              child: ListView(
-                padding: EdgeInsets.all(16.r),
-                children: [
-                  ...countAndMode,
-                  SizedBox(height: 20.r),
-                  ...playersSection,
-                  SizedBox(height: 20.r),
-                  start,
-                ],
-              ),
-            ),
+          // Điện thoại ngang: trái là bàn + chế độ, phải là người chơi + nút
+          // bắt đầu, vừa một màn hình. Dọc / màn rộng: một cột.
+          child: AdaptivePanels(
+            columnMaxWidth: 560.r,
+            gap: 20.r,
+            primary: countAndMode,
+            secondary: [
+              ...playersSection,
+              SizedBox(height: 20.r),
+              start,
+            ],
           ),
         ),
       ),
     );
+  }
+
+  /// Ô tên người chơi: điện thoại ngang xếp 2 ô một hàng cho đỡ cao.
+  List<Widget> _nameTiles(ScreenLayout layout) {
+    if (layout != ScreenLayout.compactLandscape) {
+      return [for (var i = 0; i < _players; i++) _nameTile(i)];
+    }
+    return [
+      for (var i = 0; i < _players; i += 2)
+        Row(
+          children: [
+            Expanded(child: _nameTile(i)),
+            SizedBox(width: 8.r),
+            Expanded(child: _nameTileOrEmpty(i + 1)),
+          ],
+        ),
+    ];
+  }
+
+  Widget _nameTileOrEmpty(int i) {
+    if (i < _players) return _nameTile(i);
+    return const SizedBox();
   }
 
   Widget _nameTile(int i) => Card(

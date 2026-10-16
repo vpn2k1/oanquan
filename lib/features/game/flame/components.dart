@@ -12,7 +12,7 @@ import 'pieces_painter.dart';
 
 Vector2 v2(Offset o) => Vector2(o.dx, o.dy);
 
-/// Lớp nền nhận chạm "trượt" (tua nhanh animation / bỏ chọn).
+/// Lớp nền nhận chạm "trượt" (bỏ chọn ô).
 class BackgroundTap extends PositionComponent
     with TapCallbacks, HasGameReference<OQuanGame> {
   BackgroundTap() : super(priority: -10);

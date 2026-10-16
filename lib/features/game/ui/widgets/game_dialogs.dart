@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../app/widgets.dart';
 import '../../../../l10n/strings.dart';
 
+export 'rules_sheet.dart' show showRulesDialog;
+
 /// Menu tạm dừng; trả 'resume' | 'restart' | 'rules' | 'settings' | 'exit'.
 Future<String?> showPauseMenu(BuildContext context) {
   Widget item(BuildContext ctx, IconData icon, String title, String value) =>
@@ -25,25 +27,6 @@ Future<String?> showPauseMenu(BuildContext context) {
           item(ctx, Icons.save_alt_rounded, Strings.saveAndExit, 'exit'),
         ],
       ),
-    ),
-  );
-}
-
-/// Hộp thoại luật đang áp dụng.
-void showRulesDialog(BuildContext context) {
-  showDialog<void>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(Strings.currentRules),
-      content: SingleChildScrollView(
-        child: Text('${Strings.rulesSummary}\n\n${Strings.rulesetNote}'),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text(Strings.ok),
-        ),
-      ],
     ),
   );
 }
