@@ -1,0 +1,39 @@
+appId: vp.nam.oanquan
+---
+- launchApp
+- assertVisible: "Chơi ngay"
+- tapOn:
+    point: "69%,74%"
+- assertVisible: "Tiếng Việt"
+- tapOn: "English"
+- assertVisible: "Settings"
+- tapOn: "Back"
+- assertVisible: "Play now"
+- tapOn: "Play now"
+- assertVisible: "Players"
+- takeScreenshot: 04-setup-ai
+- tapOn: "Start"
+- assertVisible: "Hint"
+- takeScreenshot: 01-game-2p
+- tapOn: "Pause"
+- tapOn: "Save & exit"
+- assertVisible: "Play now"
+- tapOn: "Play now"
+- tapOn: "(?s).*3 players.*"
+- tapOn: "Start"
+- assertVisible: "Hint"
+- takeScreenshot: 02-game-3p
+- tapOn: "Pause"
+- tapOn: "Save & exit"
+- assertVisible: "Play now"
+- tapOn: "Play now"
+- tapOn: "(?s).*4 players.*"
+- tapOn: "Start"
+- assertVisible: "Hint"
+- takeScreenshot: 03-game-4p
+- tapOn: "Pause"
+- tapOn: "Save & exit"
+- assertVisible: "Play now"
+- tapOn: "Play now"
+- tapOn: "With a friend"
+- takeScreenshot: 05-local-setup

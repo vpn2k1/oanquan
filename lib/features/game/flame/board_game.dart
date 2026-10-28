@@ -96,13 +96,7 @@ class OQuanGame extends FlameGame with KeyboardEvents {
 
   void _layout() {
     if (!hasLayout || size.x <= 0 || size.y <= 0) return;
-    final area = Rect.fromLTRB(
-      boardInsets.left,
-      boardInsets.top,
-      max(boardInsets.left + 50, size.x - boardInsets.right),
-      max(boardInsets.top + 50, size.y - boardInsets.bottom),
-    );
-    geo = BoardGeometry.compute(state.config, Size(size.x, size.y), area: area);
+    geo = boardGeometryFor(state.config, Size(size.x, size.y), boardInsets);
     boardImage = null;
     for (final h in _hits) {
       final c = geo!.cells[h.cellId];
@@ -110,6 +104,11 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     }
     _placeArrows();
   }
+
+  /// Mật độ điểm ảnh của view đang hiển thị (màn chơi đặt theo MediaQuery,
+  /// khớp với lúc vẽ sẵn bàn).
+  double devicePixelRatio =
+      PlatformDispatcher.instance.views.first.devicePixelRatio;
 
   /// Lề dành cho HUD nổi (bàn vẫn vẽ trên toàn màn hình).
   EdgeInsets boardInsets = EdgeInsets.zero;
@@ -157,8 +156,12 @@ class OQuanGame extends FlameGame with KeyboardEvents {
     ];
     final next = others[rnd.nextInt(others.length)];
     final seed = rnd.nextInt(1 << 30);
-    final dpr = PlatformDispatcher.instance.views.first.devicePixelRatio;
-    await GroundCache.warmUp(Size(size.x, size.y), dpr, next.ground, seed);
+    await GroundCache.warmUp(
+      Size(size.x, size.y),
+      devicePixelRatio,
+      next.ground,
+      seed,
+    );
     styleOverride = next;
     groundSeedOverride = seed;
     boardImage = null;

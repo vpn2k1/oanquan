@@ -7,24 +7,19 @@ import '../../app/folk_art.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../app/widgets.dart';
+import '../game/board_prewarm.dart';
 import '../game/data/save_repository.dart';
 import '../game/game_session.dart';
 import '../settings/settings_controller.dart';
 import '../../l10n/strings.dart';
 
-/// Vẽ sẵn mặt sân của ván đã lưu để "Tiếp tục ván" vào là có ngay.
-void _warmSavedGround(BuildContext context, WidgetRef ref) {
-  final size = MediaQuery.sizeOf(context);
-  final dpr = MediaQuery.devicePixelRatioOf(context);
+/// Vẽ sẵn bàn của ván đã lưu để "Tiếp tục ván" vào là có ngay.
+void _warmSavedBoard(BuildContext context, WidgetRef ref) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!context.mounted) return;
     final save = ref.read(saveRepositoryProvider).load();
     if (save == null) return;
-    final seed = save.current.config.seed;
-    final style = FolkStyle.resolve(
-      ref.read(settingsProvider).boardStyle,
-      seed,
-    );
-    GroundCache.warmUp(size, dpr, style.ground, seed);
+    prewarmBoard(context, save.current.config, ref.read(settingsProvider));
   });
 }
 
@@ -34,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hasSave = ref.watch(saveRepositoryProvider).hasSave;
-    if (hasSave) _warmSavedGround(context, ref);
+    if (hasSave) _warmSavedBoard(context, ref);
     final theme = Theme.of(context);
     ButtonStyle? playNowStyle;
     if (hasSave) {

@@ -16,16 +16,19 @@ Future<String?> showPauseMenu(BuildContext context) {
   return showModalBottomSheet<String>(
     context: context,
     showDragHandle: true,
+    isScrollControlled: true,
     builder: (ctx) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          item(ctx, Icons.play_arrow_rounded, Strings.resume, 'resume'),
-          item(ctx, Icons.replay_rounded, Strings.restart, 'restart'),
-          item(ctx, Icons.rule_rounded, Strings.rules, 'rules'),
-          item(ctx, Icons.settings_rounded, Strings.settings, 'settings'),
-          item(ctx, Icons.save_alt_rounded, Strings.saveAndExit, 'exit'),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            item(ctx, Icons.play_arrow_rounded, Strings.resume, 'resume'),
+            item(ctx, Icons.replay_rounded, Strings.restart, 'restart'),
+            item(ctx, Icons.rule_rounded, Strings.rules, 'rules'),
+            item(ctx, Icons.settings_rounded, Strings.settings, 'settings'),
+            item(ctx, Icons.save_alt_rounded, Strings.saveAndExit, 'exit'),
+          ],
+        ),
       ),
     ),
   );

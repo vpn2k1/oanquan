@@ -1,0 +1,19 @@
+appId: vp.nam.oanquan
+---
+- tapOn: "Tạm dừng"
+- tapOn: "Cài đặt"
+- assertVisible: "Tiếng Việt"
+- tapOn: "English"
+- assertVisible: "Settings"
+- takeScreenshot: 04-settings
+- tapOn: "Back"
+- assertVisible: "Hint"
+- takeScreenshot: 01-game
+- tapOn: "Pause"
+- tapOn: "Save & exit"
+- assertVisible: "Play now"
+- tapOn: "Play now"
+- assertVisible: "Players"
+- takeScreenshot: 02-setup-ai
+- tapOn: "With a friend"
+- takeScreenshot: 03-local-play

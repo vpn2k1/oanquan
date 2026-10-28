@@ -2,6 +2,8 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/painting.dart' show EdgeInsets;
+
 import '../../../core/game_models/game_config.dart';
 import 'board_raw_shapes.dart';
 
@@ -199,4 +201,19 @@ class BoardGeometry {
   );
 
   double get arrowRadius => max(unit * 0.4, 22);
+}
+
+/// Hình học bàn trong viewport [size], chừa lề [insets] cho HUD nổi.
+BoardGeometry boardGeometryFor(
+  GameConfig config,
+  Size size,
+  EdgeInsets insets,
+) {
+  final area = Rect.fromLTRB(
+    insets.left,
+    insets.top,
+    max(insets.left + 50, size.width - insets.right),
+    max(insets.top + 50, size.height - insets.bottom),
+  );
+  return BoardGeometry.compute(config, size, area: area);
 }

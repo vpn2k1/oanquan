@@ -10,7 +10,9 @@ import '../../../core/game_models/game_event.dart';
 import '../../settings/settings_controller.dart';
 import '../audio/sound_service.dart';
 import '../flame/board_game.dart';
+import '../flame/board_raster.dart';
 import '../game_session.dart';
+import 'board_insets.dart';
 import 'game_notice.dart';
 import 'hud.dart';
 import 'widgets/board_zoom.dart';
@@ -47,8 +49,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _sound
       ..enabled = settings.sound
       ..haptics = settings.haptics;
-    // Tổng hợp sẵn âm thanh sau frame đầu (tránh giật ở lần rải đầu tiên).
-    WidgetsBinding.instance.addPostFrameCallback((_) => _sound.init());
+    // Âm thanh đã tổng hợp sẵn ở nền từ lúc mở app (main), không chặn UI.
+    _sound.warmUp();
     if (session == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) context.go(Routes.home);
@@ -157,6 +159,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (s.aiThinking) thinkingId = s.current.turnPlayer;
 
     g.setDark(Theme.of(context).brightness == Brightness.dark);
+    g.devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     VoidCallback? onUndo;
     if (s.canUndo) onUndo = notifier.undo;
     VoidCallback? onHint;
@@ -200,6 +203,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 width: w,
               );
 
+              g.setBoardInsets(
+                boardInsetsFor(Size(c.maxWidth, c.maxHeight), pad, n),
+              );
               final overlays = <Widget>[];
               if (landscape) {
                 // Bàn ở giữa, gần kín màn; hai cột bằng nhau hai bên:
@@ -211,15 +217,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 final railW = gameRailWidth(area, n);
                 final wide = isWideRail(railW);
                 final edge = 10.r;
-                final side = edge + railW + 6.r;
-                g.setBoardInsets(
-                  EdgeInsets.fromLTRB(
-                    pad.left + side,
-                    pad.top + 4.r,
-                    pad.right + side,
-                    pad.bottom + 4.r,
-                  ),
-                );
                 Widget railChip(int id) {
                   if (wide) return chip(id, railW);
                   return RailPlayerChip(
@@ -259,18 +256,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 final w = c.maxWidth - pad.horizontal - 24.r;
                 var perRow = 1;
                 if (n - 1 >= 2) perRow = 2;
-                final oppRows = ((n - 1) / perRow).ceil();
                 final oppW = (w - (perRow - 1) * 8.r) / perRow;
-                final top = pad.top + (10 + 44 + 10 + 6).r + oppRows * 62.r;
-                final bottom = pad.bottom + (10 + 60 + 10 + 44 + 10).r;
-                g.setBoardInsets(
-                  EdgeInsets.fromLTRB(
-                    pad.left + 4.r,
-                    top,
-                    pad.right + 4.r,
-                    bottom,
-                  ),
-                );
                 overlays.addAll([
                   Positioned(
                     left: pad.left + 12.r,
@@ -309,7 +295,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   // Hai ngón để phóng to bàn; các nút/thẻ người chơi giữ nguyên.
                   Positioned.fill(
                     child: BoardZoom(
-                      child: GameWidget(game: g, autofocus: true),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Lót ảnh bàn vẽ sẵn: có bàn ngay frame đầu, trong
+                          // lúc Flame còn gắn game (Flame vẽ đè đúng chỗ).
+                          RawImage(
+                            image: StaticBoardCache.peek(
+                              g.staticSpecFor(Size(c.maxWidth, c.maxHeight)),
+                            ),
+                            fit: BoxFit.fill,
+                          ),
+                          GameWidget(game: g, autofocus: true),
+                        ],
+                      ),
                     ),
                   ),
                   ...overlays,

@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app/ads/ads_service.dart';
 import 'app/app.dart';
 import 'features/settings/settings_controller.dart';
+import 'features/game/audio/sound_service.dart';
 import 'features/game/flame/pieces_painter.dart';
 
 Future<void> main() async {
@@ -25,6 +26,8 @@ Future<void> main() async {
     // Firebase chưa được cấu hình.
   }
   unawaited(AdsService.init());
+  // Tổng hợp âm thanh ở isolate nền ngay từ đầu (vào ván không bị khựng).
+  unawaited(SoundService.prepare());
   final prefs = await SharedPreferences.getInstance();
   runApp(
     ProviderScope(

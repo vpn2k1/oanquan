@@ -1,0 +1,15 @@
+appId: vp.nam.oanquan
+---
+- stopApp
+- launchApp
+- setOrientation: LANDSCAPE_LEFT
+- assertVisible: "Chơi ngay"
+- takeScreenshot: 01-home
+- tapOn: "Chơi ngay"
+- assertVisible: "Số người chơi"
+- takeScreenshot: 02-setup-ai
+- tapOn: "(?s).*3 người.*"
+- takeScreenshot: 03-three-players
+- tapOn: "Bắt đầu"
+- assertVisible: "Gợi ý"
+- takeScreenshot: 04-game

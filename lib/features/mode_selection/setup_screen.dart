@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/folk_art.dart';
 import '../../app/layout/adaptive_panels.dart';
 import '../../app/layout/screen_layout.dart';
 import '../../app/widgets.dart';
 import '../../core/game_models/game_config.dart';
 import '../../core/game_models/player.dart';
+import '../game/board_prewarm.dart';
 import '../game/game_session.dart';
 import '../settings/settings_controller.dart';
 import '../../l10n/strings.dart';
@@ -44,16 +44,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     super.didChangeDependencies();
     if (!_warmed) {
       _warmed = true;
-      final size = MediaQuery.sizeOf(context);
-      final dpr = MediaQuery.devicePixelRatioOf(context);
-      final style = FolkStyle.resolve(
-        ref.read(settingsProvider).boardStyle,
-        _seed,
-      );
-      // Chờ frame đầu của màn này vẽ xong rồi mới vẽ sân (không giật lúc chuyển màn).
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => GroundCache.warmUp(size, dpr, style.ground, _seed),
-      );
+      // Chờ frame đầu của màn này vẽ xong rồi mới vẽ sẵn bàn (không giật lúc
+      // chuyển màn); vào ván là có bàn ngay.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _prewarm());
     }
     if (_names.isEmpty) {
       _names.addAll([
@@ -62,6 +55,14 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       ]);
     }
   }
+
+  /// Vẽ sẵn bàn cho lựa chọn hiện tại (gọi lại khi đổi số người).
+  void _prewarm() {
+    if (!mounted) return;
+    prewarmBoard(context, _config, ref.read(settingsProvider));
+  }
+
+  GameConfig get _config => GameConfig(playerCount: _players, seed: _seed);
 
   @override
   void dispose() {
@@ -91,9 +92,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   void _start() {
     final players = [for (var i = 0; i < _players; i++) _playerAt(i)];
-    ref
-        .read(gameSessionProvider.notifier)
-        .start(GameConfig(playerCount: _players, seed: _seed), players);
+    ref.read(gameSessionProvider.notifier).start(_config, players);
     context.pushReplacement(Routes.game);
   }
 
@@ -118,7 +117,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 child: ChoiceCard(
                   key: Key('players$n'),
                   selected: _players == n,
-                  onTap: () => setState(() => _players = n),
+                  onTap: () {
+                    setState(() => _players = n);
+                    _prewarm();
+                  },
                   child: Column(
                     children: [
                       BoardShapeIcon(players: n),
