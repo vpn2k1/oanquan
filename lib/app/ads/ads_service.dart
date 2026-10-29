@@ -16,8 +16,11 @@ abstract final class AdsService {
     return 'ca-app-pub-3940256099942544/1033173712';
   }
 
+  /// Tạm tắt quảng cáo; bật lại (`true`) khi đã có AdMob ID thật.
+  static bool enabled = false;
+
   static bool get supported =>
-      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+      enabled && !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   static Future<void> init() async {
     if (!supported) return;
